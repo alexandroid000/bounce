@@ -3,7 +3,9 @@
 This simulation is built using the
 [diagrams](http://projects.haskell.org/diagrams/) library for Haskell. Diagrams
 provides a framework for both modelling affine vector spaces and immediately
-producing figures from those models.
+producing figures from those models, which is handy.
+
+All the fun stuff is in [src/BounceSim.hs](`src/BounceSim.hs`).
 
 This library is packaged with
 [stack](http://docs.haskellstack.org/en/stable/GUIDE/), so you should be able to
@@ -40,8 +42,8 @@ Upcoming features:
 
 -   choose maps, angle type on command line
 -   animated output
--   simulate a system where the state is only the set of edges the robot could
-    be on
--   Implementing [this paper's algorithm](http://msl.cs.uiuc.edu/~lericks4/papers/icra13bounce.pdf) and finding critical angles as discussed in the conclusion
+-   add the ability to only keep track of the set of edges the robot could be on
+    (edge to edge "visibility" graph)
+-   Implementing a functional version of [this paper's algorithm](http://msl.cs.uiuc.edu/~lericks4/papers/icra13bounce.pdf) and finding critical angles as discussed in the conclusion
 
 Suggestions welcome!

@@ -17,12 +17,17 @@ import Diagrams.Backend.SVG.CmdLine
 import Data.List (minimumBy)
 import Maps
 
+-- Trails are a fundamental data type in Diagrams. They're collections of
+-- segments, stored in finger trees
+-- TODO: exploit finger tree structure when generating visibility graphs
 type Poly n = Located (Trail V2 n)
 
+-- state could be either an index for the edge we're on, or a parameter "s" on
+-- the perimeter of the polygon
 data BounceState = EdgeIndx Int | S Double
     deriving (Eq, Show)
 
--- make poly generator and output in most efficient format
+-- take format in Maps.hs -> Poly datatype
 pts2path :: [(Double,Double)] -> Poly Double
 pts2path p = fromVertices (map p2 $ p ++ [head p]) `at` p2 (0,0)
 
@@ -44,6 +49,8 @@ linePoly eps poly bounce =
 closest_int :: (Ord n) => [(n, n, P2 n)] -> (n, n, P2 n)
 closest_int = minimumBy (\(s1,_,_) (s2,_,_) -> compare s1 s2)
 
+-- tolerance in case statement below: too low and the program takes forever, too
+-- high and we miss some collisions
 collision :: Poly Double -> Located (V2 Double) -> BounceState
 collision poly bounce =
     let   (s_bounce, s_poly, pt) = case (linePoly 1e-6 poly bounce) of
@@ -59,13 +66,14 @@ nextBounce :: Poly Double -> Angle Double -> BounceState -> BounceState
 nextBounce poly ang (S s)
     = let start_point = P $ (unLoc poly) `atParam` s
           GetSegmentCodomain bounce = (getSegment $ unLoc poly) `atParam` s
-          (offset, incSeg, s_iso) = maybe (error "bounce undefined") id bounce
-          mkCollide b = collision poly b
-      in  mkCollide $ mkBounce start_point ang incSeg
+          (_, wallSeg, _) = maybe (error "no segment at parameter") id bounce
+      in  collision poly $ mkBounce start_point ang wallSeg
 
+-- chain together many bounces, given list of angles to bounce at
 doBounces :: Poly Double -> BounceState -> [Angle Double] -> [BounceState]
 doBounces poly = scanl (flip $ nextBounce poly)
 
+-- convert to diagram
 plotBounce :: Poly Double -> [Double] -> Double -> Int -> Diagram B
 plotBounce p angs s num =
     let start = S s
