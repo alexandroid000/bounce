@@ -16,7 +16,7 @@ normal in a star:
 ![star](https://cdn.rawgit.com/alexandroid000/bounce/master/det_star.svg)
 
 or bounce randomly in a large polygon:
-![large](https://rawgithub.com/alexandroid000/bounce/rand_bigpoly.svg)
+![large](https://cdn.rawgit.com/alexandroid000/bounce/master/rand_bigpoly.svg)
 
 Scales linearly wrt number of sides of the polygon and number of bounces.
 
