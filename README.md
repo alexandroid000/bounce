@@ -13,10 +13,10 @@ installed.
 I've implemented a program which computes point-to-point bounce paths with
 either random or deterministic angles. For instance, we can bounce at the wall
 normal in a star:
-![star](https://raw.githubusercontent.com/alexandroid000/bounce/det_star.svg)
+![star](https://rawgithub.com/alexandroid000/bounce/det_star.svg)
 
 or bounce randomly in a large polygon:
-![large](https://raw.githubusercontent.com/alexandroid000/bounce/rand_bigpoly.svg)
+![large](https://rawgithub.com/alexandroid000/bounce/rand_bigpoly.svg)
 
 Scales linearly wrt number of sides of the polygon and number of bounces.
 
