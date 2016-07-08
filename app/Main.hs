@@ -13,6 +13,7 @@ randAngs = do
 main =  do
 --        angs <- randAngs
         let angs = repeat $ pi/3
-        mainWith $ plotBounce (pts2path Maps.bigpoly) angs
+        let map = Maps.bigpoly
+        mainWith $ plotBounce (pts2path map) angs
 
 
