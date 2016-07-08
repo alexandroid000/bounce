@@ -5,7 +5,7 @@ This simulation is built using the
 provides a framework for both modelling affine vector spaces and immediately
 producing figures from those models, which is handy.
 
-All the fun stuff is in [src/BounceSim.hs](`src/BounceSim.hs`).
+All the fun stuff is in [`src/BounceSim.hs`](src/BounceSim.hs).
 
 This library is packaged with
 [stack](http://docs.haskellstack.org/en/stable/GUIDE/), so you should be able to
