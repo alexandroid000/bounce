@@ -11,8 +11,12 @@ clone the library and run `stack build` successfully if you have stack
 installed.
 
 I've implemented a program which computes point-to-point bounce paths with
-either random or deterministic angles. See `det_star.svg` and `rand_bigpoly.svg`
-for example outputs.
+either random or deterministic angles. For instance, we can bounce at the wall
+normal in a star: ![star](det_star.svg)
+
+or bounce randomly in a large polygon: ![large](rand_bigpoly.svg)
+
+Scales linearly wrt number of sides of the polygon and number of bounces.
 
 To use, edit `app/Main.hs` and replace the `angs` and `map` variables with the
 list of bounce angles and map you want. See `src/Maps.hs` for examples of
