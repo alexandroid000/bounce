@@ -3,7 +3,7 @@ version:             0.1.0.0
 synopsis:            bouncing robots simulator
 description:         Please see README.md
 homepage:            https://github.com/alexandroid000/robot_models#readme
-license:             BSD3
+license:             custom
 license-file:        LICENSE
 author:              Alli Nilles
 maintainer:          nilles2@illinois.edu
