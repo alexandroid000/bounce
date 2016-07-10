@@ -24,16 +24,26 @@ or bounce randomly in a large polygon:
 
 Scales linearly wrt number of sides of the polygon and number of bounces.
 
-To use, edit `app/Main.hs` and replace the `angs` and `map` variables with the
-list of bounce angles and map you want. See `src/Maps.hs` for examples of
-maps.
+# Installation
 
-Then, run:
+-   Install stack, [guide here](http://docs.haskellstack.org/en/stable/install_and_upgrade/)
+-   Clone repo
+-   `cd` into `bounce` and run `stack init`
+-   Run `stack build` and wait while it builds all the dependencies.
+
+# Usage
+
+Edit `app/Main.hs` and replace the `angs` and `map` variables with the list of
+bounce angles and map you want. See `src/Maps.hs` for examples of maps. This
+file is imported into Main so you can use any of those maps or add your own.
+
+To generate a diagram of your simulation, run:
 
 `stack exec bounce-exe -- START NUMBOUNCE -o FILENAME.svg -w PIXWIDTH`
 
 -   `START`: the parameter value on the polygon of where you want to start
-    bouncing. Between 0 and 1, need leading zero for floats.
+    bouncing. Between 0 and 1, be sure to include the leading zero for
+    parameters like 0.5.
 -   `NUMBOUNCE`: integer number of bounces to perform
 -   `FILENAME`: output filename
 -   `PIXWIDTH`: width of output image in pixels
