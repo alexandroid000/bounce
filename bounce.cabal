@@ -2,8 +2,8 @@ name:                bounce
 version:             0.1.0.0
 synopsis:            bouncing robots simulator
 description:         Please see README.md
-homepage:            https://github.com/alexandroid000/robot_models#readme
-license:             custom
+homepage:            https://github.com/alexandroid000/bounce#README
+license:             OtherLicense
 license-file:        LICENSE
 author:              Alli Nilles
 maintainer:          nilles2@illinois.edu
@@ -28,7 +28,7 @@ library
 --                     , lens
 --                     , colour
   default-language:    Haskell2010
-  extensions:          NoMonomorphismRestriction
+  other-extensions:    NoMonomorphismRestriction
                      , FlexibleContexts
 
 executable bounce-exe
@@ -40,7 +40,7 @@ executable bounce-exe
                      , random
                      , diagrams-svg >= 1.3
   default-language:    Haskell2010
-  extensions:          NoMonomorphismRestriction
+  other-extensions:    NoMonomorphismRestriction
                      , FlexibleContexts
 
 source-repository head

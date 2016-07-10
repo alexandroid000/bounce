@@ -8,7 +8,6 @@ module BounceSim
     , plotBounce
     , pts2path
     , nextBounce
-      
     ) where
 
 import Diagrams.Prelude
@@ -54,19 +53,18 @@ closest_int = minimumBy (\(s1,_,_) (s2,_,_) -> compare s1 s2)
 collision :: Poly Double -> Located (V2 Double) -> BounceState
 collision poly bounce =
     let   (s_bounce, s_poly, pt) = case (linePoly 1e-6 poly bounce) of
-                                        [] -> error "no intersections?"
+                                        [] -> error "no intersections? try lower eps"
                                         ints -> closest_int ints
     in    S s_poly
 
 -- bounce is rotated wrt wall we're colliding with
-mkBounce :: Point V2 Double -> Angle Double -> Segment Closed V2 Double -> Located (V2 Double)
-mkBounce pt ang seg = ((segOffset seg) `at` pt) # rotateAround pt ang
+mkBounce :: Point V2 Double -> Angle Double -> V2 Double -> Located (V2 Double)
+mkBounce pt ang seg = (seg `at` pt) # rotateAround pt ang
 
 nextBounce :: Poly Double -> Angle Double -> BounceState -> BounceState
 nextBounce poly ang (S s)
     = let start_point = P $ (unLoc poly) `atParam` s
-          GetSegmentCodomain bounce = (getSegment $ unLoc poly) `atParam` s
-          (_, wallSeg, _) = maybe (error "no segment at parameter") id bounce
+          wallSeg = tangentAtParam (unLoc poly) s
       in  collision poly $ mkBounce start_point ang wallSeg
 
 -- chain together many bounces, given list of angles to bounce at
