@@ -8,11 +8,13 @@ module BounceSim
     , plotBounce
     , pts2path
     , nextBounce
+    , animate
     ) where
 
 import Diagrams.Prelude
 import Diagrams.TwoD.Segment (lineSegment)
-import Diagrams.Backend.SVG.CmdLine
+--import Diagrams.Backend.SVG.CmdLine
+import Diagrams.Backend.Cairo.CmdLine
 import Data.List (minimumBy)
 import Maps
 
@@ -20,6 +22,8 @@ import Maps
 -- segments, stored in finger trees
 -- TODO: exploit finger tree structure when generating visibility graphs
 type Poly n = Located (Trail V2 n)
+
+type GifDelay = Int
 
 -- state could be either an index for the edge we're on, or a parameter "s" on
 -- the perimeter of the polygon
@@ -71,12 +75,29 @@ nextBounce poly ang (S s)
 doBounces :: Poly Double -> BounceState -> [Angle Double] -> [BounceState]
 doBounces poly = scanl (flip $ nextBounce poly)
 
--- convert to diagram
-plotBounce :: Poly Double -> [Double] -> Double -> Int -> Diagram B
-plotBounce p angs s num =
+mkBounceArrows :: Poly Double -> [Double] -> Double -> Int -> [Diagram B]
+mkBounceArrows p angs s num =
     let start = S s
         bounces = doBounces p start $ map (@@ rad) angs
         mkArrows (S s1, S s2) = arrowBetween (p `atParam` s1) (p `atParam` s2)
                                     # lc red
-        bounceTrail = take num $ map mkArrows $ zip bounces (tail bounces)
-    in  (mconcat bounceTrail) `atop` (strokeLocTrail p)
+    in  take num $ map mkArrows $ zip bounces (tail bounces)
+
+
+-- make static diagram of all bounces
+plotBounce :: Poly Double -> [Double] -> Double -> Int -> Diagram B
+plotBounce p angs s num =
+    let bounces = mkBounceArrows p angs s num
+    in  (mconcat bounces) `atop` (strokeLocTrail p)
+
+mkFrames :: Poly Double -> [Diagram B] -> [(QDiagram Cairo V2 Double Any, GifDelay)]
+mkFrames _ [] = []
+mkFrames p arrows = 
+    let awtime = map (\a -> (a, 1)) arrows
+    in  scanl (\(a,_) (b,_) -> (mconcat [a, b], 100)) (strokeLocTrail p # lc white, 100) awtime
+
+-- GIFS?!?!?!
+animate :: Poly Double -> [Double] -> Double -> Int -> [(QDiagram Cairo V2 Double Any, GifDelay)]
+animate p angs s num =
+    let bounces = mkBounceArrows p angs s num
+    in  mkFrames p bounces
