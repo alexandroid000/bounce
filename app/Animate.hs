@@ -2,7 +2,13 @@ module AnimateBounce where
 
 import BounceSim
 import Maps
+import System.Random
 import Diagrams.Backend.Cairo.CmdLine
+
+randAngs :: IO [Double]
+randAngs = do
+    g <- getStdGen
+    return (randomRs (0.001,pi-0.001) g :: [Double])
 
 main =  do
 --        angs <- randAngs
