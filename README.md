@@ -37,6 +37,9 @@ Edit `app/Main.hs` and replace the `angs` and `map` variables with the list of
 bounce angles and map you want. See `src/Maps.hs` for examples of maps. This
 file is imported into Main so you can use any of those maps or add your own.
 
+If you edit `Main.hs` you'll need to run `stack build` again in the top level
+directory to recompile.
+
 To generate a diagram of your simulation, run:
 
 `stack exec bounce-exe -- START NUMBOUNCE -o FILENAME.svg -w PIXWIDTH`
