@@ -41,27 +41,24 @@ mkReturnMap f x0 =
 
 -- generates infinite list
 -- see https://en.wikipedia.org/wiki/Cobweb_plot
-mkCobweb :: Poly Double -> Angle Double -> Double -> [(Double,Double)]
-mkCobweb poly ang s0 =
-    let bmap = bounce_map poly ang
-        fx0 = bmap s0
-        ffx0 = bmap fx0
-    in  (s0, fx0):(fx0,fx0):(fx0,ffx0):(ffx0,ffx0):(mkCobweb poly ang ffx0)
+mkCobweb :: (Double -> Double) -> Double -> [(Double,Double)]
+mkCobweb f x0 =
+    let fx0 = f x0
+    in  (x0, fx0):(fx0,fx0):(mkCobweb f fx0)
 
 -- given a polygon and list of bounce angles to try (ie: [pi/4, pi/2, 3*pi/4])
 -- writes resulting recurrence plot in svg to file
-mkChart :: Poly Double -> [Double] -> Int -> String -> String -> IO ()
-mkChart poly queryAngs num chartType fname =
+mkChart :: Poly Double -> [Double] -> Double -> Int -> String -> String -> IO ()
+mkChart poly queryAngs start num chartType fname =
     let angles = map (@@ rad) queryAngs
-        start = 0.3
         bFn a = bounce_map poly a
         chartF = case chartType of
                     "scan"      ->  (\_ a -> plot $ points (show a) $
                                     mkScan poly a)
-                    "recurr"    ->  (\_ a -> plot $ line (show a) $
+                    "return"    ->  (\_ a -> plot $ line (show a) $
                                     [take num $ mkReturnMap (bFn a) start])
                     "cobweb"    ->  (\_ a -> plot $ line (show a) $
-                                    [take num $ mkCobweb poly a start])
+                                    [take num $ mkCobweb (bFn a) start])
                     _           ->  error "chart type not defined"
     in  toFile def fname $ do
         foldM chartF () angles
