@@ -28,6 +28,7 @@ library
                      , Chart-diagrams >= 1.6
                      , lens
                      , colour
+                     , random
   default-language:    Haskell2010
   other-extensions:    NoMonomorphismRestriction
                      , FlexibleContexts
@@ -38,7 +39,6 @@ executable bounce-exe
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   build-depends:       base
                      , bounce
-                     , random
                      , diagrams-svg >= 1.3
   default-language:    Haskell2010
   other-extensions:    NoMonomorphismRestriction
@@ -50,7 +50,8 @@ executable mkGif
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N -main-is AnimateBounce
   build-depends:       base
                      , bounce
-                     , random
+                     , diagrams-core >= 1.1
+                     , diagrams-lib >= 1.3
                      , diagrams-cairo >= 1.3
   default-language:    Haskell2010
 

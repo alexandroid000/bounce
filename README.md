@@ -33,6 +33,8 @@ Scales linearly wrt number of sides of the polygon and number of bounces.
 
 # Usage
 
+### Static Bounce Simulations
+
 Edit `app/Main.hs` and replace the `angs` and `map` variables with the list of
 bounce angles and map you want. See `src/Maps.hs` for examples of maps. This
 file is imported into Main so you can use any of those maps or add your own.
@@ -49,12 +51,54 @@ To generate a diagram of your simulation, run:
     parameters like 0.5.
 -   `NUMBOUNCE`: integer number of bounces to perform
 -   `FILENAME`: output filename
--   `PIXWIDTH`: width of output image in pixels
+-   `PIXWIDTH`: width of output image in pixels (400 is usually good)
+
+### Animated Bounce Simulations
+
+-   Edit `app/Animate.hs` with the angle, map, start parameter, and number of
+    bounces that you want
+-   run `stack build` in the top level directory
+-   run `stack exec mkGif -- -o FILENAME.gif -w PIXWIDTH
+
+### Generating Dynamical Systems Analysis Plots
+
+Plotting x_n vs x_{n+1}
+-----------------------
+
+-   Run `stack ghci` in the `bounce` directory
+-   If you get a message about which main module to use, hit enter and ignore it
+-   The function `mkChart` is what generates the plots. It has many parameters,
+    all required. An example is below.
+
+```ghci
+λ> mkChart (pts2poly Maps.star) [pi/4,pi/2] 0.2 5000 "cobweb" "cobweb.svg"
+```
+-   *Map:* The first argument is the polygon map, created with the helper function
+`pts2poly` from any of the maps specified in `src/Maps.hs`.
+-   *Angles:* The second argument is a list of bounce angles to generate plots for (data
+    will be overlaid on one plot, in different colors w/ legends). If doing just
+    one angle, you still need to wrap in in the list syntax [].
+-   *Start Parameter:* The third argument is the parameter on the polygon to
+    start bouncing (used by "return" and "cobweb" plots, see below)
+-   *Number of bounces:* Fourth parameter is an integer number of bounces to do,
+    used by return and cobweb plots.
+-   *Plot type:* Currently the following plot types are supported:
+    -   "scan": Scatter plot of $x_n$ vs $x_{n+1}$ for 20 values of $x_n$
+        between 0 and 1
+    -   "return": Plots the [return
+        map](https://en.wikipedia.org/wiki/Poincaré_plot) starting at the
+        specified parameter. Connects successive bounce points with lines.
+    -   "cobweb": Makes a [cobweb
+        plot](https://en.wikipedia.org/wiki/Cobweb_plot) starting at the
+        specified parameter (TODO: animate as a function of bounce angle like in
+        that wiki article).
+-   *Filename*: desired filename. Will save relative to directory where `stack
+    ghci` is running.
+
 
 Upcoming features:
 
 -   choose maps, angle type on command line
--   animated output
 -   add the ability to only keep track of the set of edges the robot could be on
     (edge to edge "visibility" graph)
 -   Implementing a functional version of [this paper's algorithm](http://msl.cs.uiuc.edu/~lericks4/papers/icra13bounce.pdf) and finding critical angles as discussed in the conclusion

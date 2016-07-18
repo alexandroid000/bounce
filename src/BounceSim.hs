@@ -6,7 +6,7 @@ module BounceSim
       Poly(..)
     , BounceState(..)
     , plotBounce
-    , pts2path
+    , pts2poly
     , nextBounce
     , animate
     ) where
@@ -31,8 +31,8 @@ data BounceState = EdgeIndx Int | S Double
     deriving (Eq, Show)
 
 -- take format in Maps.hs -> Poly datatype
-pts2path :: [(Double,Double)] -> Poly Double
-pts2path p = fromVertices (map p2 $ p ++ [head p]) `at` p2 (0,0)
+pts2poly :: [(Double,Double)] -> Poly Double
+pts2poly p = fromVertices (map p2 $ p ++ [head p]) `at` p2 (0,0)
 
 -- all non-self intersections of a vector and polygon
 -- result is [(s1, s2, pt)] where
