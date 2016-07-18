@@ -1,20 +1,15 @@
 # bounce
 
-This simulation is built using the
+This is a simulator and analysis engine for [bouncing
+robots](http://msl.cs.uiuc.edu/~lericks4/papers/icra13bounce.pdf), a dynamical
+system similar to pinball billiards. This simulation is built using the
 [diagrams](http://projects.haskell.org/diagrams/) library for Haskell. Diagrams
 provides a framework for both modelling affine vector spaces and immediately
-producing figures from those models, which is handy.
+producing figures from those models, which is handy. This library is packaged
+with [stack](http://docs.haskellstack.org/en/stable/GUIDE/).
 
-All the fun stuff is in [`src/BounceSim.hs`](src/BounceSim.hs).
-
-This library is packaged with
-[stack](http://docs.haskellstack.org/en/stable/GUIDE/), so you should be able to
-clone the library and run `stack build` successfully if you have stack
-installed.
-
-I've implemented a program which computes point-to-point bounce paths with
-either random or deterministic angles. For instance, we can bounce at the wall
-normal in a star:
+Right now we can compute point-to-point bounce paths with either random or
+deterministic angles. For instance, we can bounce at the wall normal in a star:
 
 ![star](https://cdn.rawgit.com/alexandroid000/bounce/master/examples/det_star.svg)
 
@@ -22,7 +17,9 @@ or bounce randomly in a large polygon:
 
 ![large](https://cdn.rawgit.com/alexandroid000/bounce/master/examples/rand_bigpoly.svg)
 
-Scales linearly wrt number of sides of the polygon and number of bounces.
+There is also functionality for making animated gifs and for producing some of
+the usual plots for analysis of dynamical systems. See below for more
+documentation and examples.
 
 # Installation
 
@@ -58,12 +55,9 @@ To generate a diagram of your simulation, run:
 -   Edit `app/Animate.hs` with the angle, map, start parameter, and number of
     bounces that you want
 -   run `stack build` in the top level directory
--   run `stack exec mkGif -- -o FILENAME.gif -w PIXWIDTH
+-   run `stack exec mkGif -- -o FILENAME.gif -w PIXWIDTH`
 
 ### Generating Dynamical Systems Analysis Plots
-
-Plotting x_n vs x_{n+1}
------------------------
 
 -   Run `stack ghci` in the `bounce` directory
 -   If you get a message about which main module to use, hit enter and ignore it
@@ -94,6 +88,10 @@ Plotting x_n vs x_{n+1}
         that wiki article).
 -   *Filename*: desired filename. Will save relative to directory where `stack
     ghci` is running.
+
+Example cobweb plot, generated from the above example:
+
+![large](https://cdn.rawgit.com/alexandroid000/bounce/master/examples/cobweb.svg)
 
 
 Upcoming features:
