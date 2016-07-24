@@ -16,7 +16,7 @@ import Maps
 log_map :: Double -> Double -> Double
 log_map r xn = r*xn*(1-xn)
 
-bounce_map :: Poly Double -> Angle Double -> Double -> Double
+bounce_map :: Poly V2 Double -> Angle Double -> Double -> Double
 bounce_map poly ang xn =
     let (S xnext) = nextBounce poly ang (S xn)
     in  xnext
@@ -26,10 +26,10 @@ scanPerimeter f =
     let     xs = [0.01, 0.06..0.96]
     in      [ (x, f x) | x <- xs ]
 
-mkStar :: Poly Double
+mkStar :: Poly V2 Double
 mkStar = pts2poly Maps.star
 
-mkScan :: Poly Double -> Angle Double -> [(Double, Double)]
+mkScan :: Poly V2 Double -> Angle Double -> [(Double, Double)]
 mkScan poly ang = scanPerimeter (bounce_map poly ang)
 
 -- generates infinite list
@@ -48,7 +48,7 @@ mkCobweb f x0 =
 
 -- given a polygon and list of bounce angles to try (ie: [pi/4, pi/2, 3*pi/4])
 -- writes resulting recurrence plot in svg to file
-mkChart :: Poly Double -> [Double] -> Double -> Int -> String -> String -> IO ()
+mkChart :: Poly V2 Double -> [Double] -> Double -> Int -> String -> String -> IO ()
 mkChart poly queryAngs start num chartType fname =
     let angles = map (@@ rad) queryAngs
         bFn a = bounce_map poly a

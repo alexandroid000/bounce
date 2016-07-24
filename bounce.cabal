@@ -29,6 +29,7 @@ library
                      , lens
                      , colour
                      , random
+                     , fingertree
   default-language:    Haskell2010
   other-extensions:    NoMonomorphismRestriction
                      , FlexibleContexts
