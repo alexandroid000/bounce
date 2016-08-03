@@ -15,9 +15,9 @@ randAngs = do
 -- bounces
 main =  do
 --        angs <- randAngs
-        let angs = repeat $ pi/3
+        let angs = repeat $ pi/2
 -- choose map from Maps.hs
-        let map = Maps.bigpoly
-        mainWith $ plotBounce (pts2path map) angs
+        let map = Maps.equiltri
+        mainWith $ plotBounce (pts2poly map) angs
 
 
