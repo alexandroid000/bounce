@@ -10,7 +10,7 @@ import Graphics.Rendering.Chart.Easy
 import Graphics.Rendering.Chart.Backend.Diagrams
 import Diagrams.Prelude
 import Control.Monad
-import BounceSim (BounceState(..), Poly, pts2poly, nextBounce)
+import BounceSim (Poly, pts2poly, doBounce)
 import Maps
 
 log_map :: Double -> Double -> Double
@@ -18,7 +18,7 @@ log_map r xn = r*xn*(1-xn)
 
 bounce_map :: Poly V2 Double -> Angle Double -> Double -> Double
 bounce_map poly ang xn =
-    let (S xnext) = nextBounce poly ang (S xn)
+    let (xnext,_,_) = doBounce ang (xn, unitX, poly)
     in  xnext
 
 scanPerimeter :: (Double -> Double) -> [(Double, Double)]

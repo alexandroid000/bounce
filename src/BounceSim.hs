@@ -3,12 +3,13 @@
 
 module BounceSim
     (
-      Poly(..)
-    , BounceState(..)
+      Poly
+    , RoboLoc
+    , Robot
     , plotBounce
     , pts2poly
     , mkBounce
-    , nextBounce
+    , doBounce
     , lineSeg
     , linePoly
     , shootRay
@@ -31,8 +32,11 @@ type GifDelay = Int
 
 -- state could be either an index for the edge we're on, or a parameter "s" on
 -- the perimeter of the polygon
-data BounceState = EdgeIndx Int | S Double
-    deriving (Eq, Show)
+type RoboLoc = Double
+
+-- (location (param on dS polygon boundary), heading vector, environment)
+type Robot = (RoboLoc, V2 Double, Poly V2 Double)
+
 
 -- Helper Functions
 -- ----------------
@@ -50,9 +54,9 @@ reParam n k s =
 -- Geometry Functions
 -- ------------------
 
--- rotate a located vector around a point
-mkBounce :: Point V2 Double -> Angle Double -> V2 Double -> Located (V2 Double)
-mkBounce pt ang vec = (vec `at` pt) # rotateAround pt ang
+-- rotate a vector around a point
+mkBounce :: Point V2 Double -> Angle Double -> V2 Double -> V2 Double
+mkBounce pt ang vec = vec # rotateAround pt ang
 
 -- compare one line and one edge of a polygon
 -- returns closest correctly parameterized intersection point
@@ -61,7 +65,7 @@ lineSeg :: Double -> Int -> Int -> Located (V2 Double) -> FixedSegment V2 Double
 lineSeg eps n k bounce seg =
     let notSelf (s1, s2) = (abs s1) > eps
         intersect_param (s1,s2,p) = (abs s1, reParam n k s2)
-        find_intersect = minimum . filter notSelf . map intersect_param
+        find_intersect = filter notSelf . map intersect_param
     in  find_intersect (lineSegment eps bounce seg)
 
 -- all non-self intersections of a vector and polygon
@@ -76,31 +80,37 @@ linePoly eps poly bounce =
 
 -- just a wrapper for the case where you know you'll have intersections
 -- set tolerance lower to have fewer errors, higher for faster execution
-shootRay :: Poly V2 Double -> Located (V2 Double) -> BounceState
+shootRay :: Poly V2 Double -> Located (V2 Double) -> RoboLoc
 shootRay poly bounce =
     let   (s_bounce, s_poly) = case (linePoly 1e-6 poly bounce) of
                                     []   -> error "no intersections? try lower eps"
                                     ints -> minimum ints
-    in    S s_poly
+    in    s_poly
 
-nextBounce :: Poly V2 Double -> Angle Double -> BounceState -> BounceState
-nextBounce poly ang (S s) =
-    let start_point = P $ (unLoc poly) `atParam` s
-        tangentV = tangentAtParam (unLoc poly) s
-    in  shootRay poly $ mkBounce start_point ang tangentV
+doBounce :: Angle Double -> Robot -> Robot
+doBounce theta (s,b,p) =
+    let pt = p `atParam` s
+        tangentV = tangentAtParam p s
+        new_bounce = mkBounce pt theta tangentV
+        new_s = shootRay p $ new_bounce `at` pt
+    in  (new_s, new_bounce, p)
+
 
 -- chain together many bounces, given list of angles to bounce at
-doBounces :: Poly V2 Double -> BounceState -> [Angle Double] -> [BounceState]
-doBounces poly = scanl (flip $ nextBounce poly)
+doBounces :: Poly V2 Double -> RoboLoc -> [Angle Double] -> [RoboLoc]
+doBounces poly s1 angs =
+    let start = (s1, unitX, poly) -- I don't like this unitX placeholder
+        nextBounce robo a = doBounce a robo
+    in  map (\(s,_,_) -> s) $ scanl nextBounce start angs
 
 -- Diagram Generators
 -- ------------------
 
 mkBounceArrows :: Poly V2 Double -> [Double] -> Double -> Int -> [Diagram B]
 mkBounceArrows p angs s num =
-    let start = S s
+    let start = s
         bounces = doBounces p start $ map (@@ rad) angs
-        mkArrows (S s1, S s2) = arrowBetween (p `atParam` s1) (p `atParam` s2)
+        mkArrows (s1, s2) = arrowBetween (p `atParam` s1) (p `atParam` s2)
                                     # lc red
     in  take num $ map mkArrows $ zip bounces (tail bounces)
 
