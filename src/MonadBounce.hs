@@ -7,7 +7,7 @@ import              Control.Monad.State
 import              BounceSim
 import              Maps
 
-test = (0.2, unitY, pts2poly Maps.equiltri)
+test = (0.2, unitY, mkPoly Maps.equiltri)
 
 --nextBounce :: Poly V2 Double -> Angle Double -> RoboLoc -> RoboLoc
 --nextBounce poly ang (S s) =

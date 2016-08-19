@@ -8,6 +8,7 @@ module BounceSim
     , Robot
     , plotBounce
     , pts2poly
+    , mkPoly
     , mkBounce
     , doBounce
     , lineSeg
@@ -18,6 +19,7 @@ module BounceSim
 
 import              Diagrams.Prelude
 import              Diagrams.TwoD.Segment           (lineSegment)
+import              Diagrams.Trail                  (trailPoints)
 --import            Diagrams.Backend.SVG.CmdLine
 import              Diagrams.Backend.Cairo.CmdLine
 import              Data.List                       (minimumBy)
@@ -42,8 +44,11 @@ type Robot = (RoboLoc, V2 Double, Poly V2 Double)
 -- ----------------
 
 -- take format in Maps.hs -> Poly datatype
-pts2poly :: [(Double,Double)] -> Poly V2 Double
-pts2poly p = fromVertices (map p2 $ p ++ [head p]) `at` p2 (0,0)
+mkPoly :: [(Double,Double)] -> Poly V2 Double
+mkPoly ps = pts2poly $ map p2 ps
+
+pts2poly :: [Point V2 Double] -> Poly V2 Double
+pts2poly p = (closeTrail $ trailFromVertices p) `at` p2 (0,0)
 
 -- change from parameter on segment (0,1) to parameter on polygon
 reParam :: Int -> Int -> Double -> Double
@@ -59,12 +64,12 @@ mkBounce :: Point V2 Double -> Angle Double -> V2 Double -> V2 Double
 mkBounce pt ang vec = vec # rotateAround pt ang
 
 -- compare one line and one edge of a polygon
--- returns closest correctly parameterized intersection point
+-- returns list of correctly parameterized intersection points
 -- filter out intersections at origin of line (for bounces starting at edge)
 lineSeg :: Double -> Int -> Int -> Located (V2 Double) -> FixedSegment V2 Double -> [(Double, Double)]
 lineSeg eps n k bounce seg =
     let notSelf (s1, s2) = (abs s1) > eps
-        intersect_param (s1,s2,p) = (abs s1, reParam n k s2)
+        intersect_param (s1,s2,p) = (s1, reParam n k s2)
         find_intersect = filter notSelf . map intersect_param
     in  find_intersect (lineSegment eps bounce seg)
 
@@ -82,10 +87,13 @@ linePoly eps poly bounce =
 -- set tolerance lower to have fewer errors, higher for faster execution
 shootRay :: Poly V2 Double -> Located (V2 Double) -> RoboLoc
 shootRay poly bounce =
-    let   (s_bounce, s_poly) = case (linePoly 1e-6 poly bounce) of
+    let mkPos (s1, s2)
+            | s1 > 0    = True
+            | otherwise = False
+        (s_bounce, s_poly) = case (linePoly 1e-6 poly bounce) of
                                     []   -> error "no intersections? try lower eps"
-                                    ints -> minimum ints
-    in    s_poly
+                                    ints -> minimum $ filter mkPos ints
+    in  s_poly
 
 doBounce :: Angle Double -> Robot -> Robot
 doBounce theta (s,b,p) =
@@ -106,6 +114,9 @@ doBounces poly s1 angs =
 -- Diagram Generators
 -- ------------------
 
+visPoints :: [P2 Double] -> Diagram B
+visPoints pts = atPoints pts (repeat (circle 5 # lw none # fc blue))
+
 mkBounceArrows :: Poly V2 Double -> [Double] -> Double -> Int -> [Diagram B]
 mkBounceArrows p angs s num =
     let start = s
@@ -118,7 +129,8 @@ mkBounceArrows p angs s num =
 plotBounce :: Poly V2 Double -> [Double] -> Double -> Int -> Diagram B
 plotBounce p angs s num =
     let bounces = mkBounceArrows p angs s num
-    in  (mconcat bounces) `atop` (strokeLocTrail p)
+    in  (mconcat bounces) `atop`    (visPoints (trailPoints p) `atop`
+                                    strokeLocTrail p)
 
 -- GIFS?!?!?!
 mkFrames :: Poly V2 Double -> [Diagram B] -> [(QDiagram Cairo V2 Double Any, GifDelay)]

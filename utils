@@ -1,0 +1,5 @@
+one() {
+    s="$1"
+    stack exec bounce-exe -- "$s" 1 -o triangle.svg -w 400
+}
+

@@ -10,7 +10,7 @@ import Graphics.Rendering.Chart.Easy
 import Graphics.Rendering.Chart.Backend.Diagrams
 import Diagrams.Prelude
 import Control.Monad
-import BounceSim (Poly, pts2poly, doBounce)
+import BounceSim (Poly, mkPoly, doBounce)
 import Maps
 
 log_map :: Double -> Double -> Double
@@ -27,7 +27,7 @@ scanPerimeter f =
     in      [ (x, f x) | x <- xs ]
 
 mkStar :: Poly V2 Double
-mkStar = pts2poly Maps.star
+mkStar = mkPoly Maps.star
 
 mkScan :: Poly V2 Double -> Angle Double -> [(Double, Double)]
 mkScan poly ang = scanPerimeter (bounce_map poly ang)
