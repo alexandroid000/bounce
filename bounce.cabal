@@ -49,6 +49,19 @@ executable bounce-exe
   other-extensions:    NoMonomorphismRestriction
                      , DeriveGeneric
 
+executable edge2edge
+  hs-source-dirs:      app
+  main-is:             EdgeGraph.hs
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N -main-is EdgeGraph
+  build-depends:       base
+                     , bounce
+                     , diagrams-svg >= 1.3
+                     , diagrams-lib >= 1.3
+                     , diagrams-cairo >= 1.3
+  default-language:    Haskell2010
+  other-extensions:    NoMonomorphismRestriction
+                     , FlexibleContexts
+
 executable mkGif
   hs-source-dirs:      app
   main-is:             Animate.hs
