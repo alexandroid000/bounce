@@ -1,5 +1,7 @@
 {-# LANGUAGE FlexibleInstances           #-}
 
+-- utils for analyzing maps of form x_{n+1} = f(x_n)
+
 module AnalyzeMap
     (
       mkChart

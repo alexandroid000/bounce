@@ -1,5 +1,10 @@
 {-# LANGUAGE NoMonomorphismRestriction  #-}
 
+-- experiment with using the state monad to compose bounces
+-- currently not being used (due to focusing on other things)
+-- upside: makes specular bouncing a lot easier, and could implement contracting
+-- billiards very easily as well
+
 module MonadBounce where
 
 import              Diagrams.Prelude

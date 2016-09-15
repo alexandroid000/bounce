@@ -6,9 +6,9 @@ module Refine
     ) where
 
 import              Diagrams.Prelude
-import              Diagrams.TwoD.Path  (isInsideWinding)
-import              Diagrams.Trail      (trailPoints)
-import              Data.List           (sort)
+import              Diagrams.TwoD.Path              (isInsideWinding)
+import              Diagrams.Trail                  (trailPoints)
+import              Data.List                       (sort)
 import              BounceSim
 
 -- take abs to find closest point of intersection in either direction from vertex
@@ -41,16 +41,18 @@ bouncePreimages poly ang vertex =
         filter (\(_,ss) -> not (null ss)) $
         map bounce $ zip [0..] edgeVs
 
+-- nonconvexity check by interpolating halfway between bounce start and end,
+-- checking if that point is inside polygon. A little hacky but will always work
+-- since bouncePreimages finds closest intersect, so entire segment will be
+-- either inside or outside polygon
 v_intersects :: Poly V2 Double -> Angle Double -> Point V2 Double -> [Double]
 v_intersects poly ang vert =
     let n = fromIntegral $ length $ trailPoints poly
         ints = correctPreimages n $ bouncePreimages poly ang vert
--- nonconvexity check. A little hacky but will always work since bouncePreimages
--- finds closest intersect
         interp sint = lerp 0.5 (poly `atParam` sint) vert
-        real_ints = filter ((`isInsideWinding` (toPath poly)) . interp) ints
-    in  real_ints
+    in  filter ((`isInsideWinding` (toPath poly)) . interp) ints
 
+-- TODO MAKE THIS NOT TERRIBLE
 refine :: Poly V2 Double -> Angle Double -> Poly V2 Double
 refine poly ang =
     let verts = trailPoints poly
@@ -65,4 +67,3 @@ splitJoinAt :: Poly V2 Double -> Double -> Poly V2 Double
 splitJoinAt poly s =
     let (p1,p2) = (cutTrail $ unLoc poly) `splitAtParam` s
     in  (closeTrail (p1 <> p2)) `at` origin
-
