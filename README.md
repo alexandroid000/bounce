@@ -32,23 +32,26 @@ documentation and examples.
 
 ### Static Bounce Simulations
 
-Edit `app/Main.hs` and replace the `angs` and `map` variables with the list of
-bounce angles and map you want. See `src/Maps.hs` for examples of maps. This
-module is imported into Main so you can use any of those maps or add your own.
+Usage: bounce-exe (-t|--write-to FILENAME) (-n|--num NUM_BOUNCES)
+                  (-a|--angle ANGLE) (-s|--start START_PARAM) [-r|--random]
 
-If you edit `Main.hs` you'll need to run `stack build` again in the top level
-directory to recompile.
-
-To generate a diagram of your simulation, run:
-
-`stack exec bounce-exe -- START NUMBOUNCE -o FILENAME.svg -w PIXWIDTH`
-
+-   `FILENAME`: output filename, svg format
+-   `NUM_BOUNCES`: integer number of bounces to perform
+-   `ANGLE`: Floating point number, in radians, of angle to bounce at. Needs
+    leading 0 if the number is less than 1. Optional, default 0.2 rad
 -   `START`: the parameter value (in the interval [0,1]) on the polygon of where
     you want to start bouncing. Be sure to include the leading zero for
     parameters like 0.5.
--   `NUMBOUNCE`: integer number of bounces to perform
--   `FILENAME`: output filename
--   `PIXWIDTH`: width of output image in pixels (400 is usually good)
+-   `-r` flag is optional and will create a random bounce angle at every bounce
+
+**To change map:**
+
+Edit `app/Main.hs` and replace the `simMap` variable at the beginning of the
+file with the map you want. See `src/Maps.hs` for examples of maps. `Maps` is
+imported into Main so you can use any of those maps or add your own.
+
+If you edit `Main.hs` you'll need to run `stack build` again in the top level
+directory to recompile.
 
 ### Animated Bounce Simulations
 
@@ -96,9 +99,11 @@ Example cobweb plot, generated from the above example:
 
 Upcoming features:
 
--   choose maps, angle type on command line
+-   choose maps on command line
 -   add the ability to only keep track of the set of edges the robot could be on
     (edge to edge "visibility" graph)
--   Implementing a functional version of [this paper's algorithm](http://msl.cs.uiuc.edu/~lericks4/papers/icra13bounce.pdf) and finding critical angles as discussed in the conclusion
+-   Implementing a functional version of [this paper's
+    algorithm](http://msl.cs.uiuc.edu/~lericks4/papers/icra13bounce.pdf) and
+    finding critical angles as discussed in the conclusion
 
 Suggestions welcome!

@@ -20,8 +20,8 @@ module BounceSim
 import              Diagrams.Prelude
 import              Diagrams.TwoD.Segment           (lineSegment)
 import              Diagrams.Trail                  (trailPoints)
---import            Diagrams.Backend.SVG.CmdLine
-import              Diagrams.Backend.Cairo.CmdLine
+import            Diagrams.Backend.SVG.CmdLine
+--import              Diagrams.Backend.Cairo.CmdLine
 import              Data.List                       (minimumBy)
 import              Maps
 
@@ -133,13 +133,13 @@ plotBounce p angs s num =
                                     strokeLocTrail p)
 
 -- GIFS?!?!?!
-mkFrames :: Poly V2 Double -> [Diagram B] -> [(QDiagram Cairo V2 Double Any, GifDelay)]
+--mkFrames :: Poly V2 Double -> [Diagram B] -> [(QDiagram Cairo V2 Double Any, GifDelay)]
 mkFrames _ [] = []
 mkFrames p arrows = 
     let awtime = map (\a -> (a, 1)) arrows
     in  scanl (\(a,_) (b,_) -> (mconcat [a, b], 100)) (strokeLocTrail p # lc white, 100) awtime
 
-animate :: Poly V2 Double -> [Double] -> Double -> Int -> [(QDiagram Cairo V2 Double Any, GifDelay)]
+--animate :: Poly V2 Double -> [Double] -> Double -> Int -> [(QDiagram Cairo V2 Double Any, GifDelay)]
 animate p angs s num =
     let bounces = mkBounceArrows p angs s num
     in  mkFrames p bounces
