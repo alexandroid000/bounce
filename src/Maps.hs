@@ -1,6 +1,26 @@
 module Maps where
 
+import Data.HashMap
+
 default (Double)
+
+maps :: Map String [(Double,Double)]
+maps = fromList [   ("square", square),
+                    ("star",star),
+                    ("irrsquare",irrsquare),
+                    ("isoscelestri", isoscelestri),
+                    ("equiltri", equiltri),
+                    ("smallsquare", smallsquare),
+                    ("smalltriangle", smalltriangle),
+                    ("thintriangle", thintriangle),
+                    ("thintriangle2", thintriangle2),
+                    ("poly1", poly1),
+                    ("poly2", poly2),
+                    ("poly3", poly3),
+                    ("tworooms", tworooms),
+                    ("tworooms2", tworooms2),
+                    ("bigpoly", bigpoly)
+                ]
 
 square = [(250,250),(-250,250),(-250,-250),(250,-250)]
 star = [(150,150),(0,500),(-150,150),(-500,0),(-150,-150),(0,-500),(150,-150),(500,0)]
