@@ -32,8 +32,10 @@ documentation and examples.
 
 ### Static Bounce Simulations
 
-Usage: bounce-exe (-t|--write-to FILENAME) (-n|--num NUM_BOUNCES)
-                  (-a|--angle ANGLE) (-s|--start START_PARAM) [-r|--random]
+Usage: On command line in `bounce` directory, run:
+
+`stack exec -- bounce-exe (-t|--write-to FILENAME) (-n|--num NUM_BOUNCES)
+                  (-a|--angle ANGLE) (-s|--start START_PARAM) [-r|--random]`
 
 -   `FILENAME`: output filename, svg format
 -   `NUM_BOUNCES`: integer number of bounces to perform

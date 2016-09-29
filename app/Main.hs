@@ -10,32 +10,16 @@ import              Diagrams.TwoD.Size               (mkSizeSpec2D)
 -- local libraries
 import              BounceSim
 import              Refine                           (refine)
-import              Maps
+import              Maps                             (maps)
 
 -- CLI
 import              Options.Applicative
+import              Data.HashMap
 
--- yaml
-import              Control.Applicative
-import              Data.Yaml
-import qualified    Data.ByteString.Char8 as BS
-
--- edit this to run simulation with different map
-simMap = Maps.equiltri
-
--- yaml parsing, still not working
-data Map = Map { map :: Double}
-    deriving (Show, Read)
-
-instance FromJSON Map where
-    parseJSON (Object v) =  Map <$>
-                            v .: "map"
-    parseJSON _ = error "Can't parse map"
-
--- parse command line arguments
 
 data Simulation = Simulation
     { fname :: String
+    , env   :: String
     , num   :: Int
     , ang   :: Double
     , s     :: Double
@@ -49,6 +33,12 @@ sim = Simulation
                         long "write-to" <>
                         metavar "FILENAME" <>
                         help "file name / path"
+                    )
+        <*> strOption
+                    (   short 'e' <>
+                        long "environment" <>
+                        metavar "ENV_NAME" <>
+                        help "name of environment in Maps.hs"
                     )
         <*> option auto
                     (   short 'n' <>
@@ -81,15 +71,12 @@ randAngs = do
     return (randomRs (0.001,pi-0.001) g :: [Double])
 
 runSim :: Simulation -> IO ()
-runSim (Simulation fname num ang s rand) = do
---        ymlData <- BS.readFile "Maps.yaml"
---        let map = Data.Yaml.decode ymlData :: Maybe Map
---        print $ maybe (error "parsefail") (show) map
+runSim (Simulation fname env num ang s rand) = do
         rangs <- randAngs
         let angs = case rand of
                         True    -> rangs
                         _       -> repeat $ ang
-        let map = mkPoly simMap
+        let map = mkPoly $ maps ! env
         let pxsize = (mkSizeSpec2D (Just 400) Nothing)
         renderSVG fname pxsize $ plotBounce map angs s num
 
