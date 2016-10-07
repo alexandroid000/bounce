@@ -13,8 +13,12 @@ determined by the outgoing angle with respect to the wall normal, $\theta :
 Bounces Between Parallel Lines enter 2-cycles immediately
 ---------------------------------------------------------
 
+See Erickson, LaValle et al
+
 Bounces between "Codependent Segments" go monotonically outward from vertex
 ---------------------------------------------------------------------------
+
+See Erickson, LaValle et al
 
 Bounces in equilateral triangle converge to triangle for certain angles
 -----------------------------------------------------------------------
@@ -40,15 +44,10 @@ $$ \frac{f(x,\theta)}{sin(\pi/2 - \theta)} = \frac{a-x}{sin(\pi - \pi/3 - (\pi/2
 
 $$ f(x, \theta) = \frac{(a-x) cos(\theta)}{sin(\pi/6 + \theta)} $$
 
-Let $c(\theta) = \frac{cos(\theta)}{sin(\pi/6 + \theta)}$. Since $\theta$ is
-restricted to the range $-\pi/2 < \theta < \pi/2$, the values of $c(\theta)$
-are as shown in figure 1.
+Let $c(\theta) = \frac{cos(\theta)}{sin(\pi/6 + \theta)}$. Fix $\theta$ and let
+the infinite iteration of $f(f(...(x))) = F$. Then:
 
-![ctheta.pdf](ctheta.pdf){width=40%}
+$F = a \sum_{i=1}^{\infty} (-1)^{i+1} c^i$
 
-This can be generalized to arbitrary regular polygons as:
-
-$$ \frac{f(x,\theta)}{sin(\pi/2 - \theta)} = \frac{a-x}{sin(\pi - (n-2)\pi/n -
-(\pi/2 - \theta))} $$
-
-$$ f(x, \theta) = \frac{(a-x) cos(\theta)}{sin(\pi/2 - \pi/n + \theta)} $$
+which converges when $| c | < 1$. This means that $f(x,\theta)$ has a fixed
+point when $c(\theta)$ is between -1 and 1.

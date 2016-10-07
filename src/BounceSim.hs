@@ -20,7 +20,7 @@ module BounceSim
 import              Diagrams.Prelude
 import              Diagrams.TwoD.Segment           (lineSegment)
 import              Diagrams.Trail                  (trailPoints)
-import            Diagrams.Backend.SVG.CmdLine
+import              Diagrams.Backend.SVG.CmdLine
 --import              Diagrams.Backend.Cairo.CmdLine
 import              Data.List                       (minimumBy)
 import              Maps
@@ -114,6 +114,7 @@ doBounces poly s1 angs =
 -- Diagram Generators
 -- ------------------
 
+
 visPoints :: [P2 Double] -> Diagram B
 visPoints pts = atPoints pts (repeat (circle 5 # lw none # fc blue))
 
@@ -121,16 +122,18 @@ mkBounceArrows :: Poly V2 Double -> [Double] -> Double -> Int -> [Diagram B]
 mkBounceArrows p angs s num =
     let start = s
         bounces = doBounces p start $ map (@@ rad) angs
+        transparentList = 1 : (map (*0.95) transparentList)
+        getMask len = reverse $ take len transparentList
+        mkOpaque arrows = zipWith opacity (getMask (length arrows)) arrows
         mkArrows (s1, s2) = arrowBetween (p `atParam` s1) (p `atParam` s2)
                                     # lc red
-    in  take num $ map mkArrows $ zip bounces (tail bounces)
+    in  mkOpaque $ take num $ map mkArrows $ zip bounces (tail bounces)
 
 -- make static diagram of all bounces
 plotBounce :: Poly V2 Double -> [Double] -> Double -> Int -> Diagram B
 plotBounce p angs s num =
     let bounces = mkBounceArrows p angs s num
-    in  (mconcat bounces) `atop`    (visPoints (trailPoints p) `atop`
-                                    strokeLocTrail p)
+    in  (mconcat bounces) `atop` (strokeLocTrail p)
 
 -- GIFS?!?!?!
 --mkFrames :: Poly V2 Double -> [Diagram B] -> [(QDiagram Cairo V2 Double Any, GifDelay)]
