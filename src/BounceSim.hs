@@ -20,7 +20,7 @@ module BounceSim
 import              Diagrams.Prelude
 import              Diagrams.TwoD.Segment           (lineSegment)
 import              Diagrams.Trail                  (trailPoints)
-import            Diagrams.Backend.SVG.CmdLine
+import              Diagrams.Backend.SVG.CmdLine
 --import              Diagrams.Backend.Cairo.CmdLine
 import              Data.List                       (minimumBy)
 import              Maps
@@ -114,6 +114,7 @@ doBounces poly s1 angs =
 -- Diagram Generators
 -- ------------------
 
+
 visPoints :: [P2 Double] -> Diagram B
 visPoints pts = atPoints pts (repeat (circle 5 # lw none # fc blue))
 
@@ -132,8 +133,7 @@ mkBounceArrows p angs s num =
 plotBounce :: Poly V2 Double -> [Double] -> Double -> Int -> Diagram B
 plotBounce p angs s num =
     let bounces = mkBounceArrows p angs s num
-    in  (mconcat bounces) `atop`    (visPoints (trailPoints p) `atop`
-                                    strokeLocTrail p)
+    in  (mconcat bounces) `atop` (strokeLocTrail p)
 
 -- GIFS?!?!?!
 --mkFrames :: Poly V2 Double -> [Diagram B] -> [(QDiagram Cairo V2 Double Any, GifDelay)]

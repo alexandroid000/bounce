@@ -1,5 +1,4 @@
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE OverloadedStrings #-}
 
 module Main where
 
@@ -18,21 +17,21 @@ import              Data.HashMap
 
 
 data Simulation = Simulation
-    { fname :: String
-    , env   :: String
-    , num   :: Int
-    , ang   :: Double
-    , s     :: Double
-    , rand  :: Bool
+    { fname :: String   -- filename
+    , env   :: String   -- environment (polygon)
+    , num   :: Int      -- number of bounces
+    , ang   :: Double   -- angle to bounce at (-pi/2, pi/2)
+    , s     :: Double   -- perimeter parameter to start at
+    , rand  :: Bool     -- true/false random bounces (overrides angle)
     }
 
 sim :: Options.Applicative.Parser Simulation
 sim = Simulation
         <$> strOption
-                    (   short 't' <>
-                        long "write-to" <>
+                    (   short 'o' <>
+                        long "output" <>
                         metavar "FILENAME" <>
-                        help "file name / path"
+                        help "file name / path (svg most likely)"
                     )
         <*> strOption
                     (   short 'e' <>
@@ -44,6 +43,7 @@ sim = Simulation
                     (   short 'n' <>
                         long "num" <>
                         metavar "NUM_BOUNCES" <>
+                        value 10 <>
                         help "number of bounces"
                     )
         <*> option auto
@@ -57,6 +57,7 @@ sim = Simulation
                     (   short 's' <>
                         long "start" <>
                         metavar "START_PARAM" <>
+                        value 0.23 <>
                         help "parameter in interval (0,1)"
                     )
         <*> switch -- default false
@@ -77,7 +78,7 @@ runSim (Simulation fname env num ang s rand) = do
                         True    -> rangs
                         _       -> repeat $ ang
         let map = mkPoly $ maps ! env
-        let pxsize = (mkSizeSpec2D (Just 400) Nothing)
+        let pxsize = (mkSizeSpec2D (Just 500) Nothing)
         renderSVG fname pxsize $ plotBounce map angs s num
 
 -- main looks weird because it has boilerplate to make cmd line parser

@@ -8,10 +8,8 @@ maps :: Map String [(Double,Double)]
 maps = fromList [   ("square", square),
                     ("star",star),
                     ("irrsquare",irrsquare),
-                    ("isoscelestri", isoscelestri),
-                    ("equiltri", equiltri),
-                    ("smallsquare", smallsquare),
-                    ("smalltriangle", smalltriangle),
+                    ("isos", isoscelestri),
+                    ("equil", equiltri),
                     ("thintriangle", thintriangle),
                     ("thintriangle2", thintriangle2),
                     ("poly1", poly1),
@@ -24,11 +22,9 @@ maps = fromList [   ("square", square),
 
 square = [(250,250),(-250,250),(-250,-250),(250,-250)]
 star = [(150,150),(0,500),(-150,150),(-500,0),(-150,-150),(0,-500),(150,-150),(500,0)]
-irrsquare = [(51.5,50),(-50,51.5),(-51.5,-50),(50,-50)]
-isoscelestri = [(250,-250),(0,250),(-250,-250)]
+irrsquare = [(-400,0),(0,-100),(400,0),(10,100)]
+isoscelestri = [(700,-250),(0,250),(-700,-250)]
 equiltri = [(-250,0),(250,0),(0,433)]
-smallsquare = [(1,1),(-1,1),(-1,-1),(1,-1)]
-smalltriangle = [(1,-1), (0,1), (-1,-1)]
 thintriangle = [(-100,0),(0,-1),(100,0)]
 thintriangle2 = [(0,-1),(100,0),(0,1)]
 poly1 = [(200,-100), (210,50), (100,200), (0,150), (-50,200), (-150,100), (-200,10), (-140,-30), (-220, -200), (100, -180), (150,50)]
