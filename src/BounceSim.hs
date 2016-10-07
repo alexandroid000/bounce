@@ -121,9 +121,12 @@ mkBounceArrows :: Poly V2 Double -> [Double] -> Double -> Int -> [Diagram B]
 mkBounceArrows p angs s num =
     let start = s
         bounces = doBounces p start $ map (@@ rad) angs
+        transparentList = 1 : (map (*0.95) transparentList)
+        getMask len = reverse $ take len transparentList
+        mkOpaque arrows = zipWith opacity (getMask (length arrows)) arrows
         mkArrows (s1, s2) = arrowBetween (p `atParam` s1) (p `atParam` s2)
                                     # lc red
-    in  take num $ map mkArrows $ zip bounces (tail bounces)
+    in  mkOpaque $ take num $ map mkArrows $ zip bounces (tail bounces)
 
 -- make static diagram of all bounces
 plotBounce :: Poly V2 Double -> [Double] -> Double -> Int -> Diagram B
