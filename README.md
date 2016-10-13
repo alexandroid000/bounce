@@ -34,25 +34,44 @@ documentation and examples.
 
 Usage: On command line in `bounce` directory, run:
 
-`stack exec -- bounce-exe (-t|--write-to FILENAME) (-n|--num NUM_BOUNCES)
-                  (-a|--angle ANGLE) (-s|--start START_PARAM) [-r|--random]`
+`stack exec -- bounce-exe   (-o|--output FILENAME) [-e|--environment ENV_NAME]
+                            [-n|--num NUM_BOUNCES] [-a|--angle ANGLE]
+                            [-s|--start START_PARAM] [-r|--random]`
+
+Only the `-o FILENAME` argument is required, the rest have defaults.
 
 -   `FILENAME`: output filename, svg format
--   `NUM_BOUNCES`: integer number of bounces to perform
+-   `ENV_NAME`: environment name, defined in `src/Maps.hs`. Eg: "star",
+    "triang", "circ", "bigpoly". Default "star".
+-   `NUM_BOUNCES`: integer number of bounces to perform. Default 10.
 -   `ANGLE`: Floating point number, in radians, of angle to bounce at. Needs
-    leading 0 if the number is less than 1. Optional, default 0.2 rad
+    leading 0 if the number is less than 1. Default 0.2 rad
 -   `START`: the parameter value (in the interval [0,1]) on the polygon of where
     you want to start bouncing. Be sure to include the leading zero for
-    parameters like 0.5.
--   `-r` flag is optional and will create a random bounce angle at every bounce
+    parameters like 0.5. Default 0.23.
+-   `-r` flag is disabled by default and if included, will cause a random bounce
+    angle at every bounce.  Overwrites the `-a` option.
 
-**To change map:**
+**To add your own environment:**
 
-Edit `app/Main.hs` and replace the `simMap` variable at the beginning of the
-file with the map you want. See `src/Maps.hs` for examples of maps. `Maps` is
-imported into Main so you can use any of those maps or add your own.
+Edit `src/Maps.hs` and add your own environment (there are many examples there
+to get you started).
 
-If you edit `Main.hs` you'll need to run `stack build` again in the top level
+Environments can be either:
+
+-   `Pts`: A list of points in CCW order, defining a simple closed polygon.
+-   `Trl`: A [Trail V2
+    Double](http://projects.haskell.org/diagrams/doc/paths.html#trails) type, as
+    defined by the Diagrams package. Trails are just collections (stored in a
+    fingertree) of straight line segments and/or Bezier curves. Thus, they do
+    not need to be simple or closed. [Some handy shapes are defined here,
+    including regular
+    polygons](http://projects.haskell.org/diagrams/haddock/Diagrams-TwoD-Shapes.html).
+
+You will also need to add a (string, fname) pair in the hash map at the top of
+`Maps.hs` to allow for command line interfacing.
+
+If you edit `Maps.hs` you'll need to run `stack build` again in the top level
 directory to recompile.
 
 ### Animated Bounce Simulations

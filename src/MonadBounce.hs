@@ -11,8 +11,9 @@ import              Diagrams.Prelude
 import              Control.Monad.State
 import              BounceSim
 import              Maps
+import              Data.HashMap
 
-test = (0.2, unitY, mkPoly Maps.equiltri)
+test = (0.2, unitY, mkPoly $ maps ! "triang")
 
 --nextBounce :: Poly V2 Double -> Angle Double -> RoboLoc -> RoboLoc
 --nextBounce poly ang (S s) =
