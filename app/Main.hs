@@ -37,6 +37,7 @@ sim = Simulation
                     (   short 'e' <>
                         long "environment" <>
                         metavar "ENV_NAME" <>
+                        value "star" <>
                         help "name of environment in Maps.hs"
                     )
         <*> option auto
@@ -78,7 +79,7 @@ runSim (Simulation fname env num ang s rand) = do
                         True    -> rangs
                         _       -> repeat $ ang
         let map = mkPoly $ maps ! env
-        let pxsize = (mkSizeSpec2D (Just 500) Nothing)
+        let pxsize = (mkSizeSpec2D (Just 400) Nothing)
         renderSVG fname pxsize $ plotBounce map angs s num
 
 -- main looks weird because it has boilerplate to make cmd line parser
