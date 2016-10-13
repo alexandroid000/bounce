@@ -6,6 +6,7 @@ module BounceSim
       Poly
     , RoboLoc
     , Robot
+    , MapSpec
     , plotBounce
     , pts2poly
     , mkPoly
@@ -43,9 +44,11 @@ type Robot = (RoboLoc, V2 Double, Poly V2 Double)
 -- Helper Functions
 -- ----------------
 
+
 -- take format in Maps.hs -> Poly datatype
-mkPoly :: [(Double,Double)] -> Poly V2 Double
-mkPoly ps = pts2poly $ map p2 ps
+mkPoly :: MapSpec -> Poly V2 Double
+mkPoly (Pts ps) = pts2poly $ map p2 ps
+mkPoly (Trl tr) = tr `at` origin
 
 pts2poly :: [Point V2 Double] -> Poly V2 Double
 pts2poly p = (closeTrail $ trailFromVertices p) `at` p2 (0,0)
@@ -113,7 +116,6 @@ doBounces poly s1 angs =
 
 -- Diagram Generators
 -- ------------------
-
 
 visPoints :: [P2 Double] -> Diagram B
 visPoints pts = atPoints pts (repeat (circle 5 # lw none # fc blue))
