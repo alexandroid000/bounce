@@ -7,21 +7,22 @@ geometry: margin=2cm
 Given a closed polygonal region $P$ with boundary $\partial P$. There is a map
 $B_\theta : \partial P \to \partial P$ where a robot that is on the boundary at
 $p$ will next impact the boundary at $B_\theta(p)$.  The map is completely
-determined by the outgoing angle with respect to the wall normal, $\theta :
--\pi/2 < \theta < \pi/2$.
+determined by the outgoing angle with respect to the wall, $\theta :
+0 < \theta < \pi$.
 
 Bounces Between Parallel Lines enter 2-cycles immediately
 ---------------------------------------------------------
 
-See Erickson, LaValle et al
+See Erickson, LaValle et al. Note that the convention for $\theta$ is different
+in this work: our notation is more consistent with the standard in billiards.
 
 Bounces between "Codependent Segments" go monotonically outward from vertex
 ---------------------------------------------------------------------------
 
 See Erickson, LaValle et al
 
-Bounces in equilateral triangle converge to triangle for certain angles
------------------------------------------------------------------------
+Bounces in regular polygon converge to stable orbit for certain angles
+----------------------------------------------------------------------
 
 Let $P$ be an equilateral triangle, with side length $a$. Let the vertices of
 the triangle be labelled $A, B, C$ in counterclockwise ordering.
@@ -51,3 +52,5 @@ $F = a \sum_{i=1}^{\infty} (-1)^{i+1} c^i$
 
 which converges when $| c | < 1$. This means that $f(x,\theta)$ has a fixed
 point when $c(\theta)$ is between -1 and 1.
+
+
