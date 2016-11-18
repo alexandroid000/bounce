@@ -12,6 +12,20 @@ There is also functionality for making animated gifs and for producing some of
 the usual plots for analysis of dynamical systems. See below for more
 documentation and examples.
 
+# Research Questions
+
+Imagine a robot, in a 2D polygonal environment, which travels in a straight line
+until colliding with the boundary. It then can orient itself to an angle with
+respect to environment boundary and set off again (we call this angle the
+"bounce angle").
+
+-   Given a polygonal environment, for what bounce angles and initial conditions
+    will the robot get "stuck" in a periodic orbit (predictable "patrolling"
+    behavior)
+-   Conversely, are there bounce angles and initial conditions for which the
+    robot will visit every point on (a subset of) the environment boundary
+    ("exploratory" behavior)?
+
 # Installation
 
 -   Install stack, [guide here](http://docs.haskellstack.org/en/stable/install_and_upgrade/)
