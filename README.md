@@ -8,15 +8,6 @@ provides a framework for both modelling affine vector spaces and immediately
 producing figures from those models, which is handy. This library is packaged
 with [stack](http://docs.haskellstack.org/en/stable/GUIDE/).
 
-Right now we can compute point-to-point bounce paths with either random or
-deterministic angles. For instance, we can bounce at the wall normal in a star:
-
-![star](https://cdn.rawgit.com/alexandroid000/bounce/master/examples/det_star.svg)
-
-or bounce randomly in a large polygon:
-
-![large](https://cdn.rawgit.com/alexandroid000/bounce/master/examples/rand_bigpoly.svg)
-
 There is also functionality for making animated gifs and for producing some of
 the usual plots for analysis of dynamical systems. See below for more
 documentation and examples.
@@ -34,23 +25,33 @@ documentation and examples.
 
 Usage: On command line in `bounce` directory, run:
 
-`stack exec -- bounce-exe   (-o|--output FILENAME) [-e|--environment ENV_NAME]
-                            [-n|--num NUM_BOUNCES] [-a|--angle ANGLE]
-                            [-s|--start START_PARAM] [-r|--random]`
+`stack exec -- bounce-exe --help`
 
-Only the `-o FILENAME` argument is required, the rest have defaults.
+This will provide a summary of all the available options.
 
--   `FILENAME`: output filename, svg format
--   `ENV_NAME`: environment name, defined in `src/Maps.hs`. Eg: "star",
-    "triang", "circ", "bigpoly". Default "star".
--   `NUM_BOUNCES`: integer number of bounces to perform. Default 10.
--   `ANGLE`: Floating point number, in radians, of angle to bounce at. Needs
-    leading 0 if the number is less than 1. Default 0.2 rad
--   `START`: the parameter value (in the interval [0,1]) on the polygon of where
-    you want to start bouncing. Be sure to include the leading zero for
-    parameters like 0.5. Default 0.23.
--   `-r` flag is disabled by default and if included, will cause a random bounce
-    angle at every bounce.  Overwrites the `-a` option.
+Only the output filename (`-o`) argument is required, the rest have defaults.
+
+Here are some examples:
+
+Bounce at the wall normal in a star, 20 times:
+
+```bash
+stack exec -- bounce-exe -o star.svg -n 20 -e star -a 1.57
+```
+
+![star](https://cdn.rawgit.com/alexandroid000/bounce/master/examples/det_star.svg)
+
+Bounces become 3% more translucent with every step back in time (see function
+`mkBounceArrows`)
+
+Bounce randomly in a large polygon:
+
+```bash
+stack exec -- bounce-exe -o poly.svg -n 20 -e bigpoly -r
+```
+
+![large](https://cdn.rawgit.com/alexandroid000/bounce/master/examples/rand_bigpoly.svg)
+
 
 **To add your own environment:**
 
@@ -113,14 +114,12 @@ directory to recompile.
 -   *Filename*: desired filename. Will save relative to directory where `stack
     ghci` is running.
 
-Example cobweb plot, generated from the above example:
+Plot generated from the above example:
 
 ![large](https://cdn.rawgit.com/alexandroid000/bounce/master/examples/cobweb.svg)
 
-
 Upcoming features:
 
--   choose maps on command line
 -   add the ability to only keep track of the set of edges the robot could be on
     (edge to edge "visibility" graph)
 -   Implementing a functional version of [this paper's

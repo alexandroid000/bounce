@@ -12,6 +12,7 @@ maps = fromList [   ("triang", triang),
                     ("square", sq),
                     ("star",four_star),
                     ("pent",pent),
+                    ("pent_x",pent_scalex),
                     ("circ",circ),
                     ("irrsquare",irrsquare),
                     ("isos", isoscelestri),
@@ -30,6 +31,7 @@ maps = fromList [   ("triang", triang),
 triang = Trl $ triangle 500
 sq = Trl $ square 500
 pent = Trl $ regPoly 5 500
+pent_scalex = Trl $ regPoly 5 500 # scaleX 2
 circ = Trl $ circle 500
 four_star = Pts [(150,150),(0,500),(-150,150),(-500,0),(-150,-150),(0,-500),(150,-150),(500,0)]
 irrsquare = Pts [(-400,0),(0,-100),(400,0),(10,100)]

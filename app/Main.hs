@@ -23,6 +23,7 @@ data Simulation = Simulation
     , ang   :: Double   -- angle to bounce at (-pi/2, pi/2)
     , s     :: Double   -- perimeter parameter to start at
     , rand  :: Bool     -- true/false random bounces (overrides angle)
+    , px    :: Double      -- pixel width of diagram
     }
 
 sim :: Options.Applicative.Parser Simulation
@@ -31,14 +32,14 @@ sim = Simulation
                     (   short 'o' <>
                         long "output" <>
                         metavar "FILENAME" <>
-                        help "file name / path (svg most likely)"
+                        help "output file name / path (svg most likely)"
                     )
         <*> strOption
                     (   short 'e' <>
                         long "environment" <>
                         metavar "ENV_NAME" <>
                         value "star" <>
-                        help "name of environment in Maps.hs"
+                        help "name of environment (found at top of Maps.hs)"
                     )
         <*> option auto
                     (   short 'n' <>
@@ -52,7 +53,7 @@ sim = Simulation
                         long "angle" <>
                         metavar "ANGLE" <>
                         value   0.2 <>
-                        help "angle to bounce at"
+                        help "bounce angle wrt tangent vector (0,pi)"
                     )
         <*> option auto
                     (   short 's' <>
@@ -64,7 +65,14 @@ sim = Simulation
         <*> switch -- default false
                     (   short 'r' <>
                         long "random" <>
-                        help "true -> random bounce angles"
+                        help "if flag presence, creates random bounce angles"
+                    )
+        <*> option auto
+                    (   short 'p' <>
+                        long "px" <>
+                        metavar "PIXEL_WIDTH" <>
+                        value 400 <>
+                        help "pixel width of output image"
                     )
 
 randAngs :: IO [Double]
@@ -73,13 +81,13 @@ randAngs = do
     return (randomRs (0.001,pi-0.001) g :: [Double])
 
 runSim :: Simulation -> IO ()
-runSim (Simulation fname env num ang s rand) = do
+runSim (Simulation fname env num ang s rand px) = do
         rangs <- randAngs
         let angs = case rand of
                         True    -> rangs
                         _       -> repeat $ ang
         let map = mkPoly $ maps ! env
-        let pxsize = (mkSizeSpec2D (Just 400) Nothing)
+        let pxsize = (mkSizeSpec2D (Just px) Nothing)
         renderSVG fname pxsize $ plotBounce map angs s num
 
 -- main looks weird because it has boilerplate to make cmd line parser
