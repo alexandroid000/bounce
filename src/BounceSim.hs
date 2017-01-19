@@ -16,6 +16,7 @@ module BounceSim
     , linePoly
     , shootRay
     , animate
+    , plotLimitCycle
     ) where
 
 import              Diagrams.Prelude
@@ -118,13 +119,23 @@ doBounces poly s1 angs =
 -- ------------------
 
 visPoints :: [P2 Double] -> Diagram B
-visPoints pts = atPoints pts (repeat (circle 5 # lw none # fc blue))
+visPoints pts = atPoints pts (repeat (circle 15 # lw none # fc blue))
 
-mkBounceArrows :: Poly V2 Double -> [Double] -> Double -> Int -> [Diagram B]
-mkBounceArrows p angs s num =
-    let start = s
-        bounces = doBounces p start $ map (@@ rad) angs
-        transparentList = 1 : (map (*0.99) transparentList)
+plotLimitCycle :: Double -> Int -> Double -> Diagram B
+plotLimitCycle theta n' l =
+    let env = regPoly n' l :: Trail V2 Double
+        n = fromIntegral n'
+        th = pi/2 - theta
+        c = (cos th)/(cos (th - (n-2)*pi/n))
+        fx = l*c/(1+c)
+        s_fx = map (\i -> i/n + fx/(n*l)) [0..n-1]
+        fps = map (\s -> origin .+^ (atParam env s)) s_fx
+        sim = snd $ plotBounce (mkPoly $ Trl env) (repeat theta) (1/n+0.001) 500
+     in sim # centerXY `atop` (visPoints fps)
+
+mkBounceArrows :: Poly V2 Double -> [RoboLoc] -> Int -> [Diagram B]
+mkBounceArrows p bounces num =
+    let transparentList = 1 : (map (*0.99) transparentList)
         getMask len = reverse $ take len transparentList
         mkOpaque arrows = zipWith opacity (getMask (length arrows)) arrows
         mkArrows (s1, s2) = arrowBetween (p `atParam` s1) (p `atParam` s2)
@@ -132,19 +143,24 @@ mkBounceArrows p angs s num =
     in  mkOpaque $ take num $ map mkArrows $ zip bounces (tail bounces)
 
 -- make static diagram of all bounces
-plotBounce :: Poly V2 Double -> [Double] -> Double -> Int -> Diagram B
+-- Pair with list of impact points
+plotBounce :: Poly V2 Double -> [Double] -> Double -> Int -> ([RoboLoc], Diagram B)
 plotBounce p angs s num =
-    let bounces = mkBounceArrows p angs s num
-    in  ((mconcat bounces) `atop` (strokeLocTrail p)) # lwL 12
+    let bounces = doBounces p s $ map (@@ rad) angs :: [RoboLoc]
+        arrows = mkBounceArrows p bounces num
+        plot = ((mconcat arrows # lwL 5) `atop` (strokeLocTrail p # lwL 11))
+                # centerXY # pad 1.1
+    in  (bounces, plot)
 
 -- GIFS?!?!?!
 --mkFrames :: Poly V2 Double -> [Diagram B] -> [(QDiagram Cairo V2 Double Any, GifDelay)]
 mkFrames _ [] = []
-mkFrames p arrows = 
+mkFrames p arrows =
     let awtime = map (\a -> (a, 1)) arrows
     in  scanl (\(a,_) (b,_) -> (mconcat [a, b], 100)) (strokeLocTrail p # lc white, 100) awtime
 
 --animate :: Poly V2 Double -> [Double] -> Double -> Int -> [(QDiagram Cairo V2 Double Any, GifDelay)]
 animate p angs s num =
-    let bounces = mkBounceArrows p angs s num
-    in  mkFrames p bounces
+    let bounces = doBounces p s $ map (@@ rad) angs
+        arrows = mkBounceArrows p bounces num
+    in  mkFrames p arrows
