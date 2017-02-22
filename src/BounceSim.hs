@@ -138,8 +138,8 @@ mkBounceArrows p bounces num =
     let transparentList = 1 : (map (*0.99) transparentList)
         getMask len = reverse $ take len transparentList
         mkOpaque arrows = zipWith opacity (getMask (length arrows)) arrows
-        mkArrows (s1, s2) = arrowBetween (p `atParam` s1) (p `atParam` s2)
-                                    # lc red
+        mkArrows (s1, s2) = arrowBetween' (with & headLength .~ veryLarge)
+                                (p `atParam` s1) (p `atParam` s2) # lc blue
     in  mkOpaque $ take num $ map mkArrows $ zip bounces (tail bounces)
 
 -- make static diagram of all bounces
@@ -147,8 +147,9 @@ mkBounceArrows p bounces num =
 plotBounce :: Poly V2 Double -> [Double] -> Double -> Int -> ([RoboLoc], Diagram B)
 plotBounce p angs s num =
     let bounces = doBounces p s $ map (@@ rad) angs :: [RoboLoc]
+        start_pt = circle 15 # fc yellow # lc blue # moveTo (p `atParam` s) :: Diagram B
         arrows = mkBounceArrows p bounces num
-        plot = ((mconcat arrows # lwL 5) `atop` (strokeLocTrail p # lwL 11))
+        plot = (start_pt <> (mconcat arrows # lwL 5) <> (strokeLocTrail p # lwL 11))
                 # centerXY # pad 1.1
     in  (bounces, plot)
 

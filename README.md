@@ -37,11 +37,22 @@ respect to environment boundary and set off again (we call this angle the
 
 ### Static Bounce Simulations
 
-Usage: On command line in `bounce` directory, run:
-
-`stack exec -- bounce-exe --help`
-
-This will provide a summary of all the available options.
+Usage:
+```
+Usage: bounce-exe (-o|--output FILENAME) [-e|--environment ENV_NAME]
+                  [-n|--num NUM_BOUNCES] [-a|--angle ANGLE]
+                  [-s|--start START_PARAM] [-r|--random RAND_ADD]
+    creates diagram of simulation at FILENAME
+                                      
+Available options:
+-h,--help                       Show this help text
+-o,--output FILENAME            file name / path (svg most likely)
+-e,--environment ENV_NAME       name of environment in Maps.hs
+-n,--num NUM_BOUNCES            number of bounces
+-a,--angle ANGLE                angle to bounce at
+-s,--start START_PARAM          parameter in interval (0,1)
+-r,--random RAND_ADD            random offset added to theta
+```
 
 Only the output filename (`-o`) argument is required, the rest have defaults.
 
