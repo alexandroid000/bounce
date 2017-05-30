@@ -13,24 +13,34 @@
 
 % The following packages can be found on http:\\www.ctan.org
 \usepackage{graphics} % for pdf, bitmapped graphics files
-%\usepackage{epsfig} % for postscript graphics files
-%\usepackage{mathptmx} % assumes new font selection scheme installed
-%\usepackage{times} % assumes new font selection scheme installed
 \usepackage{amsmath} % assumes amsmath package installed
 \usepackage{amssymb}  % assumes amsmath package installed
-\usepackage{subcaption}
-\usepackage{jeffe}
+\usepackage[font=small]{subcaption}
 \usepackage{graphicx}
 \usepackage{hyperref}
+\usepackage[lined,commentsnumbered]{algorithm2e}
+\usepackage{algorithmic}
+\usepackage{xfrac} %\sfrac
+\usepackage{enumerate}
+
+\newtheorem{theorem}{\bf Theorem}
+\newtheorem{todo}{\bf Todo}
+\newtheorem{remark}{\bf Remark}
+\newtheorem{corollary}{\bf Corollary}
+\newtheorem{definition}{\bf Definition}
+\newtheorem{lemma}{\bf Lemma}
+\newtheorem{proposition}[theorem]{\bf Proposition}
+
+\captionsetup{font=small, labelfont=bf}
 
 \title{\LARGE \bf
 Periodic Trajectories of Mobile Robots}
 
 
-\author{Alexandra Q. Nilles and Steven M. LaValle% <-this % stops a space
-\thanks{A. Nilles and S. LaValle are with the Department of Computer Science, 
+\author{Alexandra Q. Nilles, Israel Becerra and Steven M. LaValle% <-this % stops a space
+\thanks{A. Nilles, I. Becerra and S. M. LaValle are with the Department of Computer Science, 
 University of Illinois at Urbana-Champaign. Urbana, IL 61801, USA. 
-        {\tt\small \{nilles2,lavalle\}@illinois.edu}}%
+        {\tt\small \{nilles2,israelb4,lavalle\}@illinois.edu}}%
 }
 
 
@@ -47,14 +57,22 @@ University of Illinois at Urbana-Champaign. Urbana, IL 61801, USA.
 \begin{abstract}
 
 Differential drive robots, such as robotic vacuums, often have at least two motion
-primitives: 1) travelling in straight lines, and 2) rotating in place upon
-encountering an obstacle. 
-In this paper, we analytically determine the location and stability
-of periodic trajectories of such robots in regular polygons. This analysis leads
-to simple, open-loop control schemes
-that allow either predictable and stable "patrolling" dynamics, or ergodic
-"exploratory" dynamics. The results are useful for controlling simple mobile
-robots with minimal sensing and actuation, in spaces with known geometry.
+primitives: the ability to travel in straight lines, and rotate in place upon
+encountering an obstacle. They are often equipped with simple sensors such as
+contact sensors or range finders, which allow them to measure and control
+their heading angle with respect to environment boundaries. 
+We aim to find minimal control schemes for creating stable, periodic 
+``patrolling" dynamics for robots that
+drive in straight lines and ``bounce" off boundaries at controllable angles.
+As a first step
+toward describing mobile robot dynamics in more general environments, we analyze
+the location and stability of periodic orbits in regular polygons.
+The contributions of this paper are: 1) proving the existence of
+periodic orbits in $n$-sided regular polygons and showing the range of bounce
+angles that will produce such orbits; 2) an analysis of their stability and robustness to
+modeling errors; and 3) a closed form solution for the points where the robot collides
+with the environment boundary while patrolling. We present simulations confirming
+our theoretical results.
 
 \end{abstract}
 
@@ -64,451 +82,820 @@ robots with minimal sensing and actuation, in spaces with known geometry.
 
 Consider the path that a differential-drive mobile robot takes as it navigates a room.
 This robot has two motion primitives that it can execute reliably: moving in a straight
-line, and turning in place. It also has sensors that allow the robot to
-determine whether it is in contact with an environmental boundary, and its
-heading relative to that boundary.
+line and turning in place. We can equip the robot with sensors that allow it to
+determine whether it is in contact with an environmental boundary and measure
+its heading relative to that boundary.
 
-Can we guarantee that the robot \textbf{patrols} the space on a repeatable, periodic path? Robots with
+The main question addressed by this work is: \textit{can we guarantee that the robot 
+\textbf{patrols} a space on a repeatable, periodic path?} If so, what are the
+ sensing and actuation requirements of this task? A better understanding of
+this common robotic task could lead to robots that are robust in the face of
+noise and complicated environments. Robots with
 robust patrolling behavior have applications such as
 monitoring environmental conditions in labs, warehouses, or greenhouses, where
-a few fixed sensors may not give enough information.
+a few fixed sensors may not give adequate information.
 
-% We may also ask if the robot will eventually visit every point on the boundary
-% of the space. Guarantees on how the robot \textbf{covers} the space have applications
-% for systems such as robotic vacuums.
-
-One way to create these motion patterns for mobile robots is to augment the
-robots with sensors such as cameras, and use algorithms such as SLAM to compute
-a map of the space and estimate the robot's state. However, these robots are
+Existing techniques for producing repeatable motion patterns for mobile robots
+involve equipping the robots with high-resolution sensors such as cameras, and
+using algorithms such as simultaneous localization and mapping (SLAM) to compute
+a map of the space and estimate the robot's state
+\cite{slamSolution,fastslam,durrant2006}. However, these robots can be
 expensive, require a large amount of computational and electrical power, and
 their accuracy can be impacted by changing environmental conditions (such as low
-light).
+light). In situations which require high-resolution mapping and localization in
+dynamic environments these tradeoffs are clearly worthwile. However,
+tasks such as monitoring humidity or temperature in a warehouse require only
+repeatable orbits in a relatively simple space, and some guarantees about what parts of the space
+will be covered. Robots with minimal sensing, actuation and control requirements
+will be more reliable and efficient at such tasks. Our approach requires 
+precise knowledge about the structure of the environment, but does not require
+observation or calculation of the exact position of the robot. Such tradeoffs
+are common in robots, and allow us to optimize robotic designs for specific
+tasks and constraints.
 
-The approach of this paper is to treat the robot as a dynamical system, defined
-by its motion primitives, independent from the specific hardware implementation.
+The key approach of this work is treating the robot
+as a dynamical system defined
+by its motion primitives, independent of the hardware implementation.
+The contributions of this paper are 1) proving the existence of
+periodic orbits in $n$-sided regular polygons, and showing the range of bounce
+angles that will produce periodic orbits;
+2) an analysis of these orbits, showing their stability and robustness; and 3) 
+an analytic solution of the locations where the robot collides with the
+environment while in these orbits.
+
+\begin{figure}[tp]
+\begin{subfigure}{.25\textwidth}
+\centering
+\includegraphics[width=0.8\linewidth]{figs/pent_05rad.pdf}
+\captionof{figure}{\sffamily\footnotesize$\theta = 1.07$ rad, 20
+bounces. \label{0.5rad}}
+\end{subfigure}%
+\begin{subfigure}{0.25\textwidth}
+\includegraphics[width=0.8\linewidth]{figs/pent_1rad.pdf}
+\captionof{figure}{\sffamily\footnotesize $\theta = 0.57$ rad, 50
+bounces. \label{0.57rad}}
+\end{subfigure}
+\begin{subfigure}{0.25\textwidth}
+\includegraphics[width=0.8\linewidth]{figs/pent_165rad.pdf}
+\captionof{figure}{\sffamily\footnotesize$\theta = -0.08$ rad, 75
+bounces. \label{1.65rad}}
+\end{subfigure}%
+\begin{subfigure}{0.25\textwidth}
+\includegraphics[width=0.8\linewidth]{figs/pent_3rad.pdf}
+\captionof{figure}{\sffamily\footnotesize$\theta = -1.4$ rad, 20
+bounces. \label{3.0rad}}
+\end{subfigure}
+\caption{Different behaviors of bounce trajectories in a regular pentagon.
+Older bounces become 2\% more transparent with each new bounce. The circle on
+the boundary indicates the starting point of the trajectory. Figure (c) shows
+that periodic orbits are not guaranteed for all bounce angles.}
+\end{figure}
+
+This paper is organized as follows: Section \ref{related} outlines the results of the
+previous paper on this model, as well as closely related work.
+Section \ref{model} presents the model definition and
+some useful concepts from dynamical systems. Section \ref{adj_edge} analyzes the 
+case where the robot is constrained to bounce between sequential edges of the
+polygon, and we prove the existence and location of a periodic path using a
+fixed point technique.
+Section \ref{general} generalizes this approach to find periodic paths of period $k$ in
+regular $n$-gons, when $k$ divides $n$. Section \ref{conclusion} discusses possible extensions
+of this work, including to more generalized polygonal environments, and
+remaining open questions. By providing strong guarantees in the case of regular
+polygonal environments, we hope to lay the groundwork for analysis of more
+complex environments. 
+
+
+\section{RELATED WORK\label{related}} 
+
 This dynamical system is closely related to mathematical billiards
 \cite{billiards}. In billiards, an agent travels in a straight line until
 contacting a boundary of its environment, then bounces so that the incident
-angle is always related to the outgoing angle by $\theta_{i} = -\theta_{o}$
-(\textit{specular} bouncing, see Figure \ref{bounce_def}).
+angle is related to the outgoing angle by $\theta_{o} = -\theta_{i}$
+(\textit{specular} bouncing, such as how a laser beam
+reflects off mirrors). Our system
+generalizes this model by allowing the robot to control the angle of reflection.
 
-\begin{figure}[thpb]
-  \centering
-  \includegraphics[width=0.3\textwidth]{figs/bounce_def.pdf}
-  \caption{Definitions of the incoming angle of the
-agent ($\theta_i$) and the outgoing angle ($\theta_o$), relative to the normal
-vector at the point of impact.}
-  \label{bounce_def}
-\end{figure}
-
-However, classical billiards is a \textit{conservative} dynamical system -
-collisions are elastic, and the energy of the agent is conserved. But
-robots (with energy supplies) can have nonconservative dynamics. For example, 
+There has been significant progress in generalizations of the billiards model: for example, 
 \textit{pinball billiards} is a model where the agent is deflected toward the
-normal with each bounce, $\gamma \theta_{i} = - \theta_{o}$ for
-$0 \leq \gamma \leq 1$. If the agent bounces at the normal vector
-each time, this is called \textit{slap billiards}. Work in this area focuses on
+normal with each bounce, $\theta_{o} = - \gamma \theta_{i}$ for
+$0 \leq \gamma \leq 1$. If the agent always bounces at the normal vector
+($\gamma = 0$), this is called \textit{slap billiards}. Work in this area focuses on
 analyzing the existence and structure of attractors \cite{pinball} \cite{DelMagno2014}.
+Additionally, \cite{Jones1998} looks at the knots formed by periodic billiards
+in rectangular prisms. They generalize
+the idea of a constant-angle bounce to
+three dimensions, motivated by the behavior of Paramecium. They show that knots
+formed by constant bounces of $\pi/4$ in a rectangular prism are equivalent to
+billiard knots in a cube. Our study is in two dimensions and focuses on the
+necessary conditions for periodic orbits.
 
-The dynamical system in this paper generalizes slap billiards: the agent travels
-in straight lines, and upon collision with a boundary, bounces off the boundary
-at a fixed angle relative to the boundary normal vector, independent of the
-incoming angle. The contributions of this paper are 1) proving the existence of
-periodic orbits in $n$-sided regular polygons, and showing the range of bounce
-angles that will produce periodic orbits;
-2) an analysis of these orbits, showing their stability and robustness to
-modeling errors; and 3) the locations where the robot collides with the polygon while
-in these stable periodic orbits.
-
-This paper is organized as follows: Section II outlines the results of the
-previous paper on this model, as well as closely related work.
-Section III presents the model definition and
-some useful concepts from dynamical systems. Section IV analyzes the specific
-case where the robot is constrained to bounce between sequential edges of the
-polygon, which illustrates a technique for using the fixed point of a
-trigonometric function to determine the existence and location of a periodic path.
-Section V generalizes this approach to find periodic paths of period $k$ in
-regular $n$-gons, when $k$ divides $n$. We then discuss possible extensions
-of this work, including to more generalized polygonal environments, and
-remaining open questions.
-
-
-\begin{figure}
-
-\begin{subfigure}{.25\textwidth}
-\centering
-
-\includegraphics[width=0.9\linewidth]{figs/pent_05rad.pdf}
-
-\captionof{figure}{\sffamily\footnotesize$\theta = 1.07$ rad, 20
-bounces. \label{0.5rad}}
-
-\end{subfigure}%
-\begin{subfigure}{0.25\textwidth}
-
-\includegraphics[width=0.9\linewidth]{figs/pent_1rad.pdf}
-
-\captionof{figure}{\sffamily\footnotesize $\theta = 0.57$ rad, 50
-bounces. \label{0.57rad}}
-
-\end{subfigure}
-
-\begin{subfigure}{0.25\textwidth}
-
-\includegraphics[width=0.9\linewidth]{figs/pent_165rad.pdf}
-
-\captionof{figure}{\sffamily\footnotesize$\theta = -0.08$ rad, 75
-bounces. \label{1.65rad}}
-
-\end{subfigure}%
-\begin{subfigure}{0.25\textwidth}
-
-\includegraphics[width=0.9\linewidth]{figs/pent_3rad.pdf}
-
-\captionof{figure}{\sffamily\footnotesize$\theta = -1.4$ rad, 20
-bounces. \label{3.0rad}}
-
-\end{subfigure}
-
-\caption{Different behaviors of bounce trajectories in a regular pentagon.
-Older bounces become 2\% more transparent with each new bounce. The circle on
-the boundary indicates the starting point of the trajectory.}
-
-\end{figure}
-
-\section{PRIOR WORK}
-
-Also related is work on the combinatorial complexity of the region touched
-by specular bouncing ("visibility with reflection") in simple polygons
+We are also inspired by work on map dynamics in polygons such as
+\cite{schwartz_billiards} and \cite{schwartz1992}. Also related is work on the
+combinatorial complexity of the region visited
+by specular bouncing (``visibility with reflection") in simple polygons
 \cite{Aronov1996}. There, the authors show the combinatorial complexity of the
-region touched after $k$ bounces, and provide a near-optimal algorithm for
-computing the region. Our work differs by looking at non-specular bouncing and
-focusing on the effects of environment symmetries on the structure of this
-region.
+region touched after $k$ bounces and provide a near-optimal algorithm for
+computing the region. Our work differs by analyzing non-specular bouncing and
+the effects of environment geometry. Specifically, we focus on determining
+regions of minimal complexity.
 
-In robotics, our model is inspired by systems such as differential drive mobile robots
-with bump sensors and as few as one single-point infrared range sensors
-\cite{LewOKa13}, which are able to execute the action of aligning to a specified
-angle to a wall, and travelling in straight lines. This dynamical
-analysis relies only on the ability to execute the two motion primitives (move
-straight forward and align to $\theta$), and does not rely on any specific
-hardware. \textbf{todo:} elaborate on how this shows our model is feasible
+In robotics, this work is related to research on systems which are able to execute the
+actions of aligning to a specified angle to a wall and travelling in straight
+lines. \cite{LewOKa13} demonstrated the reliability of a
+``rotate-to-parallel" strategy on a differential-drive robot with bump and
+infrared range sensors, which executed
+constant-angle bounces with error less than $\pm 10^{\circ}$. 
+\cite{LewOKa13} showed that navigation is possible with such a robot; similarly,
+we show that patrolling is possible, and provide bounds on how much noise can be
+tolerated. Wall following robots \cite{Carelli2003,Lamp05} are often capable of these
+motion primitives and are another common way of making robots which can
+circumnavigate human spaces. This work could provide such
+implementations with motion strategies for navigating in the interior of a space.
 
-In the previous paper \cite{bounce}, the authors
+\subsection{Prior Work}
+
+In \cite{bounce}, the authors
 characterized some of the long-term dynamics of this dynamical system. They
 showed that the robot will have an orbit of period two between parallel edges,
-and the robot will move monotonically ``outward" from acute vertices, or ``out" from
-edges that would meet in an acute vertex if extended to their intersection.
+and the robot will move monotonically ``outward" from acute vertices or edges
+that would meet in an acute vertex if extended to their intersection.
 
-The previous paper then defined distance- and link-unbounded
-segments on arbitrary polygons, as regions of the boundary where the robot may
-travel an unbounded distance while bouncing in that region or bounce an
-unbounded number of times. The paper describes an algorithm for classifying the
- boundary of an arbitrary polygon into distance- and link-unbounded segments. However, the
-algorithm will not terminate when the robot's trajectory converges to a periodic orbit, since in 
-this case the distance- and link-unbounded regions shrink to points on the polygon
-boundary, such as in Figures \ref{0.5rad} and \ref{0.57rad}.
+The authors in \cite{bounce} defined distance- and link-unbounded
+segments as regions of the boundary where the robot may
+travel an unbounded distance or bounce an unbounded number of times. That work describes an algorithm for classifying the
+ boundary of an arbitrary polygon into distance- and link-unbounded segments. 
+ However, the algorithm will not terminate when the robot's trajectory converges 
+ to a periodic orbit, since in this case the distance- and link-unbounded regions shrink to points on the polygon boundary, such as in Figures \ref{0.5rad} and \ref{0.57rad}.
 
-The purpose of this paper is to begin to identify such cases -
-where the dynamical system's attractor is a set of separate points, not intervals, on
-$\delta P$. Then the
+One purpose of this paper is to begin to identify cases where the dynamical system's attractor is a set of separate points, not intervals, on
+the environment boundary. The
 algorithm in \cite{bounce} can be used only for environments with attractors that are
-segments on $\delta P$, for which the algorithm is guaranteed to terminate.
+segments on the boundary, for which the algorithm is guaranteed to terminate.
 
 
-\section{MODEL DEFINITION}
+\section{MODEL DEFINITION\label{model}}
 
 A point robot moves in a bounded subset of the plane $P$,
-defined by a continuous boundary $\delta P$, homeomorphic to  $\S^1$. For most 
+defined by a continuous boundary $\delta P$. For most 
 of this discussion, the environment will be a simple regular polygon, so $\delta P$ 
-is piecewise linear: an $n$-gon with $n$ straight edges intersecting at $n$ vertices
-$(v_0, v_1, \ldots, v_{n-1})$. 
+is an $n$-gon with $n$ straight edges intersecting at $n$ vertices
+$(v_0, v_1, \ldots, v_{n-1})$.  An edge of the polygon is represented as $v_i
+v_{i+1}$.
 
 The robot drives in a straight line until encountering $\delta P$. It then rotates
 until its heading is at an angle $\theta$ clockwise of the inward-facing boundary
-normal, where $-\pi/2 < \theta < \pi/2$. Then the robot sets off in a
-straight line again. The mapping function that these actions define between points
+normal, where $-\pi/2 < \theta < \pi/2$. Then the robot repeats this procedure
+indefinitely. Figure \ref{bounce_def} shows two sample bounces, at
+angles $\theta^+$ and $\theta^-$.
+
+\begin{figure}[thpb]
+  \centering
+  \includegraphics[width=0.4\textwidth]{figs/bounce_def.pdf}
+  \caption{Two sample bounces, one where $\theta^+$ is positive and $\theta^-$
+is negative, measured clockwise from the normal. The other labels show the geometric meaning of the
+contrained bounce map defined in Lemma \ref{Lemma:1}.}
+  \label{bounce_def}
+\end{figure}
+
+The function that these actions define between points
 on $\delta P$ is $B_{\theta}: \delta P \to \delta P$, defining our dynamical system.
 We will refer to this function as the \textit{bounce map}, in the same spirit as
-the \textit{logistic map} in discrete dynamical systems.
+the \textit{logistic map} in discrete dynamical systems, not to be confused with
+a map of the environment.
 When the bounce map is iterated $k$ times, we write $B^k_{\theta}$.
 $B_{\theta}$ is not well defined
-on vertices of $\delta P$, but the number of points where $B_{\theta}$ sends
-the robot to a vertex is finite, so we will not consider such trajectories.
+on vertices of $\delta P$, so we will not consider trajectories which reach a
+vertex.
 
 A sequence of points $[p_0, \ldots, p_k]$ is a \textit{flow} of $B_{\theta}$ if
 $p_i = B_{\theta}(p_{i-1})$ for $1 \leq i \leq k$. A flow is an \textit{orbit} if
 $B_{\theta}(p_k) = p_0$, and the \textit{period} of this orbit is $k+1$. A \textit{limit
-cycle} is an orbit whose neighboring flows tend asymptotically toward or away from it
-\cite{jackson1992}.
+cycle} is an orbit where nearby flows tend asymptotically toward or away from
+the orbit \cite{jackson1992}.
 
+\section{BOUNCING TO ADJACENT EDGE\label{adj_edge}}
+\label{section:BAE}
 
-\section{BOUNCING TO SEQUENTIAL EDGES}
+In a regular $n$-gon with side length $l$ and boundary $\delta P$, we observe
+stable orbits that bounce off each adjacent edge (Figure
+\ref{0.5rad}). 
+To analyze these orbits, we imagine that $B_{\theta}$ is
+constrained to send the robot from edge $v_i v_{i+1}$ to edge $v_{i+1} v_{i+2}$
+for all bounces, and then solve for the conditions necessary to guarantee this
+behaviour. 
 
-\textbf{Proposition 1:} In every regular $n$-sided polygon with side length $l$
-and interior angle $\phi$, there exists a range for $\theta$ such that iterating
-$B_{\theta}(x)$ on any $x \in \delta P$ results in a stable limit cycle of
-period $n$, which strikes the boundary at points that are distance $x_{FP}$ from
-the nearest clockwise vertex, with:
+We begin our analysis by presenting a trigonometric function
+(Lemma~\ref{Lemma:1}) that is used to determine the existence and location of a
+periodic path. Lemma~\ref{Lemma:2} establishes the conditions under which
+that function is a contraction mapping with a unique fixed point. A fixed point
+of this mapping function corresponds to a stable orbit that has the shape of a
+regular $n$-gon, inscribed in $\delta P$. Finally,
+Proposition~\ref{Proposition:1} presents a closed form solution for the fixed
+point that allows us to locate where the robot collides with the polygon in
+these stable orbits.
 
-$$ x_{FP} = 
-\begin{cases}
-        \frac{l c(\theta, \phi)}{1 + c(\theta, \phi)} & \phi/2 < \theta
-< \pi/2 \\
-        \frac{l}{1+c(\theta, \phi)} & -\pi/2 < \theta
-< -\phi/2
-\end{cases}
-$$
+\begin{lemma} \label{Lemma:1}
+Assume that the robot bounces to the next adjacent edge in a
+counterclockwise direction. Therefore, the constrained bounce
+map $b_{\theta^+} : (0, l) \to (0, l)$, which takes $x$, the
+robot's distance from vertex $v_i$, and maps it to $b_{\theta^+}(x)$,
+the resulting distance from vertex $v_{i+1}$, is given by
+\begin{equation} \label{b-one-bounce}
+b_{\theta^+}(x) = c(\theta)(l-x),
+\end{equation}
+in which $c(\theta) = cos(\theta) / cos(\theta - \phi)$.
+\end{lemma}
+\begin{proof}
+Using the triangle formed by two adjacent edges (see Fig.)
+and the robot's trajectory between them, we can solve for
+$b_{\theta^+}$. Let $\phi = (n - 2)\pi/n$ be the vertex angle of
+the regular polygon \cite{johnson1929}.
 
-Where $c(\theta, \phi) = \cos(\theta)/\cos(\theta-\phi)$.
-
-\textbf{Proof:} Take a regular
-$n$-gon with side length $l$, and boundary $\delta P$. Let the robot begin its trajectory
-at a point $p \in \delta P$ which
-is at a distance $x$ from the nearest vertex in the clockwise direction.
-We will begin by constraining the robot to bounce counterclockwise, at an angle
- $\theta$ such that it strikes the nearest adjacent edge, such as in Figure
-\ref{0.5rad}.
-
-Define a map $f_{\theta}: (0,l) \to (0,l)$ that takes $x$, the robot's distance from
- vertex $p_i$, and maps it to $f(x)$, the resulting distance from vertex $p_{i+
- 1}$, after application of this constrained bounce map.
-
-Then, using the triangle formed by two adjacent edges and the robot's trajectory
-between them, we can solve for $f(x)$. Let $\phi=(n-2) \pi / n$ be the vertex angle of the
-regular polygon.
-
-By the law of sines:
-
-$$ \frac{f_{\theta}(x)}{\sin (\pi/2-\theta)} = \frac{l-x}{\sin
+The law of sines establishes that
+$$ \frac{b_{\theta^+}(x)}{\sin (\pi/2-\theta)} = \frac{l-x}{\sin
 (\pi-(\pi/2-\theta)-\phi)} $$
 
-$$ f_{\theta}(x) = \frac{(l-x) \cos (\theta)}{\cos
-(\theta-\phi)} = c (l-x) $$
+\noindent which we can rewrite as
+$$ b_{\theta^+}(x) = \frac{\cos(\theta)}{\cos
+(\theta-\phi)}(l-x)  = c(\theta) (l-x). $$
 
-By iterating this map, we find that the fixed point is:
+\end{proof}
 
-$$ f_{\theta}^{\infty} = \sum_{i=1}^{\infty} (-l) (-c)^i = l+ \sum_{i=0}^{\infty}
-(-l)(-c)^i $$
+\begin{lemma} \label{Lemma:2}
+If $|c(\theta)| < 1$, then $b_{\theta^+}(x)$ is a contraction
+mapping and has a unique fixed point.
+\end{lemma}
+\begin{proof}
+We take $(0,l)$ to be a metric space with metric $d(x,y) =
+|y-x|$. To be a contraction mapping, $b_{\theta^+}$ must satisfy
 
-The sum is geometric, and finite when $|c| < 1$. If this condition holds, then
-the fixed point becomes:
+$$ d(b_{\theta^+}(x), b_{\theta^+}(y) \leq k d(x,y) $$
 
-$$ f_{\theta}^{\infty} = \frac{lc}{1+c} $$
+for all $x, y \in (0,l)$ and some nonnegative real number $0 \leq k < 1$.
 
-So we would expect the trajectory of a robot with bounce angle $\theta$ satisfying
-$|c| < 1$ to converge to a limit cycle in the shape of an inscribed $n$-gon,
-with collision points at distance $(lc)/(1+c)$ from the nearest vertex in the
-clockwise direction. 
+When we check this property, we see that
+\begin{align*}
+d(b_{\theta^+}(x), b_{\theta^+}(y) & = | c(\theta)(l-y) - c(\theta)(l-x)| \\
+                               & = | c(\theta) (x-y) | \\
+                               & = | c(\theta) | d(x,y).
+\end{align*}
 
-When this calculation is redone for bounces with $-pi/2 < \theta < 0$, the
-resulting fixed point is $l/(1+c)$, with the same
-$c=\cos(\theta)/\cos(\theta-\phi)$. Since $c \in (0,1)$ for stable orbits, we
-find that the fixed point for bounces can take all values in $(0,l)$ except for
-$l/2$, which would require $c=1$. \hfill $\blacksquare$
+Thus if $|c(\theta)| < 1$, then $b_{\theta^+}$ is a contraction mapping, and by the Banach fixed-point
+theorem, it has a unique fixed point \cite{Granas2003}.
+\end{proof}
+\begin{corollary} \label{corollary:sp}
+At the fixed point, $b_{\theta^+}$ represents the 
+robot bouncing from a point that is distance $x_{FP}$ from vertex $v_i$, to a
+point that is distance $x_{FP}$ from vertex $v_{(i+1) mod n}$, for all $i \in
+[0,\ldots, n-1]$.
+Thus, a fixed point of $b_{\theta^+}$ implies an orbit of $B_\theta$.
 
-Also, note that calculating the Lyapunov exponent for the map $f_{\theta}(x)$
-gives the same result: $|f_{\theta}'(x)| = c$, which implies that $|c| < 1$
-gives a stable fixed point. **cite?**
 
-This condition, $|c| < 1$, implies that a stable cycle will result for any
- $\theta$ within the bounds $\phi/2 < \theta < \pi/2$
-or $-\pi/2 < \theta < -\phi/2$, which were confirmed through simulation, such as
-in Figure \ref{prediction}.
+\end{corollary}
+\begin{remark} \label{rm1}
+Note that the proof of Lemma~\ref{Lemma:2} holds for all $x,y \in
+(0, l)$, so it does not matter where the robot starts bouncing,
+implying that this orbit is a stable limit cycle of the dynamical system, 
+with the largest possible region of stability.
+\end{remark}
 
-\begin{figure}
+\begin{proposition} \label{Proposition:1}
+In every regular $n$-sided polygon with side
+length $l$ and interior angle $\phi$, there exists a range for $\theta$ such
+that iterating $B_{\theta}(x)$ on any $x \in \delta P$ results in a stable limit
+cycle of period $n$, which strikes the boundary at points that are distance $x_{FP}$
+from the nearest clockwise vertex. $x_{FP}$ is given by
+
+\begin{equation}
+x_{FP} = 
+\begin{cases}
+        \frac{l c(\theta)}{1 + c(\theta)} & \phi/2 < \theta
+< \pi/2 \\
+        \frac{l}{1+c(\theta)} & -\pi/2 < \theta
+< -\phi/2
+\end{cases}
+\end{equation}
+
+\noindent in which $c(\theta) = cos(\theta) / cos(\theta - \phi)$.
+
+\end{proposition}
+\begin{proof}
+In a regular $n$-sided polygon with side length $l$, let the robot begin its
+trajectory at a point $p \in P$ which is at a distance $x$ from the nearest
+vertex in the clockwise direction. We will begin by constraining the robot to
+bounce counterclockwise, at an angle $0 < \theta < \pi/2$ 
+such that it strikes the nearest
+adjacent edge, such as in Figure \ref{0.5rad}. The function $b_{\theta^+}$ 
+given in Lemma~\ref{Lemma:1} describes such bouncing behaviour.
+
+By Lemma~\ref{Lemma:2}, $b_{\theta^+}(x)$ has a unique fixed point, which is
+an orbit of $B_\theta$ since the
+robot is contacting each edge at the same distance from the
+vertex at each bounce. By iterating the map $b_{\theta^+}$,
+we can explicitly find the value of
+the fixed point, and thus the points on $\delta P$ touched by the
+robot in its orbit. Iterating $b_{\theta^+}$ $k$ times yields
+
+\begin{align*}
+b_{\theta^+}^k(x) & = c(\theta) (l-c(\theta)(l- \ldots c(\theta)(l-x) \ldots )) \\
+                & = \sum_{i=1}^{k} (-l) (-c(\theta))^i + (-c(\theta))^kx 
+\end{align*}
+
+\noindent and taking the limit as $k \to \infty$ and shifting the index gives
+\begin{equation*}
+b_{\theta^+}^\infty(x) = l + \sum\limits_{i=0}^\infty (-l)(-c(\theta))^i
+\end{equation*}
+.
+
+Note that the starting position, $x$, drops out when the limit
+is taken - the orbit converges regardless of
+starting position. The sum is geometric, and since $|c(\theta)| < 1$ 
+(the condition stated in Lemma~\ref{Lemma:2}), the fixed point 
+(for counterclockwise orbits) becomes
+
+\begin{equation*}
+b_{\theta^+}^\infty(x) = \frac{lc(\theta)}{1+c(\theta)}
+\end{equation*}
+.
+
+So the trajectory of a robot with bounce angle $\theta$ satisfying
+$|c(\theta)| < 1$ converges to a limit cycle in the shape of an inscribed
+$n$-gon, with collision points $x_{FP}$ at distance $(lc(\theta))/(1+c(\theta))$
+from the nearest vertex in the clockwise direction. When this calculation is
+redone for bounces in the counterclockwise direction ($-\pi/2 < \theta < 0$), the resulting fixed point
+$x_{FP}$ is $l/(1 + c(\theta))$. Moreover, since $c(\theta) \in (0, 1)$ 
+for stable orbits, and considering the past two
+expressions for $x_{FP}$, we find that the fixed point $x_{FP}$ for bounces can
+take all values in $(0, l)$ except for $l/2$, which would require
+$c(\theta) = 1$.
+
+Next, we examine the stability condition,
+$|\frac{\cos(\theta)}{\cos(\theta-\phi)}| < 1$. 
+Since $0 < \theta < \pi/2$ for $b_{\theta^+}$, $\cos(\theta)$ is always
+positive, then we must have $|\cos(\theta-\phi)| > \cos(\theta)$, from where we 
+can obtain the range $\phi/2 < \theta < \pi/2$. Likewise, in the clockwise 
+direction, $-\pi/2 < \theta < 0$ yields $-\pi/2 <
+\theta < -\phi/2$. Thus, we have a guarantee on the range of bounce angles that
+will result in periodic orbits, starting from any point on the polygon's
+boundary.
+\end{proof}
+
+\begin{remark}
+Note that calculating the Lyapunov exponent \cite{jackson1992} for the map $b_{\theta}(x)$
+gives the same result: $|db_{\theta}(x)/dx| = c$, which implies that $|c| < 1$
+gives a stable fixed point.
+\end{remark}
+
+\begin{figure}[th]
 \begin{subfigure}{.25\textwidth}
 \centering
 
-\includegraphics[width=0.9\linewidth]{figs/dec_limit_0pt2.pdf}
+\includegraphics[width=0.7\linewidth]{figs/dec_limit_0pt2.pdf}
 
 \end{subfigure}%
 \begin{subfigure}{0.25\textwidth}
 
-\includegraphics[width=0.9\linewidth]{figs/pent_limit_0pt5.pdf}
+\includegraphics[width=0.7\linewidth]{figs/pent_limit_0pt5.pdf}
 
 \end{subfigure}
 
-\caption{Predicted (collisions indicated by blue dots) and simulated limit cycles when bouncing to adjacent edge in
-regular polygons. \label{prediction}}
+\caption{Simulated orbits for adjacent edge bouncing in
+regular polygons. Predicted collision points are indicated by circles. Both simulations are of the trajectory after 300 bounces
+from an arbitrary start point. \label{prediction}}
 \end{figure}
 
-\subsection{Implications for Errors in Implementations}
 
-For each stable orbit in a given environment, we can use the bounds on
-$c$ to determine the range of angles that will result in that orbit. 
-Thus,
-when designing a "patrolling" robot in an environment with regular polygonal
-geometry, a robot designed to bounce at an angle in the center of one of these
-ranges will be maximally robust to actuator or sensor errors. The resulting
-maximum allowable error, $\epsilon_{max}$, will be $\pm | (\pi - \phi)/2 |$.
-Bounces with error within this range will still result in stable orbits of the
-workspace.
-
-However, these orbits will impact the boundary at
-a different location than expected. If there is a constant error in the bounce
-angle, so that the effective bounce angle is $\theta + \epsilon$, with $\epsilon
-< \epsilon_{max}$, the resulting difference in the location of the collision point
-on each edge will be $\Delta_x = f_{\theta + \epsilon}^{\infty} - f_{\theta}^{\infty}$.
-
-It is likely that physical implementations of the required motion primitives
-will be imperfect - for example, differential drive robots can have assymetries
-in the motors powering each wheel, which would result in a slightly curved path
-through the interior of the environment, or a slight under- or over-turning
-while aligning to $\theta$. These differences between the model and the
-implementation may be a constant offset, $\theta + \epsilon$ - or
-they may be time-varying. **todo bound error from independent random $\epsilon$
-at each stage**
 
 \section{GENERALIZATION}
+\label{general}
 
-\textbf{Proposition 2:} In every regular $n$-sided polygon, there exists a stable limit
-cycle with period $k$ for all $k$ such that $k > 1$ and $k|n$.
+Instead of bouncing between adjacent edges, we may ask what happens 
+when the robot bounces between edge $v_0 v_1$ and edge $v_m v_{m+1}$, 
+``skipping" $m-1$ edges, such as in Figure \ref{0.57rad} where the robot bounces off 
+every other edge.
 
-\textbf{Proof:} By induction: for all prime $n$, $n \geq 3$, the statement is true by
-Proposition 1, since $k=n$ and Proposition 1 guarantees a stable limit cycle that strikes
-each edge sequentially.
+Proposition~\ref{Proposition:2} states the existence of a stable limit cycle
+with period $k$ in every regular $n$-sided polygon, in the particular case where
+$k|n$. Then, following a similar approach as in Section~\ref{section:BAE}, we
+prove in Lemma~\ref{Lemma:4} that the trigonometric function of
+Lemma~\ref{Lemma:3} is a contraction mapping with a unique fixed point, and
+conclude with Theorem~\ref{Theorem:1} presenting a closed form solution for the
+fixed point (hence the location of the stable orbit) when the robot bounces
+skipping $m-1$ edges.
 
-Assume the statement is true for all $n' < n$. Then Proposition 1 guarantees a stable
-limit cycle that strikes each edge of an $n$-sided polygon sequentially. For all
-$k$ such that $k|n$, we can choose $k$ edges of the $n$-gon such that the edges
-are equally spaced. We can then imagine extending these edges to their
-intersection points, forming a regular $k$-gon. By Proposition 1, the bounce map in this
-regular $k$-gon is guaranteed to induce a stable limit cycle, with collision
-points at parameter $x$ on the edge for all $x$ except the very center point
-of the edge. Thus $\theta$ can be chosen such that the bounce map sends the
-robot to every $(n/k)-th$ edge such that the trajectory will converge to a
-stable cycle with period $k$. Thus by induction, the statement is true for all
-$n \geq 3$. \hfill $\blacksquare$
+\begin{proposition} \label{Proposition:2}
+In every regular $n$-sided polygon, there
+exists a stable limit cycle with period $k$ for all $k$ such that
+$k > 2$ and $k|n$.
+\end{proposition}
+\begin{proof}
+For all prime $n\geq3$, the statement
+is true by Proposition~\ref{Proposition:1}, since $k=n$ for $k|n$, 
+and Proposition~\ref{Proposition:1} guarantees a stable limit 
+cycle that strikes each edge sequentially.
 
-\textbf{Theorem 1:} In every regular $n$-sided polygon with side length $l$, if $k|n$,
-there exists a stable periodic orbit with $k$ bounces where each collision with
-the polygon boundary is at a distance $x$ ($0 < x < l$) from the nearest vertex in
-the clockwise direction. **todo: x as function of k** 
+Now consider any non-prime $n>3$, and assume $k>2$ to avoid
+trajectories between parallel edges (addressed in \cite{bounce}).
+Proposition~\ref{Proposition:1} guarantees a stable limit cycle that strikes each
+edge of an $n$-sided polygon sequentially. For all $k$ such that
+$k|n$, we can choose $k$ edges of the $n$-gon such that the
+edges are equally spaced. We can then imagine extending
+these edges to their intersection points, forming a regular $k$-gon. 
+By Proposition~\ref{Proposition:1}, the bounce map in this regular $k$-gon
+is guaranteed to induce a stable limit cycle, with collision
+points at parameter $x_{FP}$ on the edge for all $x_{FP}$ except the very
+center point of the edge. Thus $\theta$ can be chosen such that the
+bounce map sends the robot to every $(n/k)$- \textit{th} edge such
+that the trajectory will converge to a stable cycle with period
+$k$. The result follows.
+\end{proof}
 
-\textbf{Proof:} Instead of bouncing between adjacent edges, we may ask what happens when the
-robot bounces between edge $p_0 p_1$ and edge $p_m p_{m+1}$, "skipping" $m-1$
-edges, such as in Figure \ref{0.57rad} where the robot bounces off every other
-edge.
-
-Let $m \leq \lfloor n/2 \rfloor$ (if this is not the case, reflect the polygon
-across the vertical center axis, solve, and reflect back).
-
-Extend the line segments $p_0 p_1$ and $p_m p_{m+1}$ to their point of
-intersection $q$, forming the triangle $p_0 p_{m+1} q$. Let $a = \angle q
-p_{m+1} p_0 = \angle q p_0 p_{m+1}$, by symmetry. Let $b = \angle p_{m+1} q
-p_0$. Let $A = |q p_{m+1}| = |q p_0|$ and $B = |p_{m+1} p_0|$. See Figure
-\ref{gen_bounce}. Each of the sides of the polygon has length $l$, and the robot
-begins its trajectory at a point which is distance $x$ from $p_0$. We wish to
-find the resulting distance from point $p_m$, $f_{\theta, m}(x)$.
-
-\begin{figure}
+\begin{figure}[bh]
 \centering
-
 \includegraphics[width=0.2\textwidth]{figs/gen_bounce.pdf}
-
-\captionof{figure}{A bounce from edge $p_0p_1$ to edge $p_mp_{m+1}$. The other
-edges of the polygon are not drawn.
+\captionof{figure}{A bounce from edge $v_0v_1$ to edge $v_mv_{m+1}$. The other
+edges of the polygon are not drawn, and the distance between the edges is not to scale.
 \label{gen_bounce}}
-
 \end{figure}
 
-Then, by the law of sines, we have:
+\begin{lemma} \label{Lemma:3}
+
+Assume that $B_{\theta}$ is constrained so the robot ``skips" $m-1$ edges with
+each bounce in a counterclockwise direction. This constrained bounce
+map $b_{\theta^+,m} : (0, l) \to (0, l)$, which takes $x$ (the
+robot's distance from vertex $v_i$) and maps it to $b_{\theta^+,m}(x)$
+(the resulting distance from vertex $v_{i+m}$) is given by
+
+\begin{equation} \label{b-one-bounce}
+b_{\theta^+,m}(x) = c(\theta)(A-x) + l - A,
+\end{equation}
+
+%\begin{equation} \label{b-one-bounce}
+%b_{\theta,m}(x) =
+%\begin{cases}
+%        c(\theta)(A-x) + l - A,  & \frac{\phi_m}{2} < \theta <
+%\frac{\phi_{m-1}}{2} \\
+%        c(\theta)(l-A-x) - A, & \frac{-\phi_{m-1}}{2} < \theta <
+%\frac{-\phi_m}{2}
+%\end{cases}
+%\end{equation}
+
+\noindent in which
+
+\begin{equation} \label{equation:c_theta}
+c(\theta) = \cos(\theta)/\cos \left(\theta - \frac{\pi(n-2m)}{n}\right)
+\end{equation}
+
+\noindent and
+
+\begin{equation} \label{equation:A}
+A = \frac{l \sin(\frac{\pi(m+1)}{n}) \sin( \frac{m \pi}{n} )}{ \sin(
+\frac{\pi}{n} ) \sin( \frac{\pi(n-2m)}{n} ) } .
+\end{equation}
+
+%\noindent and
+%
+%\begin{equation} \label{equation:phi}
+%\phi_m = \frac{\pi(n-2m)}{n}
+%\end{equation}
+\end{lemma}
+
+\begin{proof}
+Let $m \leq \lfloor n/2 \rfloor$ - the robot bounces counterclockwise.
+Without loss of generality assume that we start on edge $v_0 v_1$.
+Extend the line segments $v_0 v_1$ and $v_m v_{m+1}$ to their point of
+intersection $q$, forming the triangle $v_0 v_{m+1} q$. Let $a = \angle q
+v_{m+1} v_0 = \angle q v_0 v_{m+1}$, by symmetry. Let $b = \angle v_{m+1} q
+v_0$. Let $A = |q v_{m+1}| = |q v_0|$ and $B = |v_{m+1} v_0|$ (see Figure
+\ref{gen_bounce}). Each of the sides of the polygon has length $l$, and the robot
+begins its trajectory at a point which is distance $x$ from $v_0$. We wish to
+find $b_{\theta^+,m}(x)$, the distance from the endpoint of the bounce to point
+$v_m$.
+
+By the law of sines, we have
 
 $$ A = \frac{B \sin(a)}{\sin(b)} $$
 
-We can then form the triangle from the points $p_0$, $p_{m+1}$, and the center
+\noindent We can then form the triangle from the points $v_0$, $v_{m+1}$, and the center
 of the regular $n$-gon. The distance from the center of a regular $n$-gon to any
-of its vertices is $\frac{l}{2 \sin(\pi/n)}$. The angle subtended by the edges
-$p_0 p_1$ through $p_m p_{m+1}$ is $2 \pi (m+1)/n$. Thus we can solve for $B$:
+of its vertices is $\frac{l}{2 \sin(\pi/n)}$ \cite{johnson1929}. The angle subtended
+by the edges $v_0 v_1$ through $v_m v_{m+1}$ is $2 \pi (m+1)/n$. Thus, $B$
+becomes
 
-$$ B = \frac{l \sin( \pi (m+1) /n)}{\sin (\pi / n)} $$
+$$ B = \frac{l \sin( \pi (m+1) /n)}{\sin (\pi / n)} $$.
 
-The angle $a$ can be found by considering the polygon formed by edges $p_0 p_1$
-through $p_m p_{m+1}$, closed by edge $p_{m+1} p_0$. This polygon has $m+2$
+The angle $a$ can be found by considering the polygon formed by edges $v_0 v_1$
+through $v_m v_{m+1}$, closed by edge $v_{m+1} v_0$. This polygon has $m+2$
 vertices, so its angle sum is $m \pi$. $m$ of these vertices have the vertex
 angle of the regular $n$-gon, $(n-2) \pi /n$. The remaining two vertices have
-angle $a$. Therefore:
-
-$2a + m(n-2)\pi/n = m \pi$
-
-So $a = m \pi / n$.
-
-And thus $A$:
+angle $a$. Therefore, $2a + m(n-2)\pi/n = m \pi$, so $a = m \pi / n$, and thus 
 
 $$ A = \frac{l \sin(\frac{\pi(m+1)}{n}) \sin( \frac{m \pi}{n} )}{ \sin(
-\frac{\pi}{n} ) \sin( \frac{\pi(n-2m)}{n} ) } $$
+\frac{\pi}{n} ) \sin( \frac{\pi(n-2m)}{n} ) } $$.
 
-Then, using the triangle formed by the the bounce of the robot, and again the
-law of sines, we have:
+Using the triangle formed by the the bounce of the robot and vertex $q$,
+the law of sines states
 
 $$ \frac{A-x}{\sin( \theta - \pi/2 + (2 \pi m)/n )} = \frac{ A - l +
-f_{\theta, m}(x)}{sin(\pi/2 - \theta)} $$
+b_{\theta^+,m}(x)}{sin(\pi/2 - \theta)}, $$
 
-Solved for $f_{\theta, m}$ and rewritten:
+\noindent which we rewrite as
 
-$$ f_{\theta, m}(x) =\frac{(x-A) \cos(\theta)}{\cos(\theta + \pi(n-2m)/n)} + l -A$$
-
-\textbf{Observation:} When $m=1$ (agent skips no edges while bouncing around polygon), $A$
-reduces to $l$, and the expression for $f_{\theta, 1}(x)$ reduces to $f_{\theta}(x)$ as 
-previously derived.
-
-\textbf{Corollary:} When $mk=n$, for some integer $k$, $A$ becomes:
-
-\[ A = \frac{l \sin(\frac{\pi}{k} + \frac{\pi}{n}) \sin( \frac{\pi}{k} )}{ \sin(
-    \frac{\pi}{n} ) \sin( \pi - \frac{2\pi}{k} } = l \left(
-    \frac{\tan(\frac{\pi}{k})}{\tan(\frac{\pi}{n})} +1 \right) \]
-
-\section{SIMULATION}
-
-The figures and experimental simulations for this paper were computed using a
-program written in Haskell and relying heavily on the excellent *Diagrams*
-library \cite{diagrams}. **todo: write up on numerical precision**
-
-The simulator is also quite general, and could be of use to those studying
-classical billiards, or variants such as pinball billiards. It is also capable
-of simulating random bounces, or random noise on top of a deterministic bouncing
-law. Code is open source and on GitHub
-\footnote{\url{https://github.com/alexandroid000/bounce}}.
+\begin{align*}
+b_{\theta^+,m}(x) & =\frac{(A-x) \cos(\theta)}{\cos(\theta - \frac{\pi
+(n-2m)}{n})} + l -A \\ \\
+                & = c(\theta)(A-x)  + l -A. \\
+\end{align*}
+\end{proof}
 
 
+\begin{lemma} \label{Lemma:4}
+If $|c(\theta)| < 1$, then $b_{\theta^+,m}(x)$ is a contraction
+mapping, and therefore has a unique fixed point.
+\end{lemma}
+\begin{proof}
+We take $(0,l)$ to be a metric space with metric $d(x,y) =
+|y-x|$. To be a contraction mapping, $b_{\theta^+,m}$ must satisfy
+\begin{equation*}
+d(b_{\theta^+,m}(x), b_{\theta^+,m}(y) \leq k d(x,y) 
+\end{equation*}
+\noindent for all $x, y \in (0,l)$ and some nonnegative real number $0 \leq k < 1$.
 
-\begin{table}[h]
-\caption{An Example of a Table}
-\label{table_example}
-\begin{center}
-\begin{tabular}{|c||c|}
-\hline
-One & Two\\
-\hline
-Three & Four\\
-\hline
-\end{tabular}
-\end{center}
-\end{table}
+When we check this property, we see that
+\begin{align*}
+d(b_{\theta^+,m}(x), b_{\theta^+,m}(y) & = | b_{\theta^+,m}(x) - b_{\theta^+,m}(y)|\\
+								 & = | c(\theta)(A-x)+l-A - \\
+								 & \qquad c(\theta)(A-y)-l+A| \\
+                               & = | c(\theta) (y-x) | \\
+                               & = | c(\theta) | d(x,y).
+\end{align*}
+
+Thus if $|c(\theta)| <1$, then $b_{\theta^+,m}$ is a contraction mapping, and by the Banach fixed-point
+theorem has a unique fixed point \cite{Granas2003}.
+\end{proof}
+
+\begin{theorem} \label{Theorem:1}
+
+In every regular $n$-sided polygon with side
+length $l$ and interior angle $(n - 2)\pi/n$, there exists a range for 
+$\theta$ such that iterating $B_{\theta}(x)$ on any $x \in \delta P$, 
+results in a stable limit cycle that strikes the boundary skipping $m-1$ 
+edges, and strikes at points that are distance $x_{FP}$ from the nearest 
+clockwise vertex, with $x_{FP}$ given by
+
+\begin{equation} \label{x-multi-bounce}
+x_{FP} = 
+\begin{cases}
+        \frac{l-A(1-c(\theta))}{1+c(\theta)}, \qquad & \frac{\phi_m}{2} < \theta
+< \frac{\phi_{m-1}}{2} \\
+        \frac{lc(-\theta) + A(1-c(-\theta))}{1+c(-\theta)}, & \frac{-\phi_{m-1}}{2} 
+< \theta < \frac{-\phi_m}{2}
+\end{cases}
+\end{equation}
+
+\noindent in which $c(\theta)$ and $A$ are given by 
+Equations~(\ref{equation:c_theta}) and (\ref{equation:A}) respectively,
+and $\phi_m = \frac{\pi(n-2m)}{n}$.
+
+\end{theorem}
+\begin{proof}
+Consider an $n$-sided polygon with side length $l$ and let the robot begin its 
+trajectory at a point $p \in \delta P$ which is at a distance $x$ from the nearest 
+vertex in the clockwise direction. We begin by assuming the robot bounces 
+in the conterclockwise direction, at an angle $\theta$ such that instead of 
+bouncing between adjacent edges the robot ``skips" $m-1$ edges. The function $b_{\theta^+,m}(x)$  in 
+Lemma~\ref{Lemma:3} obeys such bouncing behaviour.
+
+By Lemma~\ref{Lemma:4}, the map $b_{\theta^+,m}(x)$ has a unique fixed point,
+which implies an orbit of $B_{\theta}$. By iterating the map $b_{\theta^+,m}(x)$, 
+we explicitly find the value of the fixed point $x_{FP}$, and thus the points 
+on $\delta P$ touched by the robot in its orbit. After $k$ iterations, this mapping 
+function becomes
+
+\begin{equation*}
+\begin{aligned}
+b_{\theta^+, m}^k(x) = \sum_{i=0}^{k-1} (-c(\theta))^i (l-A(1-c(\theta))) + (-c(\theta))^k x
+\end{aligned}
+\end{equation*}
+
+\noindent and after taking the limit as $k \to \infty$, and considering
+$|c(\theta)| < 1$ (the condition stated in Lemma~\ref{Lemma:4}), 
+we find the fixed point to be
+
+\begin{equation} \label{b-multi-bounce}
+b_{\theta^+, m}^{\infty}(x) = \frac{l-A(1-c(\theta))}{1+c(\theta)}
+\end{equation}
+
+So we expect every converging counterclockwise 
+periodic orbit which skips $m-1$ edges,
+$m \geq 1$, to collide with the environment at distance
+$\frac{l-A(1-c(\theta))}{1+c(\theta)}$ from the nearest clockwise vertex. 
+
+%The
+%clockwise case can be found by reflecting the polygon and the bounce over the
+%$y$-axis, so the clockwise fixed point is given by $l - b_{-\theta, m,
+%ccw}^{\infty}$, which is the second expression in Equation \ref{x-multi-bounce}.
+%Figure
+%\ref{ccw-m-bounce} confirms this.
+
+The clockwise case can be found by reflecting the polygon and the bounce over the
+$y$-axis, so the clockwise fixed point is given by $\frac{lc(-\theta) + A(1-c(-\theta))}{1+c(-\theta)}$, which is the second expression in Equation \ref{x-multi-bounce}.
+
+Next, examining the stability condition,
+$|c(\theta)| < 1$, with $c(\theta)$ given by Equation (\ref{equation:c_theta}),
+and considering that $0 < \theta < \pi/2$ for $b_{\theta^+}$, we can obtain 
+the range $\pi(n-2m)/2n < \theta < \pi(n-2(m-1))/2n$. 
+Likewise, in the clockwise direction, $-\pi/2 < \theta < 0$ yields $-\pi(n-2(m-1))/2n < \theta < -\pi(n-2m)/2n$. Thus, we have a guarantee on the range of bounce angles that
+will result in periodic orbits, starting from any point on the polygon's
+boundary.
 
 
+\end{proof}
 
-\section{DISCUSSION}
+\begin{remark} When $m=1$ (agent skips no edges while bouncing around polygon), $A$
+reduces to $l$, and the expression for $b_{\theta^+, 1}(x)$ reduces to
+$b_{\theta^+}(x)$ as in Equation \ref{b-one-bounce}, so Equation
+\ref{b-one-bounce} is a special case of Equation \ref{b-multi-bounce}.
+Furthermore, the bounds on $\theta$ also reduce to the bounds $\phi/2 < \theta < \pi/2$ and $-\phi/2 < \theta < -\pi/2$, where $\phi=\pi(n-2)/n$.
+\end{remark}
 
-We are inspired by work on map dynamics in polygons such as
-\cite{schwartz_billiards} and \cite{schwartz1992}, and it is possible that similar
-techniques from projective geometry could be applied to this dynamical system.
-
-\begin{figure}
+\begin{figure}[th]
+\begin{subfigure}{.25\textwidth}
 \centering
 
-\includegraphics[width=0.4\textwidth]{figs/squish.pdf}
+\includegraphics[width=0.7\linewidth]{figs/nonagon_neg0pt8rad_skip3.pdf}
 
-\captionof{figure}{Stable limit cycles exist in polygons with fewer
-symmetries than regular polygons. \label{squish}}
+\end{subfigure}%
+\begin{subfigure}{0.25\textwidth}
 
+\includegraphics[width=0.7\linewidth]{figs/eleven_limit_m2.pdf}
+
+\end{subfigure}
+
+\caption{Simulated orbits for generalized edge bouncing in
+regular polygons, with $n=9, m=4, \theta=-0.8$ rad and $n=11, m=2, \theta=0.4$
+rad. Predicted collision points are indicated by circles. Both simulations are of the trajectory after 300 bounces
+from an arbitrary start point. \label{ccw-m-bounce}}
 \end{figure}
 
 
-In non-regular polygons, we cannot solve for orbits as the fixed point of one
-mapping function. Yet, limit cycles still exist in polygons with enough
-symmetry, as seen in Figure \ref{squish}.
+\subsection{Implications for Uncertainty in Implementations}
+It is likely that physical implementations of the required motion primitives
+will be imperfect - for example, differential drive robots can have asymmetries
+in the motors powering each wheel, which would result in a curved path
+through the interior of the environment, or an inaccurate rotation
+while aligning to $\theta$. These differences between the model and 
+the implementation produce a constant offset in the bounce angle, $\theta + \epsilon$. 
+Theorem \ref{Theorem:1} gives a bound on the maximum allowable error in this
+situation, and suggests that random errors within this bound will still result
+in near-periodic orbits.
+
+For each stable orbit in a given environment, we can use the bounds on
+$c(\theta)$ to determine the range of angles that will result in that orbit. 
+Thus, when designing a ``patrolling" robot in an environment with regular polygonal
+geometry, a robot designed to bounce at an angle $\theta$ in the center of one of these
+ranges ($ \phi_m/2< \theta < \phi_{m-1}/2$ or $-\phi_{m-1}/2 < \theta <
+-\phi_m/2$) will be maximally robust to actuator or sensor errors. The resulting
+maximum allowable error, $\epsilon_{max}$, will be $\pm | (\phi_m - \phi_{m-1})/2 |$.
+Bounces with error within this range will still result in stable orbits of the
+workspace, because the bounce still acts as a contraction mapping on the edge
+intervals.
+
+However, these orbits will impact the boundary at
+different locations than expected. If there is a constant error in the bounce
+angle, so that the effective bounce angle is $\theta + \epsilon$, with $\epsilon
+< \epsilon_{max}$, the resulting difference in the location of the collision point
+on each edge will be $\Delta_x = b_{m,\theta + \epsilon}^{\infty} - b_{m,\theta}^{\infty}$.
+
+
+\section{SIMULATIONS}
+The figures and experimental simulations for this paper were computed using a
+Haskell program which heavily used the
+\textit{Diagrams} library \cite{yorgey2012monoids}. 
+The simulator can also be used for specular bouncing simulations, and could be
+of use to those studying classical billiards, or variants such as pinball billiards.
+It is also capable of simulating random bounces, or random noise on top of  
+deterministic bouncing. Code is open source and on GitHub
+\footnote{\url{https://github.com/alexandroid000/bounce}}.
+
+The purpose of the simulations is to confirm experimentally
+the theoretical results obtained in previous sections. Figure~\ref{prediction} 
+depicts simulated orbits for adjacent edge bouncing after 300 bounces. 
+Predicted collision points $x_{FP}$ are indicated by circles. Figure~\ref{gen_bounce}
+shows simulated orbits for two pairs of $n$ and $m$ values in the case where the
+robot bounces skipping $m-1$ edges. The trajectories after 300 bounces are displayed.
+
+Note that the simulated orbits were computed by iteratively bouncing
+the robot in the environment from an arbitrary start point rather than just
+plotting the resulting orbit from the predicted collision points.
+In all simulations, the simulated collision points (tips of arrows) and the
+theorized collision points $x_{FP}$ (circles) coincide.
+
+Figure~\ref{fig:multi_start} shows three orbits simulated from different 
+start points but with the same bouncing angle $\theta$. Regardless of starting
+position, the same bouncing angle $\theta$ produces trajectories which
+converge to the same limit cycle, as stated in 
+Remark~\ref{rm1}.
+
+\begin{figure}[bh]
+\centering
+\includegraphics[width=0.2\textwidth]{figs/multi_start.pdf}
+\captionof{figure}{Three orbits simulated with different start points - the three circles - but same bouncing angle $\theta$. The limit cycle is the same.
+\label{fig:multi_start}}
+\end{figure}
+
+As stated in Theorem~\ref{Theorem:1} there exist ranges of $\theta$ that 
+produce stable orbits when the robot skips $m-1$ edges with $m \geq 1$. For
+regular hexagons, $\pi/3$ is the lower bound on $\theta$ such that the
+robot strikes every edge sequentially. $\pi/3$ is also the upper bound on angles which
+cause the robot to strike every other edge in hexagons. The orbits shown in Figure~\ref{fig:multi} were generated setting
+$\theta = \pi/3 + 0.05$ and $\theta = \pi/3 - 0.05$. As predicted, one orbit
+bounces off every other edge, while the other strikes each edge, supporting these
+bounds on $\theta$.
+
+\begin{figure}[bh]
+\centering
+\includegraphics[width=0.2\textwidth]{figs/multi.pdf}
+\captionof{figure}{ Two simulated orbits with the same start point but
+$\theta$ set to $\pi/3 + 0.05$ (blue) and $\pi/3 - 0.05$ (red). One skips
+no edges and the other skips one edge, as expected.
+\label{fig:multi}}
+\end{figure}
+
+%\begin{figure}[bh]
+%\centering
+%\includegraphics[width=0.2\textwidth]{figs/convergence.pdf}
+%\captionof{figure}{A bounce from edge $p_0p_1$ to edge $p_mp_{m+1}$. The other
+%edges of the polygon are not drawn.
+%\label{fig:conver}}
+%\end{figure}
+
+
+\section{CONCLUSIONS AND FUTURE WORK} \label{conclusion}
+
+In this paper we considered robots that drive in straight 
+lines and “bounce” off boundaries at controllable angles. 
+We analysed the location and stability of periodic orbits in 
+regular polygons, which might be used to patrol the space 
+on a repeatable, periodic path.
+
+We first presented the case of stable orbits that bounce 
+off each adjacent edge. We proved the existence of periodic
+orbits in $n$-sided regular polygons, and showed the range of
+bounce angles that will produce such orbits along with an analysis 
+of their stability and robustness to modeling errors.
+We generalized our results to the case
+where the robot skips $m-1$ edges. 
+In both cases we present a closed form solution for the locations
+where the robot collides with the environment boundary while 
+patrolling. 
+
+The existence of periodic orbits along with the presented 
+closed form solutions for $x_{FP}$ show that it is possible to 
+design a robust patrolling path for a given environment, using limited motion
+and sensing capabilities. These orbits
+have the useful properties of being robust to modelling errors and being
+independent of the start position.
+
+One interesting line of research could be to explore how the convergence of
+these orbits could be used to narrow down the set of possible positions of the
+robot, in navigation and localization tasks.
+
+\begin{figure}
+\begin{subfigure}{.25\textwidth}
+\centering
+\includegraphics[width=0.8\linewidth]{figs/shear.pdf}
+\caption{A stable orbit in a sheared pentagon.}
+\label{shear}
+\end{subfigure}%
+\begin{subfigure}{0.25\textwidth}
+\centering
+\includegraphics[width=0.6\linewidth]{figs/oct.pdf}
+\caption{A stable orbit in a nonconvex environment.}
+\label{oct}
+\end{subfigure}
+\caption{Stable orbits also exist in non-regular polygons. }
+\label{squish-shear}
+\end{figure}
+
+The most pressing open question is how to extend the current analysis to 
+non-regular polygons. In non-regular polygons, we cannot 
+solve for orbits as the fixed point of one
+mapping function. Yet, limit cycles still exist in other polygons, such as
+regular polygons under linear transformations, as seen in Figure \ref{shear}.
+It is worth mentioning that our current analysis can be used to design stable
+orbits in polygons with enough local similarity to regular polygons, such
+as in Figure \ref{oct}.
+
+Another direction for future research is to consider a 
+time-varying error $\epsilon(t)$ over $\theta$. This would
+allow us to model external disturbances to the 
+motion and sensing of the robot. In
+simulations we have noticed that if $\epsilon(t)$ does not cause $\theta \pm
+\epsilon(t)$ to exceed the bounds on $\theta$ that cause periodic orbits, the robot's 
+trajectory stays within a certain range of the predicted collision points. 
+A theoretical analysis of these observations would be useful. 
 
 \addtolength{\textheight}{-12cm}   % This command serves to balance the column lengths
                                   % on the last page of the document manually. It shortens
@@ -526,14 +913,12 @@ symmetry, as seen in Figure \ref{squish}.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section*{APPENDIX}
-
-Appendixes should appear before the acknowledgment.
 
 \section*{ACKNOWLEDGMENT}
 
-
-
+This work is supported in part by NSF grant 1035345 and CONACyT post-doctoral
+fellowship 277028. The authors would like to thank Michael Zheng for his
+contributions to the fixed-point formulation of the problem.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
