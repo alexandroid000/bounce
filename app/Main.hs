@@ -1,19 +1,26 @@
-{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE NoMonomorphismRestriction  #-}
 
 module Main where
-
+        
 import              System.Random
-import              Diagrams.Backend.SVG             (renderSVG)
-import              Diagrams.TwoD.Size               (mkSizeSpec2D)
+import              Diagrams.Prelude                (Diagram, V2)
+import              Diagrams.TwoD.Size              (mkSizeSpec2D)
+import              Diagrams.TwoD.Align             (centerXY)
+import              Diagrams.Combinators            (pad)
+import              Diagrams.Util
 
 -- local libraries
 import              BounceSim
-import              Refine                           (refine)
+import              GenDiagrams
+import              Animate
 import              Maps                             (maps)
 
 -- CLI
 import              Options.Applicative
 import              Data.HashMap
+import              Diagrams.Backend.SVG
+import              Diagrams.Backend.CmdLine
+import              Diagrams.Backend.Cairo.CmdLine -- for gifs only
 
 
 data Simulation = Simulation
@@ -23,6 +30,7 @@ data Simulation = Simulation
     , ang   :: Double   -- angle to bounce at (-pi/2, pi/2)
     , s     :: Double   -- perimeter parameter to start at
     , rand  :: Double   -- magnitude of random angle (default 0)
+    , gif   :: Bool     -- produce gif output
     }
 
 sim :: Options.Applicative.Parser Simulation
@@ -68,12 +76,14 @@ sim = Simulation
                         value 0.0 <>
                         help "random offset added to theta"
                     )
+        <*> switch -- default false
+                    (   short 'g' <>
+                        long "gif" <>
+                        metavar "GIF" <>
+                        value False <>
+                        help "create animated gif"
+                    )
 
--- return uniform random value in [-max_r, +max_r]
-randAngs :: Double -> IO [Double]
-randAngs max_r = do
-    g <- getStdGen
-    return (randomRs (-max_r + 0.001,max_r-0.001) g :: [Double])
 
 -- returns max range of random value. depends on theta
 -- clamps to maximum possible range if user-given value is too high
@@ -82,22 +92,48 @@ clamped_r ang rand
         | rand < (pi-ang) && rand < ang = rand
         | otherwise = min (pi-ang) ang
 
+-- backend choice, svg or gifs
+data BE = Svg | Cairo
+
+generate :: BE -> String -> Int -> Poly V2 Double -> [Double] -> Double -> Int -> IO ()
+generate (Svg) fname width map angs s num = let
+        opts    = (DiagramOpts (Just width) Nothing fname, gOpts)
+        sim     = animate map angs s num
+    in  gifRender opts sim
+
+generate (Cairo) fname width map angs s num = let
+        pxsize          = (mkSizeSpec2D (Just width) Nothing)
+        (plot_dat, sim) = plotBounce map angs s num
+    in renderSVG fname pxsize $ (sim # centerXY # pad 1.1)
+
 runSim :: Simulation -> IO ()
-runSim (Simulation fname env num ang s rand) = do
+runSim (Simulation fname env num ang s rand gif) = do
         rangs <- randAngs (clamped_r ang rand)
         let mkAngs ang
                 | 0 < ang && ang < pi = repeat $ ang
                 | otherwise = error "angle not between 0 and pi"
         let angs = zipWith (+) rangs (mkAngs ang)
         let map = mkPoly $ maps ! env
-        let pxsize = (mkSizeSpec2D (Just 400) Nothing)
-        let (plot_dat, sim) = plotBounce map angs s num
-        print $ show (take num plot_dat)
-        writeFile "bounce_data.txt" (show $ take num plot_dat)
-        renderSVG fname pxsize $ sim
- --       renderSVG fname pxsize $ plotLimitCycle 0.2 5 300
+        case gif of
+            True ->     generate Cairo fname 400 map angs s num
+            False ->    generate Svg fname 400 map angs s num
+-- harcoded some things for paper fig
+        --let angs1 = mkAngs 0.47
+        --let fps1 = fpPoints 0.47 6 1 500
+        --let angs2 = mkAngs 0.57
+        --let fps2 = fpPoints 0.57 6 2 500
+        --let (plot_dat, sim) = plotMulti map (angs1, angs2) s num
 
--- main looks weird because it has boilerplate to make cmd line parser
+        --let s1 = 0.05
+        --let s2 = 0.1
+        --let s3 = 0.18
+        --let (plot_dat, sim) = plotMultiS map angs (s1,s2,s3) num
+
+--        let fps = fpPoints ang 10 1 500
+--        writeFile "bounce_data.txt" (show $ take num plot_dat)
+--        renderSVG fname pxsize $ ((sim <> fps1 <> fps2) # centerXY # pad 1.1)
+--        renderSVG fname pxsize $ (plotGenFP 2.64 5 1 300 # centerXY # pad 1.1)
+
 -- feeds everything to runSim
 main :: IO ()
 main = execParser opts >>= runSim

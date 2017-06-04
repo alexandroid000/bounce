@@ -1,7 +1,10 @@
 {-# LANGUAGE NoMonomorphismRestriction #-}
+{-# LANGUAGE FlexibleContexts #-}
 
 import Diagrams.Backend.SVG.CmdLine
 import Diagrams.Prelude
+import BounceSim
+import Maps
 
 edge :: Located (Trail V2 Double)
 edge = fromOffsets [2 *^ unitX] `at` origin
@@ -57,19 +60,44 @@ bnce_line tri =
         <> node "x" "r" # moveTo p1
         <> node "f(x)" "l" # moveTo p2
 
-ed :: Double -> Double -> Located (Trail V2 Double) -> Diagram B
-ed s1 s2 tri =
-    let p0 = tri `atParam` s1
-        p1 = tri `atParam` s2
-    in mconcat [p0 ~~ p1 # lwN 0.01, circle 2 # moveTo p0 # lw none # fc black,
-    circle 2 # moveTo p1 # lw none # fc black ]
+
+--ed :: Double -> Double -> String -> String -> Located (Trail V2 Double) -> Diagram B
+--ed s1 s2 txt1 txt2 tri =
+--    let p0 = tri `atParam` s1
+--        p1 = tri `atParam` s2
+--    in mconcat [p0 ~~ p1 # lwN 0.01, circle 2 # moveTo p0 # lw none # fc black,
+--    circle 2 # moveTo p1 # lw none # fc black ]
 
 
-gen_bounce :: Diagram B
-gen_bounce = (strokeLocTrail frameT # dashingN [0.02, 0.02] 0
-                <> bnce_line frameT
-                <> ed 0.0 0.2 frameT
-                <> ed 0.466 0.666 frameT) # centerXY
-                # pad 1.2
+--gen_bounce :: Diagram B
+--gen_bounce = (strokeLocTrail frameT # dashingN [0.02, 0.02] 0
+--                <> bnce_line frameT
+--                <> ed 0.0 0.2 frameT
+--                <> ed 0.466 0.666 frameT) # centerXY
+--                # pad 1.2
 
-main = mainWith gen_bounce
+
+halfStar :: Int -> Diagram B
+halfStar n =
+    let regP = trailSegments $ regPoly n 500
+        n' = n `div` 2
+        fn = fromIntegral n'
+        triangs = mconcat . take n' . iterate (rotateBy (1/fn)) . init .
+                  trailSegments $ triangle 300
+    in strokeTrail $ trailFromSegments $ alternate triangs regP
+
+
+alternate :: [a] -> [a] -> [a]
+alternate [] b = b
+alternate a [] = a
+alternate (a:as) (b:bs) = a:(alternate bs as)
+
+
+mkRoom :: Int -> [Poly V2 Double] -> Diagram B
+mkRoom n adds = let
+    adds' = take n adds
+    --oct_segs = explodeTrail (mkPoly oct :: Poly V2 Double)
+    tri_1 = wrapTrail . onLineSegments init $ regPoly n 500
+    in strokeTrail tri_1
+
+main = mainWith $ halfStar 8

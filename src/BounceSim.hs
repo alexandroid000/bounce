@@ -7,24 +7,28 @@ module BounceSim
     , RoboLoc
     , Robot
     , MapSpec
-    , plotBounce
+--    , plotBounce
     , pts2poly
     , mkPoly
     , mkBounce
     , doBounce
+    , doBounces
+--    , mkBounceArrows
     , lineSeg
     , linePoly
     , shootRay
-    , animate
-    , plotLimitCycle
+--    , plotGenFP
+--    , fpPoints
+    , randAngs
+--    , plotMulti
+--    , plotMultiS
     ) where
 
 import              Diagrams.Prelude
 import              Diagrams.TwoD.Segment           (lineSegment)
-import              Diagrams.Trail                  (trailPoints)
-import              Diagrams.Backend.SVG.CmdLine
---import              Diagrams.Backend.Cairo.CmdLine
+import qualified    Diagrams.Trail                  (trailPoints)
 import              Data.List                       (minimumBy)
+import              System.Random
 import              Maps
 
 -- Trails are a fundamental data type in Diagrams. They're collections of
@@ -32,7 +36,6 @@ import              Maps
 -- actual polygon data type in Diagrams is not that useful
 type Poly v n = Located (Trail v n)
 
-type GifDelay = Int
 
 -- state could be either an index for the edge we're on, or a parameter "s" on
 -- the perimeter of the polygon
@@ -59,6 +62,12 @@ reParam :: Int -> Int -> Double -> Double
 reParam n k s =
         let (nd, kd) = (fromIntegral n, fromIntegral k) :: (Double, Double)
         in  (s + kd)/nd
+
+-- return uniform random value in [-max_r, +max_r]
+randAngs :: Double -> IO [Double]
+randAngs max_r = do
+    g <- getStdGen
+    return (randomRs (-max_r + 0.001,max_r-0.001) g :: [Double])
 
 -- Geometry Functions
 -- ------------------
@@ -115,53 +124,28 @@ doBounces poly s1 angs =
         nextBounce robo a = doBounce a robo
     in  map (\(s,_,_) -> s) $ scanl nextBounce start angs
 
--- Diagram Generators
--- ------------------
 
-visPoints :: [P2 Double] -> Diagram B
-visPoints pts = atPoints pts (repeat (circle 15 # lw none # fc blue))
+--plotMulti :: Poly V2 Double -> ([Double], [Double]) -> Double -> Int -> ([RoboLoc], Diagram B)
+--plotMulti p (angs1, angs2) s num =
+--    let bounces angs = doBounces p s $ map (@@ rad) angs :: [RoboLoc]
+--        --start_pt = circle 15 # fc yellow # lc blue # moveTo (p `atParam` s) :: Diagram B
+--        arrows1 = mkBounceArrows p (bounces angs1) num blue
+--        arrows2 = mkBounceArrows p (bounces angs2) num red
+--        plot =  (mconcat (map (lc red) arrows1) # lwL 5) <>
+--                (mconcat arrows2 # lwL 5) <>
+--                (strokeLocTrail p # lwL 11) -- <> start_pt
+--    in  ([], plot)
 
-plotLimitCycle :: Double -> Int -> Double -> Diagram B
-plotLimitCycle theta n' l =
-    let env = regPoly n' l :: Trail V2 Double
-        n = fromIntegral n'
-        th = pi/2 - theta
-        c = (cos th)/(cos (th - (n-2)*pi/n))
-        fx = l*c/(1+c)
-        s_fx = map (\i -> i/n + fx/(n*l)) [0..n-1]
-        fps = map (\s -> origin .+^ (atParam env s)) s_fx
-        sim = snd $ plotBounce (mkPoly $ Trl env) (repeat theta) (1/n+0.001) 500
-     in sim # centerXY `atop` (visPoints fps)
+--plotMultiS :: Poly V2 Double -> [Double] -> (Double, Double) -> Int -> ([RoboLoc], Diagram B)
+--plotMultiS p angs (s1, s3) num =
+--    let bounces s = doBounces p s $ map (@@ rad) angs :: [RoboLoc]
+--        start_pt s col = circle 15 # fc col # moveTo (p `atParam` s)
+--        arrows1 = mkBounceArrows p (bounces s1) num red
+--        arrows3 = mkBounceArrows p (bounces s3) num blue
+--        plot =  (start_pt s1 red) <>
+--                (start_pt s3 blue) <>
+--                (mconcat arrows1 # lwL 5) <>
+--                (mconcat arrows3 # lwL 5) <>
+--                (strokeLocTrail p # lwL 11) -- <> start_pt
+--    in  ([], plot)
 
-mkBounceArrows :: Poly V2 Double -> [RoboLoc] -> Int -> [Diagram B]
-mkBounceArrows p bounces num =
-    let transparentList = 1 : (map (*0.99) transparentList)
-        getMask len = reverse $ take len transparentList
-        mkOpaque arrows = zipWith opacity (getMask (length arrows)) arrows
-        mkArrows (s1, s2) = arrowBetween' (with & headLength .~ veryLarge)
-                                (p `atParam` s1) (p `atParam` s2) # lc blue
-    in  mkOpaque $ take num $ map mkArrows $ zip bounces (tail bounces)
-
--- make static diagram of all bounces
--- Pair with list of impact points
-plotBounce :: Poly V2 Double -> [Double] -> Double -> Int -> ([RoboLoc], Diagram B)
-plotBounce p angs s num =
-    let bounces = doBounces p s $ map (@@ rad) angs :: [RoboLoc]
-        start_pt = circle 15 # fc yellow # lc blue # moveTo (p `atParam` s) :: Diagram B
-        arrows = mkBounceArrows p bounces num
-        plot = (start_pt <> (mconcat arrows # lwL 5) <> (strokeLocTrail p # lwL 11))
-                # centerXY # pad 1.1
-    in  (bounces, plot)
-
--- GIFS?!?!?!
---mkFrames :: Poly V2 Double -> [Diagram B] -> [(QDiagram Cairo V2 Double Any, GifDelay)]
-mkFrames _ [] = []
-mkFrames p arrows =
-    let awtime = map (\a -> (a, 1)) arrows
-    in  scanl (\(a,_) (b,_) -> (mconcat [a, b], 100)) (strokeLocTrail p # lc white, 100) awtime
-
---animate :: Poly V2 Double -> [Double] -> Double -> Int -> [(QDiagram Cairo V2 Double Any, GifDelay)]
-animate p angs s num =
-    let bounces = doBounces p s $ map (@@ rad) angs
-        arrows = mkBounceArrows p bounces num
-    in  mkFrames p arrows
