@@ -126,22 +126,22 @@ environment while in these orbits.
 \begin{figure}[tp]
 \begin{subfigure}{.25\textwidth}
 \centering
-\includegraphics[width=0.8\linewidth]{figs/pent_05rad.pdf}
+\includegraphics[width=0.8\linewidth]{../figs/pent_05rad.pdf}
 \captionof{figure}{\sffamily\footnotesize$\theta = 1.07$ rad, 20
 bounces. \label{0.5rad}}
 \end{subfigure}%
 \begin{subfigure}{0.25\textwidth}
-\includegraphics[width=0.8\linewidth]{figs/pent_1rad.pdf}
+\includegraphics[width=0.8\linewidth]{../figs/pent_1rad.pdf}
 \captionof{figure}{\sffamily\footnotesize $\theta = 0.57$ rad, 50
 bounces. \label{0.57rad}}
 \end{subfigure}
 \begin{subfigure}{0.25\textwidth}
-\includegraphics[width=0.8\linewidth]{figs/pent_165rad.pdf}
+\includegraphics[width=0.8\linewidth]{../figs/pent_165rad.pdf}
 \captionof{figure}{\sffamily\footnotesize$\theta = -0.08$ rad, 75
 bounces. \label{1.65rad}}
 \end{subfigure}%
 \begin{subfigure}{0.25\textwidth}
-\includegraphics[width=0.8\linewidth]{figs/pent_3rad.pdf}
+\includegraphics[width=0.8\linewidth]{../figs/pent_3rad.pdf}
 \captionof{figure}{\sffamily\footnotesize$\theta = -1.4$ rad, 20
 bounces. \label{3.0rad}}
 \end{subfigure}
@@ -151,8 +151,7 @@ the boundary indicates the starting point of the trajectory. Figure (c) shows
 that periodic orbits are not guaranteed for all bounce angles.}
 \end{figure}
 
-This paper is organized as follows: Section \ref{related} outlines the results of the
-previous paper on this model, as well as closely related work.
+This paper is organized as follows: Section \ref{related} describes related work.
 Section \ref{model} presents the model definition and
 some useful concepts from dynamical systems. Section \ref{adj_edge} analyzes the 
 case where the robot is constrained to bounce between sequential edges of the
@@ -200,18 +199,24 @@ computing the region. Our work differs by analyzing non-specular bouncing and
 the effects of environment geometry. Specifically, we focus on determining
 regions of minimal complexity.
 
-In robotics, this work is related to research on systems which are able to execute the
-actions of aligning to a specified angle to a wall and travelling in straight
-lines. \cite{LewOKa13} demonstrated the reliability of a
+In \cite{nakamura2001chaotic}, the authors describe the combination of a
+controller which generates chaotic dynamics in the heading of a mobile robot,
+guaranteeing that it will scan an entire connected workpace.
+Similarly to this paper, the chaotic mobile robot requires a measurement of
+the local normal of boundaries upon contact. While the underlying dynamics are
+different, our paper similarly treats the robot as a dynamical system over
+the workspace resulting in useful patrolling behavior.
+
+\cite{LewOKa13} demonstrated the reliability of a
 ``rotate-to-parallel" strategy on a differential-drive robot with bump and
 infrared range sensors, which executed
-constant-angle bounces with error less than $\pm 10^{\circ}$. 
+the same type of ``bounces" described in this paper with error less than $\pm 10^{\circ}$. 
 \cite{LewOKa13} showed that navigation is possible with such a robot; similarly,
 we show that patrolling is possible, and provide bounds on how much noise can be
-tolerated. Wall following robots \cite{Carelli2003,Lamp05} are often capable of these
-motion primitives and are another common way of making robots which can
-circumnavigate human spaces. This work could provide such
-implementations with motion strategies for navigating in the interior of a space.
+tolerated. Similarly, wall following robots \cite{Carelli2003,Lamp05} are often capable of the
+motion primitives we require and are another common way of making robots which can
+circumnavigate human spaces. This work provides such
+robots with new motion strategies for navigating in the interior of a space.
 
 \subsection{Prior Work}
 
@@ -251,7 +256,7 @@ angles $\theta^+$ and $\theta^-$.
 
 \begin{figure}[thpb]
   \centering
-  \includegraphics[width=0.4\textwidth]{figs/bounce_def.pdf}
+  \includegraphics[width=0.4\textwidth]{../figs/bounce_def.pdf}
   \caption{Two sample bounces, one where $\theta^+$ is positive and $\theta^-$
 is negative, measured clockwise from the normal. The other labels show the geometric meaning of the
 contrained bounce map defined in Lemma \ref{Lemma:1}.}
@@ -277,7 +282,8 @@ the orbit \cite{jackson1992}.
 \section{BOUNCING TO ADJACENT EDGE\label{adj_edge}}
 \label{section:BAE}
 
-In a regular $n$-gon with side length $l$ and boundary $\delta P$, we observe
+In a regular $n$-gon with boundary $\delta P$, each side of length $l$, and
+each internal angle of angle $\phi$, we observe
 stable orbits that bounce off each adjacent edge (Figure
 \ref{0.5rad}). 
 To analyze these orbits, we imagine that $B_{\theta}$ is
@@ -307,7 +313,7 @@ b_{\theta^+}(x) = c(\theta)(l-x),
 in which $c(\theta) = cos(\theta) / cos(\theta - \phi)$.
 \end{lemma}
 \begin{proof}
-Using the triangle formed by two adjacent edges (see Fig.)
+Using the triangle formed by two adjacent edges (see Fig \ref{bounce_def})
 and the robot's trajectory between them, we can solve for
 $b_{\theta^+}$. Let $\phi = (n - 2)\pi/n$ be the vertex angle of
 the regular polygon \cite{johnson1929}.
@@ -330,7 +336,7 @@ mapping and has a unique fixed point.
 We take $(0,l)$ to be a metric space with metric $d(x,y) =
 |y-x|$. To be a contraction mapping, $b_{\theta^+}$ must satisfy
 
-$$ d(b_{\theta^+}(x), b_{\theta^+}(y) \leq k d(x,y) $$
+$$ d(b_{\theta^+}(x), b_{\theta^+}(y)) \leq k d(x,y) $$
 
 for all $x, y \in (0,l)$ and some nonnegative real number $0 \leq k < 1$.
 
@@ -451,12 +457,12 @@ gives a stable fixed point.
 \begin{subfigure}{.25\textwidth}
 \centering
 
-\includegraphics[width=0.7\linewidth]{figs/dec_limit_0pt2.pdf}
+\includegraphics[width=0.7\linewidth]{../figs/dec_limit_0pt2.pdf}
 
 \end{subfigure}%
 \begin{subfigure}{0.25\textwidth}
 
-\includegraphics[width=0.7\linewidth]{figs/pent_limit_0pt5.pdf}
+\includegraphics[width=0.7\linewidth]{../figs/pent_limit_0pt5.pdf}
 
 \end{subfigure}
 
@@ -513,7 +519,7 @@ $k$. The result follows.
 
 \begin{figure}[bh]
 \centering
-\includegraphics[width=0.2\textwidth]{figs/gen_bounce.pdf}
+\includegraphics[width=0.2\textwidth]{../figs/gen_bounce.pdf}
 \captionof{figure}{A bounce from edge $v_0v_1$ to edge $v_mv_{m+1}$. The other
 edges of the polygon are not drawn, and the distance between the edges is not to scale.
 \label{gen_bounce}}
@@ -618,7 +624,7 @@ mapping, and therefore has a unique fixed point.
 We take $(0,l)$ to be a metric space with metric $d(x,y) =
 |y-x|$. To be a contraction mapping, $b_{\theta^+,m}$ must satisfy
 \begin{equation*}
-d(b_{\theta^+,m}(x), b_{\theta^+,m}(y) \leq k d(x,y) 
+d(b_{\theta^+,m}(x), b_{\theta^+,m}(y)) \leq k d(x,y) 
 \end{equation*}
 \noindent for all $x, y \in (0,l)$ and some nonnegative real number $0 \leq k < 1$.
 
@@ -724,12 +730,12 @@ Furthermore, the bounds on $\theta$ also reduce to the bounds $\phi/2 < \theta <
 \begin{subfigure}{.25\textwidth}
 \centering
 
-\includegraphics[width=0.7\linewidth]{figs/nonagon_neg0pt8rad_skip3.pdf}
+\includegraphics[width=0.7\linewidth]{../figs/nonagon_neg0pt8rad_skip3.pdf}
 
 \end{subfigure}%
 \begin{subfigure}{0.25\textwidth}
 
-\includegraphics[width=0.7\linewidth]{figs/eleven_limit_m2.pdf}
+\includegraphics[width=0.7\linewidth]{../figs/eleven_limit_m2.pdf}
 
 \end{subfigure}
 
@@ -800,7 +806,7 @@ Remark~\ref{rm1}.
 
 \begin{figure}[bh]
 \centering
-\includegraphics[width=0.2\textwidth]{figs/multi_start.pdf}
+\includegraphics[width=0.2\textwidth]{../figs/multi_start.pdf}
 \captionof{figure}{Three orbits simulated with different start points - the three circles - but same bouncing angle $\theta$. The limit cycle is the same.
 \label{fig:multi_start}}
 \end{figure}
@@ -816,7 +822,7 @@ bounds on $\theta$.
 
 \begin{figure}[bh]
 \centering
-\includegraphics[width=0.2\textwidth]{figs/multi.pdf}
+\includegraphics[width=0.2\textwidth]{../figs/multi.pdf}
 \captionof{figure}{ Two simulated orbits with the same start point but
 $\theta$ set to $\pi/3 + 0.05$ (blue) and $\pi/3 - 0.05$ (red). One skips
 no edges and the other skips one edge, as expected.
@@ -865,13 +871,13 @@ robot, in navigation and localization tasks.
 \begin{figure}
 \begin{subfigure}{.25\textwidth}
 \centering
-\includegraphics[width=0.8\linewidth]{figs/shear.pdf}
+\includegraphics[width=0.8\linewidth]{../figs/shear.pdf}
 \caption{A stable orbit in a sheared pentagon.}
 \label{shear}
 \end{subfigure}%
 \begin{subfigure}{0.25\textwidth}
 \centering
-\includegraphics[width=0.6\linewidth]{figs/oct.pdf}
+\includegraphics[width=0.6\linewidth]{../figs/oct.pdf}
 \caption{A stable orbit in a nonconvex environment.}
 \label{oct}
 \end{subfigure}
@@ -916,8 +922,8 @@ A theoretical analysis of these observations would be useful.
 
 \section*{ACKNOWLEDGMENT}
 
-This work is supported in part by NSF grant 1035345 and CONACyT post-doctoral
-fellowship 277028. The authors would like to thank Michael Zheng for his
+This work is supported by NSF grant 1035345 and CONACyT post-doctoral
+fellowship 277028. The authors would like to thank Michael Zeng for his
 contributions to the fixed-point formulation of the problem.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
