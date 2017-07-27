@@ -19,9 +19,8 @@ library
   exposed-modules:     BounceSim
                      , Maps
                      , AnalyzeMap
-                     , Refine
-                     , MonadBounce
-                     , Animate
+                     --, MonadBounce
+                     --, Animate
                      , GenDiagrams
   build-depends:       base >= 4.7 && < 5
                      , diagrams-core >= 1.1

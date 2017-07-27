@@ -8,23 +8,26 @@ import BounceSim
 import Maps
 --import Animate
 import Diagrams.Backend.CmdLine
-import Diagrams.Backend.Cairo.CmdLine
+--import Diagrams.Backend.Cairo.CmdLine
 import Diagrams.Backend.SVG
 
 dOpts = DiagramOpts
             { _width = Just 400
             , _height = Nothing
-            , _output = "test.gif"}
-gOpts = GifOpts
-            { _dither = False
-            , _noLooping = False
-            , _loopRepeat = Nothing}
+            , _output = "test.svg"}
+--gOpts = GifOpts
+--            { _dither = False
+--            , _noLooping = False
+--            , _loopRepeat = Nothing}
 
 -- Diagram Generators
 -- ------------------
 
 --visPoints :: [P2 Double] -> QDiagram b V2 Double Any
 --visPoints pts = atPoints pts (repeat ((circle 15) # fc yellow # lc blue))
+
+getPoints :: Poly V2 Double -> [Double] -> [P2 Double]
+getPoints p ss = map (atParam p) ss
 
 -- uhhh
 --fpPoints :: Double -> Int -> Int -> Double -> Diagram B
@@ -59,7 +62,7 @@ plotGenFP theta n' m' l =
 
 
 mkBounceArrows :: Poly V2 Double ->
-                    [RoboLoc] -> Int -> Colour Double -> [QDiagram Cairo V2 Double Any]
+                    [RoboLoc] -> Int -> Colour Double -> [Diagram B]
 mkBounceArrows p bounces num col =
     let transparentList = 1 : (map (*1.0) transparentList)
         getMask len = reverse $ take len transparentList

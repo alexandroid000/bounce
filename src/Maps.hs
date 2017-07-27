@@ -10,6 +10,7 @@ data MapSpec = Pts [(Double, Double)] | Trl (Trail V2 Double)
 maps :: Map String MapSpec
 maps = fromList [   ("triang", triang),
                     ("square", sq),
+                    ("rect", rectang),
                     ("star",four_star),
                     ("pent",pent),
                     ("pent_y",pent_scaley),
@@ -35,6 +36,7 @@ maps = fromList [   ("triang", triang),
 --  http://projects.haskell.org/diagrams/haddock/Diagrams-TwoD-Shapes.html
 triang = Trl $ triangle 500
 sq = Trl $ square 500
+rectang = Trl $ rect 250 500
 pent = Trl $ regPoly 5 500
 pent_scaley = Trl $ regPoly 5 500 # scaleY 2
 pent_shear = Trl $ regPoly 5 500 # shearX 0.4

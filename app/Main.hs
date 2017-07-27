@@ -12,7 +12,7 @@ import              Diagrams.Util
 -- local libraries
 import              BounceSim
 import              GenDiagrams
-import              Animate
+--import              Animate
 import              Maps                             (maps)
 
 -- CLI
@@ -20,7 +20,7 @@ import              Options.Applicative
 import              Data.HashMap
 import              Diagrams.Backend.SVG
 import              Diagrams.Backend.CmdLine
-import              Diagrams.Backend.Cairo.CmdLine -- for gifs only
+--import              Diagrams.Backend.Cairo.CmdLine -- for gifs only
 
 
 data Simulation = Simulation
@@ -79,8 +79,6 @@ sim = Simulation
         <*> switch -- default false
                     (   short 'g' <>
                         long "gif" <>
-                        metavar "GIF" <>
-                        value False <>
                         help "create animated gif"
                     )
 
@@ -95,13 +93,13 @@ clamped_r ang rand
 -- backend choice, svg or gifs
 data BE = Svg | Cairo
 
-generate :: BE -> String -> Int -> Poly V2 Double -> [Double] -> Double -> Int -> IO ()
-generate (Svg) fname width map angs s num = let
-        opts    = (DiagramOpts (Just width) Nothing fname, gOpts)
-        sim     = animate map angs s num
-    in  gifRender opts sim
+--generate :: BE -> String -> Int -> Poly V2 Double -> [Double] -> Double -> Int -> IO ()
+--generate (Cairo) fname width map angs s num = let
+--        opts    = (DiagramOpts (Just width) Nothing fname, gOpts)
+--        sim     = animate map angs s num
+--    in  gifRender opts sim
 
-generate (Cairo) fname width map angs s num = let
+generate (Svg) fname width map angs s num = let
         pxsize          = (mkSizeSpec2D (Just width) Nothing)
         (plot_dat, sim) = plotBounce map angs s num
     in renderSVG fname pxsize $ (sim # centerXY # pad 1.1)
