@@ -71,7 +71,7 @@ executable bounce-exe
                      , diagrams-cairo >= 1.3
                      , diagrams-lib >= 1.3
                      , random
-                     , optparse-applicative >= 0.11
+                     , optparse-applicative >= 0.13
                      , hashmap >= 1.3
   default-language:    Haskell2010
   other-extensions:    NoMonomorphismRestriction

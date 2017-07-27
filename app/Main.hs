@@ -18,6 +18,7 @@ import              Maps                             (maps)
 -- CLI
 import              Options.Applicative
 import              Data.HashMap
+import              Data.Monoid
 import              Diagrams.Backend.SVG
 import              Diagrams.Backend.CmdLine
 --import              Diagrams.Backend.Cairo.CmdLine -- for gifs only
