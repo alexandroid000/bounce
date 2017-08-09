@@ -23,12 +23,15 @@ import              Diagrams.Backend.SVG
 import              Diagrams.Backend.CmdLine
 --import              Diagrams.Backend.Cairo.CmdLine -- for gifs only
 
+data BLaw = Fixed | Relative | Specular
+    deriving (Read, Show)
 
 data Simulation = Simulation
     { fname :: String   -- filename
     , env   :: String   -- environment (polygon)
     , num   :: Int      -- number of bounces
     , ang   :: Double   -- angle to bounce at (-pi/2, pi/2)
+    , blaw  :: BLaw     -- bouncing law
     , s     :: Double   -- perimeter parameter to start at
     , rand  :: Double   -- magnitude of random angle (default 0)
     , gif   :: Bool     -- produce gif output
@@ -62,6 +65,13 @@ sim = Simulation
                         metavar "ANGLE" <>
                         value   0.2 <>
                         help "angle to bounce at"
+                    )
+        <*> option auto
+                    (   short 'b' <>
+                        long "bouncelaw" <>
+                        metavar "BLAW" <>
+                        value   Fixed <>
+                        help "fixed, relative, or specular bouncing"
                     )
         <*> option auto
                     (   short 's' <>
@@ -100,13 +110,17 @@ data BE = Svg | Cairo
 --        sim     = animate map angs s num
 --    in  gifRender opts sim
 
-generate (Svg) fname width map angs s num = let
+generate (Svg) fname width map angs blaw s num = let
         pxsize          = (mkSizeSpec2D (Just width) Nothing)
-        (plot_dat, sim) = plotBounce map angs s num
+        bounce_law      = case blaw of
+                            Fixed -> doFixedBounce
+                            Relative -> doRelativeBounce
+                            Specular -> doSpecBounce
+        (plot_dat, sim) = plotBounce map bounce_law angs s num
     in renderSVG fname pxsize $ (sim # centerXY # pad 1.1)
 
 runSim :: Simulation -> IO ()
-runSim (Simulation fname env num ang s rand gif) = do
+runSim (Simulation fname env num ang blaw s rand gif) = do
         rangs <- randAngs (clamped_r ang rand)
         let mkAngs ang
                 | 0 < ang && ang < pi = repeat $ ang
@@ -114,8 +128,8 @@ runSim (Simulation fname env num ang s rand gif) = do
         let angs = zipWith (+) rangs (mkAngs ang)
         let map = mkPoly $ maps ! env
         case gif of
-            True ->     generate Cairo fname 400 map angs s num
-            False ->    generate Svg fname 400 map angs s num
+            True ->     generate Cairo fname 400 map angs blaw s num
+            False ->    generate Svg fname 400 map angs blaw s num
 -- harcoded some things for paper fig
         --let angs1 = mkAngs 0.47
         --let fps1 = fpPoints 0.47 6 1 500

@@ -56,7 +56,7 @@ getPoints p ss = map (atParam p) ss
 plotGenFP theta n' m' l =
     let env = regPoly n' l :: Trail V2 Double
         n = fromIntegral n'
-        sim = snd $ plotBounce (mkPoly $ Trl env) (repeat theta) (0.5) 100
+        sim = snd $ plotBounce (mkPoly $ Trl env) doFixedBounce (repeat theta) (0.5) 100
         --fps = fpPoints theta n' m' l
     in sim -- <> fps
 
@@ -74,8 +74,8 @@ mkBounceArrows p bounces num col =
 -- make static diagram of all bounces
 -- Pair with list of impact points
 --plotBounce :: Poly V2 Double -> [Double] -> Double -> Int -> ([RoboLoc], Diagram B)
-plotBounce p angs s num =
-    let bounces = doBounces p s $ map (@@ rad) angs :: [RoboLoc]
+plotBounce p bounceLaw angs s num =
+    let bounces = doBounces p bounceLaw s $ map (@@ rad) angs :: [RoboLoc]
         --start_pt = circle 15 # fc green # lc blue # moveTo (p `atParam` s)
         arrows = mkBounceArrows p bounces num blue
         plot =  (mconcat arrows # lwL 5) <>

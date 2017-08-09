@@ -11,7 +11,9 @@ module BounceSim
     , pts2poly
     , mkPoly
     , mkBounce
-    , doBounce
+    , doFixedBounce
+    , doRelativeBounce
+    , doSpecBounce
     , doBounces
 --    , mkBounceArrows
     , lineSeg
@@ -76,6 +78,7 @@ randAngs max_r = do
 mkBounce :: Point V2 Double -> Angle Double -> V2 Double -> V2 Double
 mkBounce pt ang vec = vec # rotateAround pt ang
 
+
 -- compare one line and one edge of a polygon
 -- returns list of correctly parameterized intersection points
 -- filter out intersections at origin of line (for bounces starting at edge)
@@ -98,30 +101,59 @@ linePoly eps poly bounce =
 
 -- just a wrapper for the case where you know you'll have intersections
 -- set tolerance lower to have fewer errors, higher for faster execution
-shootRay :: Poly V2 Double -> Located (V2 Double) -> RoboLoc
+shootRay :: Poly V2 Double -> Located (V2 Double) -> Maybe RoboLoc
 shootRay poly bounce =
     let mkPos (s1, s2)
             | s1 > 0    = True
             | otherwise = False
-        (s_bounce, s_poly) = case (linePoly 1e-6 poly bounce) of
-                                    []   -> error "no intersections? try lower eps"
-                                    ints -> minimum $ filter mkPos ints
+        s_poly = case (linePoly 1e-6 poly bounce) of
+                        []   -> Nothing
+                        ints -> Just $ snd $ minimum $ filter mkPos ints
     in  s_poly
 
-doBounce :: Angle Double -> Robot -> Robot
-doBounce theta (s,b,p) =
+-- bounce at a fixed angle, relative to wall normal, regardless of incoming traj
+doFixedBounce :: Angle Double -> Robot -> Robot
+doFixedBounce theta (s,b,p) =
     let pt = p `atParam` s
         tangentV = tangentAtParam p s
         new_bounce = mkBounce pt theta tangentV
         new_s = shootRay p $ new_bounce `at` pt
-    in  (new_s, new_bounce, p)
+    in  maybe   (error "no intersections? try lower eps")
+                (\s -> (s, new_bounce, p)) new_s
+
+-- rotate through a fixed angle, relative to incoming traj, when collide with
+-- wall
+-- possible to escape polygon!! No safety checks yet TODO
+doRelativeBounce :: Angle Double -> Robot -> Robot
+doRelativeBounce theta (s,b,p) =
+    let pt = p `atParam` s
+        new_bounce = mkBounce pt theta b
+        new_s = shootRay p $ new_bounce `at` pt
+        try_2 s = (s, new_bounce_2, p)
+                where new_bounce_2 = mkBounce pt theta new_bounce
+                      new_s_2 = shootRay p $ new_bounce_2 `at` pt
+    in  maybe   (try_2 s)
+                (\s -> (s, new_bounce, p)) new_s
+
+-- bounce like a pool ball or laser beam
+doSpecBounce :: Angle Double -> Robot -> Robot
+doSpecBounce _ (s,b,p) =
+    let pt = p `atParam` s
+        tangentV = tangentAtParam p s
+        ang = angleBetween tangentV b
+        new_bounce = mkBounce pt ang tangentV
+        new_s = shootRay p $ new_bounce `at` pt
+    in  maybe   (error "no intersections? try lower eps")
+                (\s -> (s, new_bounce, p)) new_s
 
 
+-- need to refactor bounce law
 -- chain together many bounces, given list of angles to bounce at
-doBounces :: Poly V2 Double -> RoboLoc -> [Angle Double] -> [RoboLoc]
-doBounces poly s1 angs =
+doBounces ::    Poly V2 Double -> (Angle Double -> Robot -> Robot) ->
+                RoboLoc -> [Angle Double] -> [RoboLoc]
+doBounces poly bounceLaw s1 angs =
     let start = (s1, unitX, poly) -- I don't like this unitX placeholder
-        nextBounce robo a = doBounce a robo
+        nextBounce robo a = bounceLaw a robo
     in  map (\(s,_,_) -> s) $ scanl nextBounce start angs
 
 
