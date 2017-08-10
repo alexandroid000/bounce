@@ -108,7 +108,9 @@ shootRay poly bounce =
             | otherwise = False
         s_poly = case (linePoly 1e-6 poly bounce) of
                         []   -> Nothing
-                        ints -> Just $ snd $ minimum $ filter mkPos ints
+                        ints -> case (filter mkPos ints) of
+                            [] -> Nothing
+                            ss -> Just $ snd $ minimum ss
     in  s_poly
 
 -- bounce at a fixed angle, relative to wall normal, regardless of incoming traj
@@ -129,11 +131,10 @@ doRelativeBounce theta (s,b,p) =
     let pt = p `atParam` s
         new_bounce = mkBounce pt theta b
         new_s = shootRay p $ new_bounce `at` pt
-        try_2 s = (s, new_bounce_2, p)
-                where new_bounce_2 = mkBounce pt theta new_bounce
-                      new_s_2 = shootRay p $ new_bounce_2 `at` pt
-    in  maybe   (try_2 s)
-                (\s -> (s, new_bounce, p)) new_s
+        correct_b = case new_s of
+                        Just s -> (s, new_bounce, p)
+                        Nothing -> doRelativeBounce theta (s, new_bounce, p)
+    in correct_b
 
 -- bounce like a pool ball or laser beam
 doSpecBounce :: Angle Double -> Robot -> Robot
@@ -152,7 +153,7 @@ doSpecBounce _ (s,b,p) =
 doBounces ::    Poly V2 Double -> (Angle Double -> Robot -> Robot) ->
                 RoboLoc -> [Angle Double] -> [RoboLoc]
 doBounces poly bounceLaw s1 angs =
-    let start = (s1, unitX, poly) -- I don't like this unitX placeholder
+    let start = (s1, rotate (45 @@ deg) (unitY :: V2 Double), poly) -- I don't like this unitX placeholder
         nextBounce robo a = bounceLaw a robo
     in  map (\(s,_,_) -> s) $ scanl nextBounce start angs
 

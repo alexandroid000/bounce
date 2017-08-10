@@ -64,7 +64,7 @@ plotGenFP theta n' m' l =
 mkBounceArrows :: Poly V2 Double ->
                     [RoboLoc] -> Int -> Colour Double -> [Diagram B]
 mkBounceArrows p bounces num col =
-    let transparentList = 1 : (map (*1.0) transparentList)
+    let transparentList = 1 : (map (*0.99) transparentList)
         getMask len = reverse $ take len transparentList
         mkOpaque arrows = zipWith opacity (getMask (length arrows)) arrows
         mkArrows (s1, s2) = arrowBetween' (with & headLength .~ large)
