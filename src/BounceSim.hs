@@ -69,7 +69,7 @@ reParam n k s =
 randAngs :: Double -> IO [Double]
 randAngs max_r = do
     g <- getStdGen
-    return (randomRs (-max_r + 0.001,max_r-0.001) g :: [Double])
+    return (randomRs (-max_r, max_r) g :: [Double])
 
 -- Geometry Functions
 -- ------------------
