@@ -98,8 +98,8 @@ sim = Simulation
 -- clamps to maximum possible range if user-given value is too high
 clamped_r :: Double -> Double -> Double
 clamped_r ang rand
-        | rand < (pi-ang) && rand < ang = rand
-        | otherwise = min (pi-ang) ang
+        | (abs rand) < (pi/2-(abs ang)) = abs rand
+        | otherwise = (pi/2) - (abs ang)
 
 -- backend choice, svg or gifs
 data BE = Svg | Cairo
@@ -123,8 +123,8 @@ runSim :: Simulation -> IO ()
 runSim (Simulation fname env num ang blaw s rand gif) = do
         rangs <- randAngs (clamped_r ang rand)
         let mkAngs ang
-                | 0 < ang && ang < pi = repeat $ ang
-                | otherwise = error "angle not between 0 and pi"
+                | (-pi/2) < ang && ang < (pi/2) = repeat $ ang
+                | otherwise = error "angle not between -pi/2 and pi/2"
         let angs = zipWith (+) rangs (mkAngs ang)
         let map = mkPoly $ maps ! env
         case gif of

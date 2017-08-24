@@ -118,7 +118,8 @@ doFixedBounce :: Angle Double -> Robot -> Robot
 doFixedBounce theta (s,b,p) =
     let pt = p `atParam` s
         tangentV = tangentAtParam p s
-        new_bounce = mkBounce pt theta tangentV
+        theta' = (pi/2 -(theta ^. rad)) @@ rad
+        new_bounce = mkBounce pt theta' tangentV
         new_s = shootRay p $ new_bounce `at` pt
     in  maybe   (error "no intersections? try lower eps")
                 (\s -> (s, new_bounce, p)) new_s
