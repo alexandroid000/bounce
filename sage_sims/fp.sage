@@ -12,7 +12,8 @@ var("x,th,phi,l")
 rect = [a,b,a,b]
 rect_angs = [pi/2]*4
 reg_pent = [a]*5
-reg_pent_angs = [3*pi/5]*5
+reg_pent_angs = [2*pi/5]*5
+sa_reg_pent = zip(reg_pent, reg_pent_angs)
 gen_f(x,th,l,phi) = (cos(th)/cos(th-phi))*(l-x)
 b0(x) = x
 
@@ -50,8 +51,7 @@ def mk_f(pts, theta):
     bounces = map(lambda sa : gen_f(x, theta, *sa), side_angles)
     return bounces
 
-def comp_gen_f(pts, theta):
-    side_angles = interpret_points(pts)
+def comp_gen_f(side_angles, theta):
     th_side_angles = [(theta, side, ang) for (side, ang) in side_angles]
     bounce = functools.reduce(  lambda  prev_bounce, args:
                                         gen_f(prev_bounce, *args)
@@ -59,7 +59,17 @@ def comp_gen_f(pts, theta):
                              ,  b0)
     return bounce
 
+def test_pent():
+    f1 = circuit_from_pts(reg_pent_pts, 1.3)
+    f2 = comp_gen_f(sa_reg_pent, 1.3).subs(a==1)
+    print f1(x=0.1)
+    print N(f2(x=0.1))
 
+# from polygon vertices and constant bouncing angle, attempt to construct a
+# mapping function which would be caused by the robot striking each edge
+# sequentially
+def circuit_from_pts(pts, theta):
+    return comp_gen_f(interpret_points(pts), theta)
 
 r1(x,th)=gen_f(x,th,a,pi/2)
 r2(x,th)=gen_f(x,th,b,pi/2)
