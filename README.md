@@ -41,7 +41,8 @@ Usage:
 ```
 Usage: bounce-exe (-o|--output FILENAME) [-e|--environment ENV_NAME]
                   [-n|--num NUM_BOUNCES] [-a|--angle ANGLE]
-                  [-s|--start START_PARAM] [-r|--random RAND_ADD]
+                  [-b|--bouncelaw BLAW] [-s|--start START_PARAM]
+                  [-r|--random RAND_ADD]
     creates diagram of simulation at FILENAME
                                       
 Available options:
@@ -50,35 +51,49 @@ Available options:
 -e,--environment ENV_NAME       name of environment in Maps.hs
 -n,--num NUM_BOUNCES            number of bounces
 -a,--angle ANGLE                angle to bounce at
+-b,--bouncelaw BLAW             fixed, relative, or specular bouncing
 -s,--start START_PARAM          parameter in interval (0,1)
 -r,--random RAND_ADD            random offset added to theta
 ```
 
 Only the output filename (`-o`) argument is required, the rest have defaults.
 
-Here are some examples:
+### Bounce laws
+
+The default argument to `-b, --bouncelaw` is `Fixed`, meaning the robot bounces
+at a fixed angle $\theta$, measured relative to the wall normal. The default
+bounce angle is 0.2 radians, and can be changed with the `-a, --angle` argument.
+
+There are two other bounce laws: `Relative` and `Specular`. Relative bouncing
+also requires specifying an angle $\theta$, but the robot will now rotate
+counterclockwise relative to its incoming trajectory when it collides with a
+wall (ignoring the wall normal). If one rotation by $\theta$ is not enough to
+point the robot back into the interior of the space, the robot will rotate by
+$\theta$ again until it points into the interior.
+
+`Specular` bouncing is the same as bouncing like a pool ball or laser beam - the
+outgoing angle of the bounce will be equal in magnitude to the incoming angle.
+
+### Examples
 
 Bounce at the wall normal in a star, 20 times:
 
 ```bash
-stack exec -- bounce-exe -o star.svg -n 20 -e star -a 1.57
+stack exec -- bounce-exe -o star.svg -n 20 -e star -a 0.0
 ```
 
 ![star](https://cdn.rawgit.com/alexandroid000/bounce/master/examples/det_star.svg)
 
-Bounces become 3% more translucent with every step back in time (see function
-`mkBounceArrows`)
-
-Bounce randomly in a large polygon:
+Bounce specularly:
 
 ```bash
-stack exec -- bounce-exe -o poly.svg -n 20 -e bigpoly -r
+stack exec -- bounce-exe -o poly.svg -n 20 -e poly2 -b Specular -s 0.1
 ```
 
-![large](https://cdn.rawgit.com/alexandroid000/bounce/master/examples/rand_bigpoly.svg)
+![large](https://cdn.rawgit.com/alexandroid000/bounce/master/examples/spec_poly.svg)
 
 
-**To add your own environment:**
+### Adding New Environments
 
 Edit `src/Maps.hs` and add your own environment (there are many examples there
 to get you started).
@@ -100,13 +115,6 @@ You will also need to add a (string, fname) pair in the hash map at the top of
 If you edit `Maps.hs` you'll need to run `stack build` again in the top level
 directory to recompile.
 
-### Animated Bounce Simulations
-
--   Edit `app/Animate.hs` with the angle, map, start parameter, and number of
-    bounces that you want
--   run `stack build` in the top level directory
--   run `stack exec mkGif -- -o FILENAME.gif -w PIXWIDTH`
-
 ### Generating Dynamical Systems Analysis Plots
 
 -   Run `stack ghci` in the `bounce` directory
@@ -115,7 +123,7 @@ directory to recompile.
     all required. An example is below.
 
 ```ghci
-λ> mkChart (pts2poly Maps.star) [pi/4,pi/2] 0.2 5000 "cobweb" "cobweb.svg"
+λ> mkChart (mkPoly $ maps ! star) [pi/4,pi/2] 0.2 5000 "cobweb" "cobweb.svg"
 ```
 -   *Map:* The first argument is the polygon map, created with the helper function
 `pts2poly` from any of the maps specified in `src/Maps.hs`.
@@ -143,12 +151,5 @@ Plot generated from the above example:
 
 ![large](https://cdn.rawgit.com/alexandroid000/bounce/master/examples/cobweb.svg)
 
-Upcoming features:
-
--   add the ability to only keep track of the set of edges the robot could be on
-    (edge to edge "visibility" graph)
--   Implementing a functional version of [this paper's
-    algorithm](http://msl.cs.uiuc.edu/~lericks4/papers/icra13bounce.pdf) and
-    finding critical angles as discussed in the conclusion
 
 Suggestions welcome!
