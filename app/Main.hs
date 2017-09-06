@@ -47,7 +47,7 @@ sim = Simulation
                     )
         <*> strOption
                     (   short 'e' <>
-                        long "environment" <>
+                        long "env" <>
                         metavar "ENV_NAME" <>
                         value "star" <>
                         help "name of environment in Maps.hs"
@@ -109,6 +109,7 @@ data BE = Svg | Cairo
 --        opts    = (DiagramOpts (Just width) Nothing fname, gOpts)
 --        sim     = animate map angs s num
 --    in  gifRender opts sim
+generate (Cairo) _ _ _ _ _ _ _ = error "sorry, gif functionality borked"
 
 generate (Svg) fname width map angs blaw s num = let
         pxsize          = (mkSizeSpec2D (Just width) Nothing)
