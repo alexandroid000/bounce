@@ -118,7 +118,7 @@ generate (Svg) fname width map angs blaw s num = let
                             Relative -> doRelativeBounce
                             Specular -> doSpecBounce
         (plot_dat, sim) = plotBounce map bounce_law angs s num
-    in renderSVG fname pxsize $ (sim # centerXY # pad 1.1)
+    in renderSVG fname pxsize $ (sim # centerXY # pad 1.2)
 
 runSim :: Simulation -> IO ()
 runSim (Simulation fname env num ang blaw s rand gif) = do
@@ -131,22 +131,6 @@ runSim (Simulation fname env num ang blaw s rand gif) = do
         case gif of
             True ->     generate Cairo fname 400 map angs blaw s num
             False ->    generate Svg fname 400 map angs blaw s num
--- harcoded some things for paper fig
-        --let angs1 = mkAngs 0.47
-        --let fps1 = fpPoints 0.47 6 1 500
-        --let angs2 = mkAngs 0.57
-        --let fps2 = fpPoints 0.57 6 2 500
-        --let (plot_dat, sim) = plotMulti map (angs1, angs2) s num
-
-        --let s1 = 0.05
-        --let s2 = 0.1
-        --let s3 = 0.18
-        --let (plot_dat, sim) = plotMultiS map angs (s1,s2,s3) num
-
---        let fps = fpPoints ang 10 1 500
---        writeFile "bounce_data.txt" (show $ take num plot_dat)
---        renderSVG fname pxsize $ ((sim <> fps1 <> fps2) # centerXY # pad 1.1)
---        renderSVG fname pxsize $ (plotGenFP 2.64 5 1 300 # centerXY # pad 1.1)
 
 -- feeds everything to runSim
 main :: IO ()

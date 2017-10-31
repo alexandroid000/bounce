@@ -6,13 +6,14 @@ module GenDiagrams where
 import Diagrams.Prelude
 import BounceSim
 import Maps
+import Data.HashMap hiding (map)
 --import Animate
 import Diagrams.Backend.CmdLine
 --import Diagrams.Backend.Cairo.CmdLine
 import Diagrams.Backend.SVG
 
 dOpts = DiagramOpts
-            { _width = Just 400
+            { _width = Just 500
             , _height = Nothing
             , _output = "test.svg"}
 --gOpts = GifOpts
@@ -29,28 +30,17 @@ dOpts = DiagramOpts
 getPoints :: Poly V2 Double -> [Double] -> [P2 Double]
 getPoints p ss = map (atParam p) ss
 
--- uhhh
---fpPoints :: Double -> Int -> Int -> Double -> Diagram B
---fpPoints theta n' m' l =
---    let env = regPoly n' l :: Trail V2 Double
---        n = fromIntegral n'
---        m = fromIntegral m'
---        th = case theta > pi/2 of
---                True -> -(theta-pi/2)
---                False -> pi/2 - theta
---        a = (l*(sin (pi*(m+1)/n))*(sin (m*pi/n)))/((sin (pi/n))*(sin (pi*(n-2*m)/n)))
---        c = case theta > pi/2 of
---                True -> (cos th)/(cos (th + (pi*(n-2*m)/n)))
---                False -> (cos th)/(cos (th - (pi*(n-2*m)/n)))
---        fx = case theta > pi/2 of
---                True -> (l*c + a*(1-c))/(1+c)
---                False -> (l-a*(1-c))/(1+c)
---        s_fx = case n' `mod` m' of
---                0 -> map (\i -> 1/n + m*i/n + fx/(l*n)) [0..n-1]
---                r -> map (\i -> ((fromIntegral ((i*m') `mod` n'))/n + fx/(n*l)))
---                                [0..n-1]
---        fps = map (\s -> origin .+^ (atParam env s)) s_fx
---     in (visPoints fps)
+
+-- [(Int, Double)] is the edge index and local edge parameter of collision point
+--putPoints :: Poly V2 Double -> [(Int, Double)] -> Int -> QDiagram b V2 Double Any
+putPoints poly collisions offset = let
+    segs = trailLocSegments poly
+    vecs = trailOffsets $ unLoc poly
+    lens = map (\x -> x `dot` x) vecs :: [Double]
+    normed_colls = zipWith (\(i,s) y -> (i,s/y)) collisions lens
+    indexed_segs = fromList $ zip [0..] segs :: Map Int (Located (Segment Closed V2 Double))
+    in indexed_segs
+
 
 --plotGenFP :: Double -> Int -> Int -> Double -> Diagram B
 plotGenFP theta n' m' l =
@@ -79,6 +69,6 @@ plotBounce p bounceLaw angs s num =
         --start_pt = circle 15 # fc green # lc blue # moveTo (p `atParam` s)
         arrows = mkBounceArrows p bounces num blue
         plot =  (mconcat arrows # lwL 5) <>
-                (strokeLocTrail p # lwL 11) 
+                (strokeLocTrail p # lwL 10)
     in  (bounces, plot)
 
