@@ -39,6 +39,12 @@ polyLenAngs p = zip (polyLens p) (polyAngs p)
 coeff :: Angle Double -> Angle Double -> Double
 coeff theta phi = (cosA theta)/(cosA (theta ^-^ phi))
 
+seq_bounce :: Angle Double -> ((Double, Angle Double), (Double, Angle Double)) -> (Double -> Double)
+seq_bounce theta ((l1,phi1), (l2, phi2)) = let
+    c = coeff theta phi1
+    in \x -> c*(l2 - x)
+
+
 coeff_prod :: Angle Double -> [(Double, Angle Double)] -> Double
 coeff_prod theta lenangs = let
     coeffs = map (\(l,p) -> coeff theta p) lenangs
