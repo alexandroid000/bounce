@@ -23,6 +23,7 @@ library
                      --, Animate
                      , GenDiagrams
                      , GenMapFns
+                     , HA
   build-depends:       base >= 4.7
                      , diagrams-core >= 1.1
                      , diagrams-lib >= 1.3
