@@ -7,7 +7,7 @@ import Diagrams.Prelude
 import BounceSim
 import Maps
 import GenMapFns
-
+import HA
 
 
 main :: IO ()
@@ -38,5 +38,9 @@ main = hspec $ do
             rad),(380.7886552931954,3.902605407814523 @@
             rad),(380.7886552931954,0.8097835725701668 @@
             rad),(380.7886552931954,3.902605407814523 @@ rad)]
+	it "HA gen" $
+	    write_HA test_ha
+	    `shouldBe`
+	    "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>\n<sspaceex xmlns=\"http://www-verimag.imag.fr/xml-namespaces/sspaceex\"version=\"0.2\" math=\"SpaceEx\">\n\t<component id=\"test\">\n\t<param name=\"p1\" type=\"real\" local=\"true\" d1=\"1\" d2=\"1\" dynamics=\"any\" />\n\t<param name=\"p2\" type=\"real\" local=\"true\" d1=\"1\" d2=\"1\" dynamics=\"any\" />\n\t<location id=\"1\" name=\"loc1\">\n \t\t<invariant>inv</invariant>\n\t\t<flow>flow</flow>\n\t</location>\n\t<location id=\"2\" name=\"loc2\">\n \t\t<invariant>inv</invariant>\n\t\t<flow>flow</flow>\n\t</location>\n\t<transition source=\"1\" target=\"2\">\n\t\t<label>t1</label>\n\t\t<guard>guard</guard>\n\t\t<assignment>assignment</assignment>\n\t</transition>\n</component>\n</sspaceex>"
 
 

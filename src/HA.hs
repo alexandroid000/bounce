@@ -1,11 +1,15 @@
 {-# LANGUAGE NoMonomorphismRestriction  #-}
 
-module HA where
+module HA
+    (
+      Location (..)
+    , Transition (..)
+    , write_HA
+    , test_ha
+    , HA (..)
+    ) where
         
 import  Data.List
-import  Diagrams.Prelude
-import  BounceSim
-import  Maps
 
 type Id = Int
 type Source = Id
