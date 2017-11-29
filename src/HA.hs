@@ -25,6 +25,7 @@ type Param = String
 data Location = Location Id Label Invariant Flow
 
 data Transition = Transition Source Target Label Guard Assignment
+    deriving (Show)
 
 data HA = HA    { name :: Label
                 , params :: [Param]
