@@ -9,14 +9,14 @@ import functools # can't stop the func
 var('a,b,c')
 #var('x0,x1,x2,x3,x4,y0,y1,y2,y3,y4')
 var("x,th,phi,l")
+
+### common polygon definitions
 rect = [a,b,a,b]
 rect_angs = [pi/2]*4
+rectangle = zip(rect, rect_angs)
 reg_pent = [a]*5
-reg_pent_angs = [2*pi/5]*5
+reg_pent_angs = [3*pi/5]*5
 sa_reg_pent = zip(reg_pent, reg_pent_angs)
-gen_f(x,th,l,phi) = (cos(th)/cos(th-phi))*(l-x)
-b0(x) = x
-
 nonreg_pent_pts =   [(10,0)
                     ,(0,7)
                     ,(4,18)
@@ -28,6 +28,9 @@ reg_pent_pts = [(0.0, 0.0)
                ,(-1.309, 0.951)
                ,(-1.0, 0.0)]
 
+
+gen_f(x,th,l,phi) = (cos(th)/cos(th-phi))*(l-x)
+b0(x) = x
 
 # take a list of 2d points and extract side lengths and intermediate angles
 # assumes closed, simple polygon
@@ -71,8 +74,8 @@ def test_pent():
 def circuit_from_pts(pts, theta):
     return comp_gen_f(interpret_points(pts), theta)
 
-r1(x,th)=gen_f(x,th,a,pi/2)
-r2(x,th)=gen_f(x,th,b,pi/2)
+r1(x,th)=gen_f(x,th,a,phi)
+r2(x,th)=gen_f(x,th,b,phi)
 
 # a cycle in a rectangle, side a and b, starting on side a
 # assumes the robot strikes every sequential edge
