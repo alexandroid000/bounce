@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<sspaceex xmlns="http://www-verimag.imag.fr/xml-namespaces/sspaceex"version="0.2" math="SpaceEx">
+	<component id="test">
+	<param name="x" type="real" local="true" d1="1" d2="1" dynamics="any" />
+	<param name="y" type="real" local="true" d1="1" d2="1" dynamics="any" />
+	<param name="vx" type="real" local="true" d1="1" d2="1" dynamics="any" />
+	<param name="vy" type="real" local="true" d1="1" d2="1" dynamics="any" />
+	<location id="1" name="interior">
+ 		<invariant></invariant>
+		<flow>x'=vx &amp; y'=vy</flow>
+	</location>
+	<transition source="1" target="1">
+		<label>e1</label>
+		<guard>|(x-(0.0))/(-5.551115123125783e-14 - (0.0))-(y-(0.0))/(500.0 - (0.0))| &lt; 1.0e-3 && (0.0 &lt;= (x-(0.0))/(-5.551115123125783e-14 - (0.0))) && ((x-(0.0))/(-5.551115123125783e-14 - (0.0))&lt; 1.0)</guard>
+		<assignment>vx := -1.0 vy := -4.9789962505147994e-17</assignment>
+	</transition>
+	<transition source="1" target="1">
+		<label>e2</label>
+		<guard>|(x-(-5.551115123125783e-14))/(-500.00000000000006 - (-5.551115123125783e-14))-(y-(500.0))/(500.0 - (500.0))| &lt; 1.0e-3 && (0.0 &lt;= (x-(-5.551115123125783e-14))/(-500.00000000000006 - (-5.551115123125783e-14))) && ((x-(-5.551115123125783e-14))/(-500.00000000000006 - (-5.551115123125783e-14))&lt; 1.0)</guard>
+		<assignment>vx := -6.123233995736766e-17 vy := -1.0</assignment>
+	</transition>
+	<transition source="1" target="1">
+		<label>e3</label>
+		<guard>|(x-(-500.00000000000006))/(-500.0000000000001 - (-500.00000000000006))-(y-(500.0))/(0.0 - (500.0))| &lt; 1.0e-3 && (0.0 &lt;= (x-(-500.00000000000006))/(-500.0000000000001 - (-500.00000000000006))) && ((x-(-500.00000000000006))/(-500.0000000000001 - (-500.00000000000006))&lt; 1.0)</guard>
+		<assignment>vx := 1.0 vy := -1.749191776789837e-16</assignment>
+	</transition>
+	<transition source="1" target="1">
+		<label>e4</label>
+		<guard>|(x-(-500.0000000000001))/(0.0 - (-500.0000000000001))-(y-(0.0))/(0.0 - (0.0))| &lt; 1.0e-3 && (0.0 &lt;= (x-(-500.0000000000001))/(0.0 - (-500.0000000000001))) && ((x-(-500.0000000000001))/(0.0 - (-500.0000000000001))&lt; 1.0)</guard>
+		<assignment>vx := 6.123233995736766e-17 vy := 1.0</assignment>
+	</transition>
+</component>
+</sspaceex>

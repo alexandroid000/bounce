@@ -4,6 +4,7 @@ module HA
     (
       Location (..)
     , Transition (..)
+    , Assignment (..)
     , write_HA
     , test_ha
     , HA (..)
@@ -76,8 +77,8 @@ test_ha = HA    { name="test"
                 , locations=[loc1, loc2]
                 , transitions=[t1]}
 
-write_HA :: HA -> String
-write_HA ha = let
+form_HA :: HA -> String
+form_HA ha = let
     header = "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>\n\
     \<sspaceex xmlns=\"http://www-verimag.imag.fr/xml-namespaces/sspaceex\"\
     \version=\"0.2\" math=\"SpaceEx\">\n\
@@ -87,3 +88,9 @@ write_HA ha = let
     xml_loc = write_locs (locations ha)
     xml_trns = write_trans (transitions ha)
     in header++xml_params++xml_loc++xml_trns++footer
+
+write_HA :: HA -> IO ()
+write_HA ha = let
+    fname = (name ha)++".xml"
+    xml = form_HA ha
+    in writeFile fname xml
