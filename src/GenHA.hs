@@ -7,7 +7,7 @@ import Maps
 
 type Seg = (P2 Double, P2 Double)
 
-loc1 = Location 1 "interior" "" "x'=vx &amp; y'=vy"
+loc1 = Location 1 "interior" "" "x'==vx &amp; y'==vy"
 t1 = Transition 1 1 "e1" "guard" "assignment"
 
 --mk_HA :: Poly V2 Double -> Angle Double -> HA
