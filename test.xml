@@ -7,7 +7,7 @@
 	<param name="vy" type="real" local="true" d1="1" d2="1" dynamics="any" />
 	<location id="1" name="interior">
  		<invariant></invariant>
-		<flow>x'=vx &amp; y'=vy</flow>
+		<flow>x'==vx &amp; y'==vy</flow>
 	</location>
 	<transition source="1" target="1">
 		<label>e1</label>
