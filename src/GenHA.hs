@@ -23,16 +23,25 @@ mk_pairs poly = let
     mkpairs (a:b:ls) = (a,b):(mkpairs (b:ls))
     in mkpairs pts
 
+-- needs DSL
 mkGuard :: Seg -> String
 mkGuard (pt1, pt2) =
     let eps = 0.001
         (x1,y1) = unp2 pt1
         (x2,y2) = unp2 pt2
-        s1 = "(x-("++(showN x1)++"))/("++(showN x2)++" - ("++(showN x1)++"))"
-        s2 = "(y-("++(showN y1)++"))/("++(showN y2)++" - ("++(showN y1)++"))"
-    in  "("++s1++"-"++s2++") "++"&lt; "++(showN eps) ++" &amp;&amp; "++
-        "("++s1++"-"++s2++") "++"&gt; -"++(showN eps) ++" &amp;&amp; "++
-        "(0.0 &lt;= "++s1++") &amp;&amp; ("++s1++"&lt; 1.0)"
+        dist1 (x,y) = "("++(showN x)++" -x)*("++(showN x)++" -x) + ("++(showN y)++" -y)*("++(showN y)++"-y)"
+        dist2 (xi,yi) (xj, yj) = "("++(showN xi)++" -("++(showN xj)++"))*\
+                                 \("++(showN xi)++" -("++(showN xj)++"))+\
+                                 \("++(showN yi)++" -("++(showN yj)++"))*\
+                                 \("++(showN yi)++" -("++(showN yj)++"))"
+    in  (dist1 (x1,y1))++" + "++(dist1 (x2,y2))++" - ("++(dist2 (x1,y1)
+        (x2,y2))++") &lt;= "++(showN eps)++" &amp;&amp; "++
+        (dist1 (x1,y1))++" + "++(dist1 (x2,y2))++" - ("++(dist2 (x1,y1)
+        (x2,y2))++") &gt;= -"++(showN eps)++" &amp;&amp; "++
+        (showN x1)++" &lt;= x &amp;&amp; "++
+        (showN x2)++" &gt;= x &amp;&amp; "++
+        (showN y1)++" &lt;= y &amp;&amp; "++
+        (showN y2)++" &gt;= y"
 
 
 -- since we arbitrarily set |v| = 1, vx = cos(theta) and vy = sin(theta)
