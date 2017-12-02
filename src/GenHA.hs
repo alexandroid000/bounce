@@ -4,11 +4,16 @@ import HA
 import Diagrams.Prelude
 import BounceSim
 import Maps
+import Numeric           (showFFloat)
 
 type Seg = (P2 Double, P2 Double)
 
 loc1 = Location 1 "interior" "" "x'==vx &amp; y'==vy"
 t1 = Transition 1 1 "e1" "guard" "assignment"
+
+
+showN :: Double -> String
+showN n = Numeric.showFFloat Nothing n ""
 
 --mk_HA :: Poly V2 Double -> Angle Double -> HA
 mk_pairs poly = let
@@ -23,10 +28,10 @@ mkGuard (pt1, pt2) =
     let eps = 0.001
         (x1,y1) = unp2 pt1
         (x2,y2) = unp2 pt2
-        s1 = "(x-("++(show x1)++"))/("++(show x2)++" - ("++(show x1)++"))"
-        s2 = "(y-("++(show y1)++"))/("++(show y2)++" - ("++(show y1)++"))"
-    in  "("++s1++"-"++s2++") "++"&lt; "++(show eps) ++" &amp;&amp; "++
-        "("++s1++"-"++s2++") "++"&gt; -"++(show eps) ++" &amp;&amp; "++
+        s1 = "(x-("++(showN x1)++"))/("++(showN x2)++" - ("++(showN x1)++"))"
+        s2 = "(y-("++(showN y1)++"))/("++(showN y2)++" - ("++(showN y1)++"))"
+    in  "("++s1++"-"++s2++") "++"&lt; "++(showN eps) ++" &amp;&amp; "++
+        "("++s1++"-"++s2++") "++"&gt; -"++(showN eps) ++" &amp;&amp; "++
         "(0.0 &lt;= "++s1++") &amp;&amp; ("++s1++"&lt; 1.0)"
 
 
@@ -45,7 +50,7 @@ mkAssign theta (pt1, pt2) = let
     sin_thc = sin theta'
     cos_thout = cos_the*cos_thc - sin_the*sin_thc
     sin_thout = sin_the*cos_thc + cos_the*sin_thc
-    in "vx := "++(show cos_thout)++" &amp;&amp; vy := "++(show sin_thout)
+    in "vx := "++(showN cos_thout)++" &amp;&amp; vy := "++(showN sin_thout)
 
 
 mkBounceTran :: Angle Double -> String -> Seg -> Transition
