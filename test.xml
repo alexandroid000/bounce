@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <sspaceex xmlns="http://www-verimag.imag.fr/xml-namespaces/sspaceex"version="0.2" math="SpaceEx">
 	<component id="test">
-	<param name="x" type="real" local="true" d1="1" d2="1" dynamics="const" />
-	<param name="y" type="real" local="true" d1="1" d2="1" dynamics="const" />
-	<param name="vx" type="real" local="true" d1="1" d2="1" dynamics="any" />
-	<param name="vy" type="real" local="true" d1="1" d2="1" dynamics="any" />
+	<param name="x" type="real" local="true" d1="1" d2="1" dynamics="any" />
+	<param name="y" type="real" local="true" d1="1" d2="1" dynamics="any" />
+	<param name="vx" type="real" local="true" d1="1" d2="1" dynamics="const" />
+	<param name="vy" type="real" local="true" d1="1" d2="1" dynamics="const" />
 	<param name="e1" type="label" local="false" />
 	<param name="e2" type="label" local="false" />
 	<param name="e3" type="label" local="false" />
