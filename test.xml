@@ -13,22 +13,22 @@
  		<invariant>0.0 &lt;= x &amp;&amp; x &lt;= 500 &amp;&amp; 0 &lt;= y &amp;&amp; y &lt;= 500</invariant>
 		<flow>x'==vx &amp; y'==vy</flow>
 	</location>
-	<transition source="1" target="1">
+	<transition source="1" target="1 asap="true" ">
 		<label>e1</label>
 		<guard>x - (0.0) &lt; (0.001) &amp;&amp; x - (0.0) &gt; -(0.001) &amp;&amp; (0.0) &lt;= y &amp;&amp; y &lt; (500.0)</guard>
 		<assignment>vx := (-1.0) &amp; vy := (-0.000000000000000049789962505147994)</assignment>
 	</transition>
-	<transition source="1" target="1">
+	<transition source="1" target="1 asap="true" ">
 		<label>e2</label>
 		<guard>y - (500.0) &lt; (0.001) &amp;&amp; y - (500.0) &gt; -(0.001) &amp;&amp; (-500.00000000000006) &lt;= x &amp;&amp; x &lt; (-0.00000000000005551115123125783)</guard>
 		<assignment>vx := (-0.00000000000000006123233995736766) &amp; vy := (-1.0)</assignment>
 	</transition>
-	<transition source="1" target="1">
+	<transition source="1" target="1 asap="true" ">
 		<label>e3</label>
 		<guard>x - (-500.00000000000006) &lt; (0.001) &amp;&amp; x - (-500.00000000000006) &gt; -(0.001) &amp;&amp; (0.0) &lt;= y &amp;&amp; y &lt; (500.0)</guard>
 		<assignment>vx := (1.0) &amp; vy := (-0.0000000000000001749191776789837)</assignment>
 	</transition>
-	<transition source="1" target="1">
+	<transition source="1" target="1 asap="true" ">
 		<label>e4</label>
 		<guard>y - (0.0) &lt; (0.001) &amp;&amp; y - (0.0) &gt; -(0.001) &amp;&amp; (-500.0000000000001) &lt;= x &amp;&amp; x &lt; (0.0)</guard>
 		<assignment>vx := (0.00000000000000006123233995736766) &amp; vy := (1.0)</assignment>
