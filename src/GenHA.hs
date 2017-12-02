@@ -13,7 +13,7 @@ t1 = Transition 1 1 "e1" "guard" "assignment"
 
 
 showN :: Double -> String
-showN n = Numeric.showFFloat Nothing n ""
+showN n = "("++(Numeric.showFFloat Nothing n "")++")"
 
 --mk_HA :: Poly V2 Double -> Angle Double -> HA
 mk_pairs poly = let
@@ -23,26 +23,38 @@ mk_pairs poly = let
     mkpairs (a:b:ls) = (a,b):(mkpairs (b:ls))
     in mkpairs pts
 
--- needs DSL
+data Orientation = Vert | Horiz | Neither
+
+detect_orientation :: Seg -> Orientation
+detect_orientation (pt1, pt2)
+    | abs (x1-x2) < eps = Vert
+    | abs (y1-y2) < eps = Horiz
+    | otherwise         = Neither
+    where   eps = 0.001
+            (x1,y1) = unp2 pt1
+            (x2,y2) = unp2 pt2
+
+
+check_on_hv p1 p2 p =
+    case p1 < p2 of
+        True  -> (showN p1)++" &lt;= "++p++" &amp;&amp; "++p++" &lt; "++(showN p2)
+        False -> (showN p2)++" &lt;= "++p++" &amp;&amp; "++p++" &lt; "++(showN p1)
+
 mkGuard :: Seg -> String
 mkGuard (pt1, pt2) =
     let eps = 0.001
         (x1,y1) = unp2 pt1
         (x2,y2) = unp2 pt2
-        dist1 (x,y) = "("++(showN x)++" -x)*("++(showN x)++" -x) + ("++(showN y)++" -y)*("++(showN y)++"-y)"
-        dist2 (xi,yi) (xj, yj) = "("++(showN xi)++" -("++(showN xj)++"))*\
-                                 \("++(showN xi)++" -("++(showN xj)++"))+\
-                                 \("++(showN yi)++" -("++(showN yj)++"))*\
-                                 \("++(showN yi)++" -("++(showN yj)++"))"
-    in  (dist1 (x1,y1))++" + "++(dist1 (x2,y2))++" - ("++(dist2 (x1,y1)
-        (x2,y2))++") &lt;= "++(showN eps)++" &amp;&amp; "++
-        (dist1 (x1,y1))++" + "++(dist1 (x2,y2))++" - ("++(dist2 (x1,y1)
-        (x2,y2))++") &gt;= -"++(showN eps)++" &amp;&amp; "++
-        (showN x1)++" &lt;= x &amp;&amp; "++
-        (showN x2)++" &gt;= x &amp;&amp; "++
-        (showN y1)++" &lt;= y &amp;&amp; "++
-        (showN y2)++" &gt;= y"
-
+        s1 = "(x-("++(showN x1)++"))/("++(showN x2)++" - ("++(showN x1)++"))"
+        s2 = "(y-("++(showN y1)++"))/("++(showN y2)++" - ("++(showN y1)++"))"
+    in  case detect_orientation (pt1, pt2) of
+            Vert  -> "x - "++(showN x1)++" &lt; "++(showN eps)++" &amp;&amp; x - "++
+                        (showN x1)++" &gt; -"++(showN eps)++" &amp;&amp; "++(check_on_hv y1 y2 "y")
+            Horiz -> "y - "++(showN y1)++" &lt; "++(showN eps)++" &amp;&amp; y - "++
+                        (showN y1)++" &gt; -"++(showN eps)++" &amp;&amp; "++(check_on_hv x1 x2 "x")
+            _     -> "("++s1++"-"++s2++") "++"&lt; "++(showN eps) ++" &amp;&amp; "++
+                     "("++s1++"-"++s2++") "++"&gt; -"++(showN eps) ++" &amp;&amp; "++
+                     "(0.0 &lt;= "++s1++") &amp;&amp; ("++s1++"&lt; 1.0)"
 
 -- since we arbitrarily set |v| = 1, vx = cos(theta) and vy = sin(theta)
 -- thus, when we update theta to theta_edge + theta_controller, we can use the
