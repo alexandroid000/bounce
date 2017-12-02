@@ -71,7 +71,7 @@ mkLabels n = map (\i -> "e"++(show i)) [1..n]
 
 mkParams :: Poly V2 Double -> [Param]
 mkParams poly = let
-    dyn_params = [Real "x", Real "y", Real "vx", Real "vy"]
+    dyn_params = [RealDyn "x", RealDyn "y", RealConst "vx", RealConst "vy"]
     edges = trailLocSegments poly
     n = length edges
     edge_params = map (\lab -> Lab lab) (mkLabels n)

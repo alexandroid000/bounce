@@ -21,7 +21,7 @@ type Flow = String
 type Guard = String
 type Assignment = String
 
-data Param = Real Label | Lab Label
+data Param = RealConst Label | RealDyn Label | Lab Label
 
 data Location = Location Id Label Invariant Flow
 
@@ -35,7 +35,8 @@ data HA = HA    { name :: Label
                 }
 
 write_param :: Param -> String
-write_param (Real name) = "<param name=\""++name++"\" type=\"real\" local=\"true\" d1=\"1\" d2=\"1\" dynamics=\"any\" />"
+write_param (RealConst name) = "<param name=\""++name++"\" type=\"real\" local=\"true\" d1=\"1\" d2=\"1\" dynamics=\"any\" />"
+write_param (RealDyn name) = "<param name=\""++name++"\" type=\"real\" local=\"true\" d1=\"1\" d2=\"1\" dynamics=\"const\" />"
 write_param (Lab name) = "<param name=\""++name++"\" type=\"label\" local=\"false\" />"
 
 write_params :: [Param] -> String
