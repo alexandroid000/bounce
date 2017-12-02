@@ -5,8 +5,8 @@ module HA
       Location (..)
     , Transition (..)
     , Assignment (..)
+    , Param (..)
     , write_HA
-    , test_ha
     , HA (..)
     ) where
         
@@ -67,16 +67,6 @@ write_tran (Transition source target label guard assign) =
 write_trans :: [Transition] -> String
 write_trans [] = ""
 write_trans (t:ts) = "\t" ++ (write_tran t) ++ "\n" ++ (write_trans ts)
-
-loc1 = Location 1 "loc1" "inv" "flow"
-loc2 = Location 2 "loc2" "inv" "flow"
-t1 = Transition 1 2 "t1" "guard" "assignment"
-
-test_ha :: HA
-test_ha = HA    { name="test"
-                , params=["p1","p2"]
-                , locations=[loc1, loc2]
-                , transitions=[t1]}
 
 form_HA :: HA -> String
 form_HA ha = let

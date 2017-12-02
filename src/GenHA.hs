@@ -56,9 +56,20 @@ mkBounceTrans :: Poly V2 Double -> Angle Double -> [Transition]
 mkBounceTrans poly theta = let
     edges = mk_pairs poly
     n = length edges
-    labels = map (\n -> "e"++(show n)) [1..n]
+    labels = mkLabels n
     in map (uncurry (mkBounceTran theta)) (zip labels edges)
 
+mkLabels :: Int -> [String]
+mkLabels n = map (\i -> "e"++(show i)) [1..n]
+
+mkParams :: Poly V2 Double -> [Param]
+mkParams poly = let
+    dyn_params = [Real "x", Real "y", Real "vx", Real "vy"]
+    edges = trailLocSegments poly
+    n = length edges
+    edge_params = map (\lab -> Lab lab) (mkLabels n)
+    in dyn_params ++ edge_params
+    
 
 pt = p2 (1,1) :: P2 Double
 pt1 = p2 (0,0) :: P2 Double
@@ -70,7 +81,7 @@ bounce_left = mkAssign (0 @@ rad) (pt1, vert1)
 
 test_ha2 :: HA
 test_ha2 = HA   { name = "test"
-               , params = ["x", "y", "vx", "vy"]
+               , params = mkParams $ mkPoly sq
                , locations = [loc1]
                , transitions = mkBounceTrans (mkPoly sq) (0 @@ rad)
                }
