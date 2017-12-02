@@ -25,7 +25,9 @@ mkGuard (pt1, pt2) =
         (x2,y2) = unp2 pt2
         s1 = "(x-("++(show x1)++"))/("++(show x2)++" - ("++(show x1)++"))"
         s2 = "(y-("++(show y1)++"))/("++(show y2)++" - ("++(show y1)++"))"
-    in "|"++s1++"-"++s2++"| "++"&lt; "++(show eps) ++" &amp;&amp; "++"(0.0 &lt;= "++s1++") &amp;&amp; ("++s1++"&lt; 1.0)"
+    in  "("++s1++"-"++s2++") "++"&lt; "++(show eps) ++" &amp;&amp; "++
+        "("++s1++"-"++s2++") "++"&gt; -"++(show eps) ++" &amp;&amp; "++
+        "(0.0 &lt;= "++s1++") &amp;&amp; ("++s1++"&lt; 1.0)"
 
 
 -- since we arbitrarily set |v| = 1, vx = cos(theta) and vy = sin(theta)
