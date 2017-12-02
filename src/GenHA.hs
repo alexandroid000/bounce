@@ -45,7 +45,7 @@ mkAssign theta (pt1, pt2) = let
     sin_thc = sin theta'
     cos_thout = cos_the*cos_thc - sin_the*sin_thc
     sin_thout = sin_the*cos_thc + cos_the*sin_thc
-    in "vx := "++(show cos_thout)++" vy := "++(show sin_thout)
+    in "vx := "++(show cos_thout)++" &amp;&amp; vy := "++(show sin_thout)
 
 
 mkBounceTran :: Angle Double -> String -> Seg -> Transition
