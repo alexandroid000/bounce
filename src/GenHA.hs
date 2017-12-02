@@ -8,7 +8,7 @@ import Numeric           (showFFloat)
 
 type Seg = (P2 Double, P2 Double)
 
-loc1 = Location 1 "interior" "0.0 &lt;= x &amp;&amp; x &lt;= 500 &amp;&amp; 0 &lt;= y &amp;&amp; y &lt;= 500" "x'==vx &amp; y'==vy"
+loc1 = Location 1 "interior" "" "x'==vx &amp; y'==vy"
 t1 = Transition 1 1 "e1" "guard" "assignment"
 
 
