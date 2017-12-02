@@ -59,7 +59,7 @@ write_locs (l:ls) = "\t" ++ (write_loc l) ++ "\n" ++ (write_locs ls)
 write_tran :: Transition -> String
 write_tran (Transition source target label guard assign) =
     "<transition source=\""++(show source)++"\" target=\""++(show
-    target)++" asap=\"true\" \">\n\
+    target)++" asap=true \">\n\
     \\t\t<label>"++label++"</label>\n\
     \\t\t<guard>"++guard++"</guard>\n\
     \\t\t<assignment>"++assign++"</assignment>\n\
