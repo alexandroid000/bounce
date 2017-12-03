@@ -10,7 +10,7 @@
 	<param name="e3" type="label" local="false" />
 	<param name="e4" type="label" local="false" />
 	<location id="1" name="interior">
- 		<invariant></invariant>
+ 		<invariant>0.0 &lt;= x &amp;&amp; x &lt;= 500 &amp;&amp; 0 &lt;= y &amp;&amp; y &lt;= 500</invariant>
 		<flow>x'==vx &amp; y'==vy</flow>
 	</location>
 	<transition source="1" target="1" asap="true" >
