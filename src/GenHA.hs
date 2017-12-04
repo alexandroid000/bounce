@@ -8,8 +8,6 @@ import Numeric           (showFFloat)
 
 type Seg = (P2 Double, P2 Double)
 
-loc1 = Location 1 "interior" "-500.0 &lt;= x &amp;&amp; x &lt;= 0.0 &amp;&amp; 0 &lt;= y &amp;&amp; y &lt;= 500" "x'==vx &amp; y'==vy"
-t1 = Transition 1 1 "e1" "guard" "assignment"
 
 
 showN :: Double -> String
@@ -74,18 +72,18 @@ mkAssign theta (pt1, pt2) = let
     in "vx := "++(showN cos_thout)++" &amp; vy := "++(showN sin_thout)
 
 
-mkBounceTran :: Angle Double -> String -> Seg -> Transition
-mkBounceTran theta label seg =
+mkT :: Angle Double -> String -> Seg -> Transition
+mkT theta label seg =
     let guard = mkGuard seg
         assign = mkAssign theta seg
     in Transition 1 1 label guard assign
 
-mkBounceTrans :: Poly V2 Double -> Angle Double -> [Transition]
-mkBounceTrans poly theta = let
+mkTs :: Poly V2 Double -> Angle Double -> [Transition]
+mkTs poly theta = let
     edges = mk_pairs poly
     n = length edges
     labels = mkLabels n
-    in map (uncurry (mkBounceTran theta)) (zip labels edges)
+    in map (uncurry (mkT theta)) (zip labels edges)
 
 mkLabels :: Int -> [String]
 mkLabels n = map (\i -> "e"++(show i)) [1..n]
@@ -107,11 +105,13 @@ vert1 = p2 (0, 2)
 
 bounce_left = mkAssign (0 @@ rad) (pt1, vert1)
 
-test_ha2 :: HA
-test_ha2 = HA   { name = "test"
+loc1 = Location 1 "interior" "-500.0 &lt;= x &amp;&amp; x &lt;= 0.0 &amp;&amp; 0 &lt;= y &amp;&amp; y &lt;= 500" "x'==vx &amp; y'==vy"
+
+square_ha :: HA
+square_ha = HA   { name = "test"
                , params = mkParams $ mkPoly sq
                , locations = [loc1]
-               , transitions = mkBounceTrans (mkPoly sq) (0 @@ rad)
+               , transitions = mkTs (mkPoly sq) ((pi/2)-0.05 @@ rad)
                }
 
-test = write_HA test_ha2
+test = write_HA square_ha
