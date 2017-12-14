@@ -36,7 +36,7 @@ detect_orientation (pt1, pt2)
 check_on_hv p1 p2 p =
     case p1 < p2 of
         True  -> (showN p1)++" &lt;= "++p++" &amp;&amp; "++p++" &lt; "++(showN p2)
-        False -> (showN p2)++" &lt;= "++p++" &amp;&amp; "++p++" &lt; "++(showN p1)
+        False -> (showN p2)++" &lt; "++p++" &amp;&amp; "++p++" &lt;= "++(showN p1)
 
 mkGuard :: Seg -> String
 mkGuard (pt1, pt2) =
