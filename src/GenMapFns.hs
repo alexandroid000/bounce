@@ -68,12 +68,22 @@ xfp poly theta = let
     n = length lenangs
     in (xfpNumerator (n-1) n theta lenangs)/(xfpDenom n theta lenangs)
 
---bounceFromPt :: Poly V2 Double -> Angle Double -> V2 Double -> V2 Double
---bounceFromPt poly theta x =
---    let e1 = closest_edge poly x
---        e2 = case (lht theta) of
---                True -> ccw poly e1
---                False -> cw poly e1
---    in seq_bounce theta (e1,e2)
+closestSegment :: [FixedSegment V2 Double] -> P2 Double -> (Int, FixedSegment V2 Double)
+closestSegment segs' pt =
+    let segs = zip [0..] segs'
+        closerToPt e1 e2 = comparing (\(i,e) -> closestDistance e pt) e1 e2
+    in minimumBy (closerToPt) segs
+
+bounceFromPt :: Poly V2 Double -> Angle Double -> P2 Double -> (Double -> Double)
+bounceFromPt poly theta x =
+    let segs = fixTrail poly
+        vs = polyOffsets poly
+        n = length segs
+        (i,e1) = closestSegment segs x
+        v1 = vs !! i
+        v2 = case (theta < (pi/2 @@ rad)) of
+                True -> vs !! ((i+1) `mod` n)
+                False -> vs !! ((i-1) `mod` n)
+    in seq_bounce theta (edgesLenAng (v1,v2), edgesLenAng (v2, unitX))
 
 
