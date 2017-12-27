@@ -77,21 +77,3 @@ xfp poly theta = let
 --    in seq_bounce theta (e1,e2)
 
 
-
-phi = 5*pi/7 @@ rad
-th = 1.2 @@ rad
-c = coeff th phi
-xfp_correct = 500.0*c/(1+c)
-
-hex_phi = 4*pi/6 @@ rad
-hex_c = coeff th hex_phi
-hex_correct = 500.0*c/(1+c)
-
-test = do
-    print $ xfp (mkPoly hep) (1.2 @@ rad)
-    print $ xfp_correct
-
-
-hex_test = do
-    print $ xfp (mkPoly hex) (1.2 @@ rad)
-    print $ hex_correct

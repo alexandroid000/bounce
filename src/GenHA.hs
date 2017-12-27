@@ -95,23 +95,3 @@ mkParams poly = let
     n = length edges
     edge_params = map (\lab -> Lab lab) (mkLabels n)
     in dyn_params ++ edge_params
-    
-
-pt = p2 (1,1) :: P2 Double
-pt1 = p2 (0,0) :: P2 Double
-pt2 = p2 (2,2) :: P2 Double
-
-vert1 = p2 (0, 2)
-
-bounce_left = mkAssign (0 @@ rad) (pt1, vert1)
-
-loc1 = Location 1 "interior" "-500.0 &lt;= x &amp;&amp; x &lt;= 0.0 &amp;&amp; 0 &lt;= y &amp;&amp; y &lt;= 500" "x'==vx &amp; y'==vy"
-
-square_ha :: HA
-square_ha = HA   { name = "test"
-               , params = mkParams $ mkPoly sq
-               , locations = [loc1]
-               , transitions = mkTs (mkPoly sq) ((pi/2)-0.05 @@ rad)
-               }
-
-test = write_HA square_ha
