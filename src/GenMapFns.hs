@@ -6,26 +6,29 @@ import Diagrams.Prelude
 import BounceSim
 import Maps
 
+edgeLen :: V2 Double -> Double
+edgeLen v = sqrt (v `dot` v)
+
 polyOffsets :: Poly V2 Double -> [V2 Double]
 polyOffsets p = trailOffsets $ unLoc p
 
 polyLens :: Poly V2 Double -> [Double]
-polyLens = map (\v -> sqrt (v `dot` v)) . polyOffsets
+polyLens = map edgeLen . polyOffsets
 
--- rotate so v1 is along x axis
--- then two cases for reflex and non-reflex angles
+-- find th that rotates frame so that v1 is along x axis
 angleInPoly :: V2 Double -> V2 Double -> Angle Double
-angleInPoly v1' v2' = let
-    th = (0 @@ rad) ^-^ (v1' ^. _theta)
-    v1 = rotate th v1'
-    v2 = rotate th v2'
-    phi = v2 ^. _theta
+angleInPoly v1 v2 = let
+    th = (0 @@ rad) ^-^ (v1 ^. _theta)
+    phi = (rotate th v2) ^. _theta
     in (pi @@ rad) ^-^ phi
+
+cyclicPairs :: [a] -> [(a,a)]
+cyclicPairs l = (zip l $ tail l) ++ [(last l, head l)]
 
 polyAngs :: Poly V2 Double -> [Angle Double]
 polyAngs p = let
     offs = polyOffsets p
-    offset_pairs = (zip offs (tail offs)) ++ [(last offs, head offs)]
+    offset_pairs = cyclicPairs offs
     get_ang (v1, v2) = angleInPoly v1 v2
     in map get_ang offset_pairs
 
@@ -40,7 +43,7 @@ coeff :: Angle Double -> Angle Double -> Double
 coeff theta phi = (cosA theta)/(cosA (theta ^-^ phi))
 
 seq_bounce :: Angle Double -> ((Double, Angle Double), (Double, Angle Double)) -> (Double -> Double)
-seq_bounce theta ((l1,phi1), (l2, phi2)) = let
+seq_bounce theta ((l1,phi1), (l2, _)) = let
     c = coeff theta phi1
     in \x -> c*(l2 - x)
 
