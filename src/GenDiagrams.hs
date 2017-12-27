@@ -6,6 +6,7 @@ module GenDiagrams where
 import Diagrams.Prelude
 import BounceSim
 import Maps
+import GenMapFns
 import Data.HashMap hiding (map)
 --import Animate
 import Diagrams.Backend.CmdLine
@@ -24,31 +25,18 @@ dOpts = DiagramOpts
 -- Diagram Generators
 -- ------------------
 
---visPoints :: [P2 Double] -> QDiagram b V2 Double Any
---visPoints pts = atPoints pts (repeat ((circle 15) # fc yellow # lc blue))
+visPoints :: [P2 Double] -> Diagram B
+visPoints pts = atPoints pts (repeat ((circle 15) # fc yellow # lc blue))
 
 getPoints :: Poly V2 Double -> [Double] -> [P2 Double]
 getPoints p ss = map (atParam p) ss
-
-
--- [(Int, Double)] is the edge index and local edge parameter of collision point
---putPoints :: Poly V2 Double -> [(Int, Double)] -> Int -> QDiagram b V2 Double Any
-putPoints poly collisions offset = let
-    segs = trailLocSegments poly
-    vecs = trailOffsets $ unLoc poly
-    lens = map (\x -> x `dot` x) vecs :: [Double]
-    normed_colls = zipWith (\(i,s) y -> (i,s/y)) collisions lens
-    indexed_segs = fromList $ zip [0..] segs :: Map Int (Located (Segment Closed V2 Double))
-    in indexed_segs
-
 
 --plotGenFP :: Double -> Int -> Int -> Double -> Diagram B
 plotGenFP theta n' m' l =
     let env = regPoly n' l :: Trail V2 Double
         n = fromIntegral n'
         sim = snd $ plotBounce (mkPoly $ Trl env) doFixedBounce (repeat theta) (0.5) 100
-        --fps = fpPoints theta n' m' l
-    in sim -- <> fps
+    in sim
 
 
 mkBounceArrows :: Poly V2 Double ->
@@ -68,7 +56,9 @@ plotBounce p bounceLaw angs s num =
     let bounces = doBounces p bounceLaw s $ map (@@ rad) angs :: [RoboLoc]
         --start_pt = circle 15 # fc green # lc blue # moveTo (p `atParam` s)
         arrows = mkBounceArrows p bounces num blue
-        plot =  (mconcat arrows # lwL 5) <>
-                (strokeLocTrail p # lwL 10)
+        plot = (visPoints $ collisionPts p ((head angs) @@ rad)) <>
+               (mconcat arrows # lwL 5) <>
+               (strokeLocTrail p # lwL 10)
+                
     in  (bounces, plot)
 

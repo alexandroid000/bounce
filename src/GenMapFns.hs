@@ -86,4 +86,10 @@ bounceFromPt poly theta x =
                 False -> vs !! ((i-1) `mod` n)
     in seq_bounce theta (edgesLenAng (v1,v2), edgesLenAng (v2, unitX))
 
-
+collisionPts :: Poly V2 Double -> Angle Double -> [P2 Double]
+collisionPts poly theta =
+    let segs = fixTrail poly
+        lens = polyLens poly
+        fst_fp = xfp poly theta
+        s1 = (fst_fp / (head lens))*(1.0/(fromIntegral $ length lens))
+    in [poly `atParam` s1]
