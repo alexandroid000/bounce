@@ -3,11 +3,27 @@
 module GenMapFns where
 
 import Diagrams.Prelude
+import Diagrams.TwoD.Segment
 import BounceSim
+import Data.Ord
+import Data.List
 import Maps
+
+cyclicPairs :: [a] -> [(a,a)]
+cyclicPairs l = (zip l $ tail l) ++ [(last l, head l)]
 
 edgeLen :: V2 Double -> Double
 edgeLen v = sqrt (v `dot` v)
+
+-- find th that rotates frame so that v1 is along x axis
+edgesAngle :: V2 Double -> V2 Double -> Angle Double
+edgesAngle v1 v2 = let
+    th = (0 @@ rad) ^-^ (v1 ^. _theta)
+    phi = (rotate th v2) ^. _theta
+    in (pi @@ rad) ^-^ phi
+
+edgesLenAng :: (V2 Double, V2 Double) -> (Double, Angle Double)
+edgesLenAng (v1,v2) = (edgeLen v1, edgesAngle v1 v2)
 
 polyOffsets :: Poly V2 Double -> [V2 Double]
 polyOffsets p = trailOffsets $ unLoc p
@@ -15,25 +31,10 @@ polyOffsets p = trailOffsets $ unLoc p
 polyLens :: Poly V2 Double -> [Double]
 polyLens = map edgeLen . polyOffsets
 
--- find th that rotates frame so that v1 is along x axis
-angleInPoly :: V2 Double -> V2 Double -> Angle Double
-angleInPoly v1 v2 = let
-    th = (0 @@ rad) ^-^ (v1 ^. _theta)
-    phi = (rotate th v2) ^. _theta
-    in (pi @@ rad) ^-^ phi
-
-cyclicPairs :: [a] -> [(a,a)]
-cyclicPairs l = (zip l $ tail l) ++ [(last l, head l)]
-
-polyAngs :: Poly V2 Double -> [Angle Double]
-polyAngs p = let
-    offs = polyOffsets p
-    offset_pairs = cyclicPairs offs
-    get_ang (v1, v2) = angleInPoly v1 v2
-    in map get_ang offset_pairs
-
 polyLenAngs :: Poly V2 Double -> [(Double, Angle Double)]
-polyLenAngs p = zip (polyLens p) (polyAngs p)
+polyLenAngs p = let
+    offs = cyclicPairs . trailOffsets $ unLoc p
+    in map edgesLenAng offs
 
 -- Calculating fixed point for sequential edge bouncing in convex polygons
 -- seems to have a sign error for even-sided polygons
@@ -46,7 +47,6 @@ seq_bounce :: Angle Double -> ((Double, Angle Double), (Double, Angle Double)) -
 seq_bounce theta ((l1,phi1), (l2, _)) = let
     c = coeff theta phi1
     in \x -> c*(l2 - x)
-
 
 coeff_prod :: Angle Double -> [(Double, Angle Double)] -> Double
 coeff_prod theta lenangs = let
