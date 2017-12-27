@@ -68,13 +68,30 @@ xfp poly theta = let
     n = length lenangs
     in (xfpNumerator (n-1) n theta lenangs)/(xfpDenom n theta lenangs)
 
+--bounceFromPt :: Poly V2 Double -> Angle Double -> V2 Double -> V2 Double
+--bounceFromPt poly theta x =
+--    let e1 = closest_edge poly x
+--        e2 = case (lht theta) of
+--                True -> ccw poly e1
+--                False -> cw poly e1
+--    in seq_bounce theta (e1,e2)
+
+
 
 phi = 5*pi/7 @@ rad
 th = 1.2 @@ rad
 c = coeff th phi
 xfp_correct = 500.0*c/(1+c)
 
+hex_phi = 4*pi/6 @@ rad
+hex_c = coeff th hex_phi
+hex_correct = 500.0*c/(1+c)
+
 test = do
     print $ xfp (mkPoly hep) (1.2 @@ rad)
     print $ xfp_correct
 
+
+hex_test = do
+    print $ xfp (mkPoly hex) (1.2 @@ rad)
+    print $ hex_correct
