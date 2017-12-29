@@ -6,6 +6,7 @@ module HA
     , Transition (..)
     , Assignment (..)
     , Param (..)
+    , form_HA
     , write_HA
     , HA (..)
     ) where
