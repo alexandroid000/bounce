@@ -31,6 +31,7 @@
 \usepackage[font=small,labelfont=bf]{caption} % Required for specifying captions to tables and figures
 
 \usepackage{multicol} % Required for multiple columns
+\usepackage{subcaption}
 \setlength{\columnsep}{1.5em} % Slightly increase the space between columns
 \setlength{\columnseprule}{0mm} % No horizontal rule between columns
 
@@ -90,16 +91,16 @@ linewidth=2pt % Width of the border lines around content boxes
 \begin{itemize}
 \item What kinds of tasks can very simple robots perform?
 
-\item What are the minimal resources (sensing, actuation, computation) needed to
-complete tasks?
+\item What are the minimal resources (sensing, actuation, computation time and
+space) needed to complete tasks?
 
-\item Can we make common robots such as vacuums, warehouse robots, etc more efficient
+\item Can we make common robots (such as vacuums and warehouse) robots more efficient
 and robust?
 \end{itemize}
 
 
 \begin{center}
-\includegraphics[width=1\linewidth]{robot_brain.jpg}
+\includegraphics[width=0.9\linewidth]{robot_brain.jpg}
 \end{center}
 
 
@@ -109,19 +110,22 @@ and robust?
 %	Question
 %----------------------------------------------------------------------------------------
 
-\headerbox{Being Specific About Tasks}{name=question,below=intro,column=0,span=1}{
+\headerbox{Robotic Tasks as Properties of Paths}{name=question,below=intro,column=0,span=1}{
 
 \begin{itemize}\compresslist
-\item  
-\item  
-\item  
-\item  
+\item {\bf Navigation:} From a set of starting states (which may be the entire
+environment), the robot's path must end at the goal state(s).
+\item {\bf Coverage:} The robot's path must meet some coverage criterion (ex: if
+the robot has a lidar sensor with omnidirectional 5 meter radius, the robot will
+scan the entire environment).
+\item {\bf Patrolling:} The robot's path must be repeatable, and may also have
+some coverage criterion.
 \end{itemize}
 
 }
 
 %----------------------------------------------------------------------------------------
-%	MATERIALS AND METHODS 1
+%	APPROACH
 %----------------------------------------------------------------------------------------
 
 
@@ -135,77 +139,69 @@ Can we use billiards or similar models?
 \begin{center}
 \includegraphics[width=1\linewidth]{bounce_space_def.pdf}
 \captionof{figure}{Outline of homology search and state mapping approach. Presence/absence patterns
-are mapped onto the phylogenetic tree and ancestral gene combinations are
-reconstructed in Count (Milk'{o}s Cs\H{u}r"{o}s, 2009) using Wagner parsimony
-with a 1.1:1 gain:loss penalty. A penalty of 2 is typically used, but we assume 
 that essential genes are less likely to be lost.}
 \end{center}
 
 }
 
 %----------------------------------------------------------------------------------------
-%	MATERIALS AND METHODS 2
+%	LIMIT CYCLES IN CONVEX POLYGONS
 %----------------------------------------------------------------------------------------
 
-
-%\headerbox{Methods: Finding essential genes}{name=florida,column=1,span=1}{
-%
-%\begin{center}
-%%\includegraphics[width=.85\linewidth]{florida_169.pdf}
-%\includegraphics[width=1\linewidth]{./florida_serif.pdf}
-%\captionof{figure}{A combination of heuristic (Solaimanpour, et al. 2015) and log-likelihood (Zomer, et al. 2012) methods revealed the essentialy 
-%of genes based on their proportional representation in Tn-Seq data. 456 essential 
-%gene candidates were underrepresented compared to the rest of the genome in both (green),
-%and thus were classified as likely essential in rich medium.}
-%
-%\end{center}
-%}
-\headerbox{Results: Periodic Orbits in Convex Polygons}{name=circos,column=1,span=1}{
+\headerbox{Limit Cycles in Convex
+Polygons}{name=convex,column=1,row=0,span=1}{
 
 \begin{center}
-\includegraphics[width=1\linewidth]{bounce_examples.pdf}
-\captionof{figure}{Circos plot of the genome (blue) with transposon insertions mapped onto it
-(orange and green). Genes (red, middle) with significantly fewer insertions than
-expected were called as essential (black).}
+\includegraphics[width=0.8\linewidth]{convex_fp.pdf}
+\captionof{figure}{Consecutive-edge bouncing limit cycles exist and are computable for a range of $\theta$ in every convex polygon.}
+\end{center}
+}
 
+%----------------------------------------------------------------------------------------
+%	FORMAL METHODS
+%----------------------------------------------------------------------------------------
 
+\headerbox{The Role of Formal
+Methods}{name=convex,column=1,span=1,below=convex}{
+
+\begin{center}
+\includegraphics[width=0.8\linewidth]{convex_fp.pdf}
+\captionof{figure}{Consecutive-edge bouncing limit cycles exist and are computable for a range of $\theta$ in every convex polygon.}
 \end{center}
 }
 
 
 
 %----------------------------------------------------------------------------------------
-%	RESULTS 1
+%	NONCONVEXITY
 %----------------------------------------------------------------------------------------
 
-\headerbox{How to Approach Nonconvex Environments?}{name=heatmap,column=1,span=1}{ 
+\headerbox{Nonconvex Environments}{name=nonconvex,column=2,row=0,span=1}{ 
 
-%\begin{multicols}{2}
+\begin{centering}
+\includegraphics[width=0.9\linewidth]{nonconvex1.png}
+\end{centering}
 
+\begin{itemize}
+\item Decompose nonconvex polygons by extending edges meeting in reflex angles
+\item Limit cycles will exist 
+\end{itemize}
 
-\begin{center}
-%\includegraphics[width=1\linewidth]{./heatmap_tag_colors_grid.pdf}
-%\includegraphics[width=.85\linewidth]{./heatmap_tag_colors_grid_alt.pdf}
-\includegraphics[width=1\linewidth]{pent_05rad.pdf}
-\captionof{figure}{Presence (red) and absence (white) patters of essential genes (columns) across a diverse set of
-genomes (rows), colors and species as in Figure 2) spanning major groups in each domain of life. }
-\end{center}
 
 }
-%\end{multicols}
-
 
 %----------------------------------------------------------------------------------------
 %	RESULTS 2
 %----------------------------------------------------------------------------------------
 %\headerbox{Results: Reconstruciton}{name=results_2,column=2,span=1,below=circos}{ 
-\headerbox{Chaotic Dynamics: Coverage Properties}{name=results_2,column=1,span=1}{ 
+\headerbox{Chaotic Dynamics: Coverage
+Properties}{name=chaos,column=2,span=1,below=nonconvex}{ 
 
 
 %%
 %%\begin{multicols}{2}
 \begin{center}
-\includegraphics[width=0.95\linewidth]{../figs/nonagon_neg0pt8rad_skip3.pdf}
+\includegraphics[width=0.5\linewidth]{../figs/nonagon_neg0pt8rad_skip3.pdf}
 \captionof{figure}{Maximum parsimony tree made in PAUP\* (Swofford, et al 2017) from
 presence/absence data (Figure 4). Distance represents gain/loss of essential
 genes, and clustering represents shared gene sets. 1000 bootstraps were
@@ -214,84 +210,12 @@ Bars represent the functional categories of \emph{S. islandicus} essential genes
 \end{center}
 }
 
-%
-%----------------------------------------------------------------------------------------
-%	RESULTS 1
-%----------------------------------------------------------------------------------------
 
-%\headerbox{Results: Homology Search Across All Three Domains}{name=results_1,column=2,span=1}{
-\headerbox{Results: Evolution of core systems}{name=results_1,column=2,span=1}{
-
-\begin{center}
-\includegraphics[width=1\linewidth]{../figs/multi_start.pdf}
-\captionof{figure}{Genes predicted to be gained between certain common ancestors represent major
-evolutionary transitions. 65\%  of the essential genome is predicted to have been
-in place at or near the Last Universal Common Ancestor, and 76\% in the ancestor
-with Eukaryotes. Archaeal inventions are primarily metabolic, involved in
-defense mechanisms, or are uncharacterized.} 
-\end{center}
-
-}
-%\begin{multicols}{2}
-%
-%
-%\includegraphics[width=1\linewidth]{heatmap.pdf}
-%\captionof{figure}{
-%Putative homologs were found via all-against-all BLAST over 174 genomes.\
-%Bidirectional best BLAST hits were aligned and used to make hidden Markov models\
-%(HMMs), which scanned for more remote homologs and paralogs. Patterns of presence/absence, visible as large blocks, were then used to reconstruct ancestral states.\
-%}
-%
-%%	\captionof{figure}{Putative homologs were found via all-against-all BLAST over 170 genomes. Bidirectional best BLAST hits were aligned and used to make hidden Markov models (HMMs). Here visualized are BBHs (blue) and HMM hits (green) across those genomes.}
-%%\includegraphics[width=0.72\linewidth]{heatmap.pdf}
-%\end{center}
-
-
-%\begin{center}
-%\includegraphics[width=.9\linewidth]{Timeline.pdf}
-%\captionof{figure}{Number of M.16.4 genes in a specific arCOG category\textsuperscript{3} plotted along a hypothetical timeline based on phyletic patterns consistent with their presence in certain common ancestors. Future work will use these patterns to help trace the evolutionary history of key cell machinery, including isolating specific uncharacterized genes, determining their function, and inferring their role in the ancestral cell.}
-%\end{center}
-
-%\begin{center}
-%	\includegraphics[width=.65\linewidth]{structure.pdf}
-%	\captionof{figure}{Predicted structure of \textit{Sulfolobus} ZPR1 homolog. Sequence alignment (MAFFT) and structural threading (Phyre2) with mouse protein shows a high degree of conservation in key binding sites on the surface (red patches). In Eukaryotes, this protein plays an essential but uncharacterized role in constructing ribonucleoproteins and regulating cell cycle. }
-%\end{center}
-
-
-%\end{multicols}
-
-%}
-%----------------------------------------------------------------------------------------
-%	RESULTS 3
-%----------------------------------------------------------------------------------------
-\headerbox{Results: Phylogeny}{name=results_3,column=2,span=1}{ 
-%
-\begin{center}
-%\renewcommand\figurename{Table}
-%\setcounter{figure}{0}
-\includegraphics[width=1\linewidth]{../figs/shear.pdf}
-\captionof{figure}{Universal genes were aligned with MAFFT, trimmed with TrimAl, and concatenated to produce a supermatrix, then this phylogenetic tree was constructed with RAxML. Consistent with 
-patterns of gene gain and loss, this tree shows the separation of Archaea and Eukaryotes from Bacteria and the monophyly of the Archaea. Branch thickness corresponds with bootstrap value (1000 iterations).
-Members of Asgardarchaeota, a candidate phyla of the Archaea hypothesized to be monophyletic with Eukaryotes, instead are with the Archaea in this analysis. }
-%common ancestor of \emph{Igniogoccus hospitalis} and \emph{Sulfolobales} with two
-%thermophilic bacterial species: \emph{Dictyoglomus thermophilum} H-6-12 and
-%\emph{Thermodesulfovibrio yellowstonii} DSM 11347. 20 hypothetical proteins are also candidates for HGT with these bacteria (not shown).}
-\end{center}
-%
-}
-%\headerbox{Results: Reconstruciton}{name=results_2,column=2,span=1}{ 
-%
-%\begin{center}
-%\includegraphics[width=1\linewidth]{./bars.pdf}
-%\captionof{figure}{Functional breakdown of genes placed at certain common ancestors shows a largely mature cell by the time of the last ancestor with Eukaryotes.}
-%\end{center}
-%
-%}
 %----------------------------------------------------------------------------------------
 %	CONCLUSIONS
 %----------------------------------------------------------------------------------------
 
-\headerbox{Conclusions}{name=conclusions,column=2,span=1}{ 
+\headerbox{Conclusions}{name=conclusions,column=2,span=1,below=chaos}{ 
 \begin{itemize}\compresslist
 \item Most of the ancestral genome was present in Last Eukaryotic and Archaeal common ancestor
 \item Archaea are still monophyletic in these analyses, suggesting a separate origin or massive gene loss in Eukaryota.
@@ -323,10 +247,8 @@ Members of Asgardarchaeota, a candidate phyla of the Archaea hypothesized to be 
 
 \headerbox{Acknowledgments}{name=acknowledgments,column=2,span=1,above=bottom}{
 \small{
-\textbf{Graduate Committee:} Rachel~Whitaker, Peter~Orlean, Gary~Olsen, William~Metcalf, and Isaac~Cann \\
-\textbf{Undergraduates}: Rebecca~Wipfler, Angelo~Blancaflor, and Carlos~Vega \\
-\textbf{Annotation} help from Dr.~Kira~Makarova of the NCBI\\
-\textbf{Funding} from the NASA Astrobiology Institute and the Carl R. Woese Institute for Genomic Biology.
+\textbf{Undergraduates}: Michael~Zeng, \\
+\textbf{Funding} 
 }
 
 
