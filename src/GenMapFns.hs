@@ -43,11 +43,6 @@ polyLenAngs p = let
 coeff :: Angle Double -> Angle Double -> Double
 coeff theta phi = (cosA theta)/(cosA (theta ^-^ phi))
 
-seq_bounce :: Angle Double -> ((Double, Angle Double), (Double, Angle Double)) -> (Double -> Double)
-seq_bounce theta ((l1,phi1), (l2, _)) = let
-    c = coeff theta phi1
-    in \x -> c*(l2 - x)
-
 coeff_prod :: Angle Double -> [(Double, Angle Double)] -> Double
 coeff_prod theta lenangs = let
     coeffs = map (\(l,p) -> coeff theta p) lenangs
@@ -74,22 +69,20 @@ closestSegment segs' pt =
         closerToPt e1 e2 = comparing (\(i,e) -> closestDistance e pt) e1 e2
     in minimumBy (closerToPt) segs
 
-bounceFromPt :: Poly V2 Double -> Angle Double -> P2 Double -> (Double -> Double)
-bounceFromPt poly theta x =
-    let segs = fixTrail poly
-        vs = polyOffsets poly
-        n = length segs
-        (i,e1) = closestSegment segs x
-        v1 = vs !! i
-        v2 = case (theta < (pi/2 @@ rad)) of
-                True -> vs !! ((i+1) `mod` n)
-                False -> vs !! ((i-1) `mod` n)
-    in seq_bounce theta (edgesLenAng (v1,v2), edgesLenAng (v2, unitX))
+-- sequential bouncing only
+-- easy to change if it becomes warranted - parameterize over n
+bounceFromPt :: Poly V2 Double -> Angle Double -> Double -> [P2 Double]
+bounceFromPt poly theta s =
+    let n = length $ fixTrail poly
+        bs = doBounces poly doFixedBounce s (replicate n theta)
+    in  map (atParam poly) bs
 
-collisionPts :: Poly V2 Double -> Angle Double -> [P2 Double]
-collisionPts poly theta =
+-- strange behavior of always starting on diagrams-decided "first" edge
+-- TODO: start on arbitrary edge
+fstPoint :: Poly V2 Double -> Angle Double -> Double
+fstPoint poly theta =
     let segs = fixTrail poly
         lens = polyLens poly
         fst_fp = xfp poly theta
         s1 = (fst_fp / (head lens))*(1.0/(fromIntegral $ length lens))
-    in [poly `atParam` s1]
+    in  s1
