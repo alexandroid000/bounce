@@ -19,6 +19,7 @@ maps = fromList [   ("triang", triang),
                     ("hep", hep),
                     ("oct", oct),
                     ("nine", nine),
+                    ("bigc", big_convex),
                     ("circ",circ),
                     ("irrsquare",irrsquare),
                     ("isos", isoscelestri),
@@ -45,6 +46,7 @@ hep = Trl $ regPoly 7 500
 oct = Trl $ regPoly 8 500
 oct_shear = Trl $ regPoly 8 500 # shearX 0.4
 nine = Trl $ regPoly 9 500
+big_convex = Pts [(450,150),(650,420),(425,500),(200,480),(50,270),(170,80),(300,50)]
 circ = Trl $ circle 500
 four_star = Pts [(150,150),(0,500),(-150,150),(-500,0),(-150,-150),(0,-500),(150,-150),(500,0)]
 irrsquare = Pts [(-400,0),(0,-100),(400,0),(10,100)]

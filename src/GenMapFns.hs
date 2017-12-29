@@ -3,34 +3,38 @@
 module GenMapFns where
 
 import Diagrams.Prelude
+import Diagrams.TwoD.Segment
 import BounceSim
+import Data.Ord
+import Data.List
 import Maps
+
+cyclicPairs :: [a] -> [(a,a)]
+cyclicPairs l = (zip l $ tail l) ++ [(last l, head l)]
+
+edgeLen :: V2 Double -> Double
+edgeLen v = sqrt (v `dot` v)
+
+-- find th that rotates frame so that v1 is along x axis
+edgesAngle :: V2 Double -> V2 Double -> Angle Double
+edgesAngle v1 v2 = let
+    th = (0 @@ rad) ^-^ (v1 ^. _theta)
+    phi = (rotate th v2) ^. _theta
+    in (pi @@ rad) ^-^ phi
+
+edgesLenAng :: (V2 Double, V2 Double) -> (Double, Angle Double)
+edgesLenAng (v1,v2) = (edgeLen v1, edgesAngle v1 v2)
 
 polyOffsets :: Poly V2 Double -> [V2 Double]
 polyOffsets p = trailOffsets $ unLoc p
 
 polyLens :: Poly V2 Double -> [Double]
-polyLens = map (\v -> sqrt (v `dot` v)) . polyOffsets
-
--- rotate so v1 is along x axis
--- then two cases for reflex and non-reflex angles
-angleInPoly :: V2 Double -> V2 Double -> Angle Double
-angleInPoly v1' v2' = let
-    th = (0 @@ rad) ^-^ (v1' ^. _theta)
-    v1 = rotate th v1'
-    v2 = rotate th v2'
-    phi = v2 ^. _theta
-    in (pi @@ rad) ^-^ phi
-
-polyAngs :: Poly V2 Double -> [Angle Double]
-polyAngs p = let
-    offs = polyOffsets p
-    offset_pairs = (zip offs (tail offs)) ++ [(last offs, head offs)]
-    get_ang (v1, v2) = angleInPoly v1 v2
-    in map get_ang offset_pairs
+polyLens = map edgeLen . polyOffsets
 
 polyLenAngs :: Poly V2 Double -> [(Double, Angle Double)]
-polyLenAngs p = zip (polyLens p) (polyAngs p)
+polyLenAngs p = let
+    offs = cyclicPairs . trailOffsets $ unLoc p
+    in map edgesLenAng offs
 
 -- Calculating fixed point for sequential edge bouncing in convex polygons
 -- seems to have a sign error for even-sided polygons
@@ -38,12 +42,6 @@ polyLenAngs p = zip (polyLens p) (polyAngs p)
 
 coeff :: Angle Double -> Angle Double -> Double
 coeff theta phi = (cosA theta)/(cosA (theta ^-^ phi))
-
-seq_bounce :: Angle Double -> ((Double, Angle Double), (Double, Angle Double)) -> (Double -> Double)
-seq_bounce theta ((l1,phi1), (l2, phi2)) = let
-    c = coeff theta phi1
-    in \x -> c*(l2 - x)
-
 
 coeff_prod :: Angle Double -> [(Double, Angle Double)] -> Double
 coeff_prod theta lenangs = let
@@ -65,13 +63,26 @@ xfp poly theta = let
     n = length lenangs
     in (xfpNumerator (n-1) n theta lenangs)/(xfpDenom n theta lenangs)
 
+closestSegment :: [FixedSegment V2 Double] -> P2 Double -> (Int, FixedSegment V2 Double)
+closestSegment segs' pt =
+    let segs = zip [0..] segs'
+        closerToPt e1 e2 = comparing (\(i,e) -> closestDistance e pt) e1 e2
+    in minimumBy (closerToPt) segs
 
-phi = 5*pi/7 @@ rad
-th = 1.2 @@ rad
-c = coeff th phi
-xfp_correct = 500.0*c/(1+c)
+-- sequential bouncing only
+-- easy to change if it becomes warranted - parameterize over n
+bounceFromPt :: Poly V2 Double -> Angle Double -> Double -> [P2 Double]
+bounceFromPt poly theta s =
+    let n = length $ fixTrail poly
+        bs = doBounces poly doFixedBounce s (replicate n theta)
+    in  map (atParam poly) bs
 
-test = do
-    print $ xfp (mkPoly hep) (1.2 @@ rad)
-    print $ xfp_correct
-
+-- strange behavior of always starting on diagrams-decided "first" edge
+-- TODO: start on arbitrary edge
+fstPoint :: Poly V2 Double -> Angle Double -> Double
+fstPoint poly theta =
+    let segs = fixTrail poly
+        lens = polyLens poly
+        fst_fp = xfp poly theta
+        s1 = (fst_fp / (head lens))*(1.0/(fromIntegral $ length lens))
+    in  s1
