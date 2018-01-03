@@ -32,6 +32,23 @@
 
 \usepackage{multicol} % Required for multiple columns
 \usepackage{subcaption}
+\usepackage[firstinits=true,backend=bibtex,doi=false,isbn=false,url=false]{biblatex}
+\AtEveryBibitem{%
+  \clearfield{pages}%
+}
+\renewcommand{\bibfont}{\normalfont\scriptsize}
+\addbibresource{/home/alli/common/refs.bib}
+
+\defbibenvironment{bibliography}
+  {\noindent}
+  {\unspace}
+  {\printtext[labelnumberwidth]{%
+    \printfield{prefixnumber}%
+    \printfield{labelnumber}}
+    \addspace}
+\renewbibmacro*{finentry}{\finentry\addspace}
+
+\usepackage{setspace}
 \setlength{\columnsep}{1.5em} % Slightly increase the space between columns
 \setlength{\columnseprule}{0mm} % No horizontal rule between columns
 
@@ -48,23 +65,27 @@
 \definecolor{lightblue}{rgb}{0.145,0.6666,1} % Defines the color used for content box headers
 \definecolor{darkpurple}{rgb}{0.28,0.24,0.55}
 
+\newcommand{\Mod}[1]{\ (\mathrm{mod}\ #1)}
+
+
 
 \begin{document}
 
 \begin{poster}
 {
-%headerborder=closed, % Adds a border around the header of content boxes
+headerborder=open, % Adds a border around the header of content boxes
 colspacing=1em, % Column spacing
 columns=3,
+textfont=\Large,
 bgColorOne=white, % Background color for the gradient on the left side of the poster
 bgColorTwo=white, % Background color for the gradient on the right side of the poster
-borderColor=lightblue, % Border color
+borderColor=darkgray, % Border color
 headerColorOne=darkgray, % Background color for the header in the content boxes (left side)
 headerColorTwo=darkpurple, % Background color for the header in the content boxes (right side)
 headerFontColor=white, % Text color for the header text in the content boxes
 boxColorOne=white, % Background color of the content boxes
 %textborder=roundedleft, % Format of the border around content boxes, can be: none, bars, coils, triangles, rectangle, rounded, roundedsmall, roundedright or faded
-textborder=none, % Format of the border around content boxes, can be: none, bars, coils, triangles, rectangle, rounded, roundedsmall, roundedright or faded
+textborder=rounded, % Format of the border around content boxes, can be: none, bars, coils, triangles, rectangle, rounded, roundedsmall, roundedright or faded
 eyecatcher=true, % Set to false for ignoring the left logo in the title and move the title left
 headerheight=0.1\textheight, % Height of the header
 %headershape=roundedright, % Specify the rounded corner in the content box headers, can be: rectangle, small-rounded, roundedright, roundedleft or rounded
@@ -87,20 +108,20 @@ linewidth=2pt % Width of the border lines around content boxes
 %----------------------------------------------------------------------------------------
 
 \headerbox{Motivation}{name=intro,column=0,row=0,span=1}{
+\raggedright
+\begin{itemize}\compresslist
+\item What {\bf tasks} can simple robots perform?
 
-\begin{itemize}
-\item What kinds of tasks can very simple robots perform?
 
-\item What are the minimal resources (sensing, actuation, computation time and
-space) needed to complete tasks?
+\item What are the minimal {\bf resources} (sensing, actuation, computation time and
+space, feedback control) needed to complete tasks?
 
-\item Can we make common robots (such as vacuums and warehouse) robots more efficient
-and robust?
+\item By leveraging natural dynamics, make robots more efficient
+and robust!
 \end{itemize}
 
-
 \begin{center}
-\includegraphics[width=0.9\linewidth]{robot_brain.jpg}
+\includegraphics[width=0.8\linewidth]{robot_brain.pdf}
 \end{center}
 
 
@@ -111,14 +132,12 @@ and robust?
 %----------------------------------------------------------------------------------------
 
 \headerbox{Robotic Tasks as Properties of Paths}{name=question,below=intro,column=0,span=1}{
-
+\raggedright
 \begin{itemize}\compresslist
-\item {\bf Navigation:} From a set of starting states (which may be the entire
-environment), the robot's path must end at the goal state(s).
-\item {\bf Coverage:} The robot's path must meet some coverage criterion (ex: if
-the robot has a lidar sensor with omnidirectional 5 meter radius, the robot will
-scan the entire environment).
-\item {\bf Patrolling:} The robot's path must be repeatable, and may also have
+\item {\bf Navigation:} From a set of starting states, the robot's path must end at the goal state(s).
+\item {\bf Coverage:} The robot's path must meet some coverage criterion (scan
+some fraction of environment).
+\item {\bf Patrolling:} The path must be repeatable, and may also have
 some coverage criterion.
 \end{itemize}
 
@@ -129,114 +148,142 @@ some coverage criterion.
 %----------------------------------------------------------------------------------------
 
 
-\headerbox{Approach}{name=flow,column=0,span=1,below=question}{
+\headerbox{Approach}{name=approach,column=0,span=1,row=3,below=question}{
 
-Notice that many robots can travel forward in straight lines, identify when
-they've reached a boundary (real or virtual), and turn in place!
+\begin{itemize}\compresslist
+\item Notice that many robots can travel forward in straight lines, identify when
+they've reached a boundary, and turn in place.
+\item Construct edge-to-edge mapping functions, compose and find
+fixed point.
+\item See also: aspecular billiards \cite{pinball}, microorganism billiards
+\cite{microorganism2017}, bouncing robots \cite{bounce}
+\cite{alam2017minimalist}
+\end{itemize}
 
-Can we use billiards or similar models?
+
+}
+%----------------------------------------------------------------------------------------
+%	Problem Formulation
+%----------------------------------------------------------------------------------------
+
+
+\headerbox{Modelling One Transition}{name=map,column=1,row=0,span=1}{
+
+\begin{itemize}\compresslist
+\item $x$: distance from the nearest clockwise vertex on edge of length $\ell$.
+\item Each $n$-sided polygon
+and control angle $\theta$ define system of piecewise linear transitions.
+\end{itemize}
+
+\vspace{-1.5em}
+
+\begin{equation*}
+x_{t+1} = b_{\theta}(x_t) = c (x_t - \ell)   \hskip3em c = \frac{-\cos(\theta)}{\cos(\theta-\phi)}
+\end{equation*}
+
 
 \begin{center}
-\includegraphics[width=1\linewidth]{bounce_space_def.pdf}
-\captionof{figure}{Outline of homology search and state mapping approach. Presence/absence patterns
-that essential genes are less likely to be lost.}
+\includegraphics[width=0.7\linewidth]{simple_bounce_def.pdf}
 \end{center}
 
 }
+
 
 %----------------------------------------------------------------------------------------
 %	LIMIT CYCLES IN CONVEX POLYGONS
 %----------------------------------------------------------------------------------------
 
 \headerbox{Limit Cycles in Convex
-Polygons}{name=convex,column=1,row=0,span=1}{
+Polygons}{name=convex,column=1,bottomaligned=approach,below=map,span=1}{
+
+\begin{itemize}\compresslist
+\item Compose edge-to-edge mappings to form $B_{\theta}$, mapping one edge
+back to itself.
+
+\item In every convex $n$-sided polygon, there exists a range for $\theta$ such that
+$B_{\theta}$ has a fixed point (proof: show that $B_{\theta}$ is a contraction map).
+\end{itemize}
+
+\vspace{-0.5em}
+
+\begin{equation*}
+x_{FP} = \left(\sum\limits_{i=0}^{n-1} \ell_i \prod\limits_{j=0}^{i-1}
+c_j\right)\bigg/ \left(1-\prod\limits_{k=0}^{n-1} c_k\right)
+\end{equation*}
+
+\vspace{-1em}
 
 \begin{center}
-\includegraphics[width=0.8\linewidth]{convex_fp.pdf}
-\captionof{figure}{Consecutive-edge bouncing limit cycles exist and are computable for a range of $\theta$ in every convex polygon.}
+\includegraphics[width=0.7\linewidth]{convex_fp.pdf}
 \end{center}
 }
-
-%----------------------------------------------------------------------------------------
-%	FORMAL METHODS
-%----------------------------------------------------------------------------------------
-
-\headerbox{The Role of Formal
-Methods}{name=convex,column=1,span=1,below=convex}{
-
-\begin{center}
-\includegraphics[width=0.8\linewidth]{convex_fp.pdf}
-\captionof{figure}{Consecutive-edge bouncing limit cycles exist and are computable for a range of $\theta$ in every convex polygon.}
-\end{center}
-}
-
-
 
 %----------------------------------------------------------------------------------------
 %	NONCONVEXITY
 %----------------------------------------------------------------------------------------
 
-\headerbox{Nonconvex Environments}{name=nonconvex,column=2,row=0,span=1}{ 
+\headerbox{Ongoing Work: Nonconvexity}{name=nonconvex,column=2,row=0,span=1}{ 
 
-\begin{centering}
-\includegraphics[width=0.9\linewidth]{nonconvex1.png}
-\end{centering}
 
-\begin{itemize}
-\item Decompose nonconvex polygons by extending edges meeting in reflex angles
-\item Limit cycles will exist 
+\begin{center}
+\includegraphics[width=0.7\linewidth]{nonconvex1.png}
+\end{center}
+
+\vspace{-2em}
+\raggedright
+\begin{itemize}\compresslist
+\item Can find "embedded" convex shapes by extending edges: number of potential limit
+cycles is exponential in number of sides.
+\item How many other limit cycles exist?
 \end{itemize}
-
 
 }
 
 %----------------------------------------------------------------------------------------
 %	RESULTS 2
 %----------------------------------------------------------------------------------------
-%\headerbox{Results: Reconstruciton}{name=results_2,column=2,span=1,below=circos}{ 
-\headerbox{Chaotic Dynamics: Coverage
+\headerbox{Ongoing Work: Coverage
 Properties}{name=chaos,column=2,span=1,below=nonconvex}{ 
 
+\begin{multicols}{2}
 
-%%
-%%\begin{multicols}{2}
 \begin{center}
-\includegraphics[width=0.5\linewidth]{../figs/nonagon_neg0pt8rad_skip3.pdf}
-\captionof{figure}{Maximum parsimony tree made in PAUP\* (Swofford, et al 2017) from
-presence/absence data (Figure 4). Distance represents gain/loss of essential
-genes, and clustering represents shared gene sets. 1000 bootstraps were
-performed and well-supported ancestral nodes were chosen for reconstruction (colored dots).
-Bars represent the functional categories of \emph{S. islandicus} essential genes shared with that organism.}
+\includegraphics[width=0.7\linewidth]{pent_chaos.pdf}
 \end{center}
+
+\raggedright
+\begin{itemize}\compresslist
+\item Are trajectories ergodic?
+\item Density of contact with boundary over time?
+\end{itemize}
+
+\end{multicols}
+
 }
+
+
+%----------------------------------------------------------------------------------------
+%	FORMAL METHODS
+%----------------------------------------------------------------------------------------
+
+\headerbox{Ongoing Work: Verification Tools}{name=fm,column=2,span=1,below=chaos}{
+
+\begin{itemize}\compresslist
+\item Formal verification tools can augment analysis of hybrid dynamical
+systems.
+\item Can express stability as a reachability query: does trajectory ever leave
+initial set?
+\item Use refinement techniques to find minimal approximation to invariant set?
+\end{itemize}
+
+}
+
+
 
 
 %----------------------------------------------------------------------------------------
 %	CONCLUSIONS
 %----------------------------------------------------------------------------------------
-
-\headerbox{Conclusions}{name=conclusions,column=2,span=1,below=chaos}{ 
-\begin{itemize}\compresslist
-\item Most of the ancestral genome was present in Last Eukaryotic and Archaeal common ancestor
-\item Archaea are still monophyletic in these analyses, suggesting a separate origin or massive gene loss in Eukaryota.
-\item \emph{Sulfolobales} have undergone much uncharacterized gene innovation since split from Crenarchaeota. 
-\end{itemize}
-}
-
-
-
-%----------------------------------------------------------------------------------------
-%	FUTURE DIRECTIONS
-%----------------------------------------------------------------------------------------
-
-%\headerbox{Future Directions}{name=future,column=3,span=1,below=conclusions}{ 
-%\begin{itemize}\compresslist
-%\item Add other archaeal phyla to the analysis.
-%\item Construct gene trees and compare species trees generated from different cellular systems.
-%\item Use gene trees to test predicted HGT.
-%\item Experimentally study uncharactarized essential genes unique to \emph{Sulfolobus} or shared between Archaea and Eukaryotes.
-%\end{itemize}
-%}
 
 
 
@@ -245,11 +292,15 @@ Bars represent the functional categories of \emph{S. islandicus} essential genes
 %	ACKNOWLEDGMENTS
 %----------------------------------------------------------------------------------------
 
-\headerbox{Acknowledgments}{name=acknowledgments,column=2,span=1,above=bottom}{
-\small{
-\textbf{Undergraduates}: Michael~Zeng, \\
-\textbf{Funding} 
+\headerbox{Acknowledgments}{name=acknowledgments,column=2,span=1,bottomaligned=convex,
+below=fm}{
+\footnotesize{
+\textbf{Undergraduates}: Michael~Zeng, Yingying~(Samara)~Ren \\
+\textbf{Funding}: NSF grants 1035345 and 1328018, and CONACyT
+post-doctoral fellowship 277028 \\
+%\vspace{-3.5em}
 }
+\printbibliography[heading=none]
 
 
 }
