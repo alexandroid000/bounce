@@ -87,3 +87,8 @@ write_HA ha = let
     fname = (name ha)++".xml"
     xml = form_HA ha
     in writeFile fname xml
+
+print_HA ha = let
+    fname = (name ha)++".xml"
+    xml = form_HA ha
+    in print xml
