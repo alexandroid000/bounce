@@ -12,6 +12,7 @@ module BounceSim
     , mkPoly
     , mkBounce
     , doFixedBounce
+    , doFixedSpeBounce
     , doRelativeBounce
     , doSpecBounce
     , doBounces
@@ -124,6 +125,18 @@ doFixedBounce theta (s,b,p) =
     in  maybe   (error "no intersections? try lower eps")
                 (\s -> (s, new_bounce, p)) new_s
 
+-- bounce at a fixed angle, relative to wall normal, in the direction of increasing x
+doFixedSpeBounce :: Angle Double -> Robot -> Robot
+doFixedSpeBounce theta (s,b,p) =
+    let pt = p `atParam` s
+        tangentV = tangentAtParam p s
+        ang = (angleBetween tangentV b) ^. rad
+        n_ang = (pi/2 - ang)/abs (pi/2 - ang)
+        theta' = (pi/2 -(abs(theta ^. rad)*n_ang)) @@ rad
+        new_bounce = mkBounce pt theta' tangentV
+        new_s = shootRay p $ new_bounce `at` pt
+    in  maybe   (error "no intersections? try lower eps")
+                (\s -> (s, new_bounce, p)) new_s
 -- rotate through a fixed angle, relative to incoming traj, when collide with
 -- wall
 -- possible to escape polygon!! No safety checks yet TODO

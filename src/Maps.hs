@@ -30,11 +30,30 @@ maps = fromList [   ("triang", triang),
                     ("poly3", poly3),
                     ("tworooms", tworooms),
                     ("tworooms2", tworooms2),
-                    ("bigpoly", bigpoly)
+                    ("bigpoly", bigpoly), 
+
+                    ("plane", plane),
+                    ("plane2", plane2),
+                    ("bigpoly", bigpoly),
+
+                    ("tworect", tworect),
+                    ("irpent", irpent),
+                    ("tri1", tri1),
+                    ("plane3", plane3), 
+                    ("sort", sort)
                 ]
 
 --  can either specify concrete points, or use diagrams shape primitives
 --  http://projects.haskell.org/diagrams/haddock/Diagrams-TwoD-Shapes.html
+-- Samara tests
+sort = Pts [(0, 0), (800, 0), (800, 200), (1700, 300), (2160, -160), (2720, 400), (2160, 960), (1700, 500), (800, 600), (800, 800), (0, 800)]
+plane3 = Pts [(0, 200), (500, 0), (420, 350), (500, 500)]
+tri1 = Pts [(0, 0), (500, 0), (100, 300)]
+plane = Pts [(400, 400), (0, 200), (400, 0), (350, 250)]
+plane2 = Pts [(300, 400), (0, 200), (300, 0), (100, 210)]
+irpent = Pts [(0, 300), (200, 0), (400, 100), (500, 300), (300, 400)]
+tworect = Pts [(0, 0), (300, 0), (350, 100), (500, 200), (500, 400), (0, 400)]
+-- Old tests
 triang = Trl $ triangle 500
 sq = Trl $ square 500
 rectang = Trl $ rect 250 500

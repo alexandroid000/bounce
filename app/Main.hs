@@ -23,7 +23,7 @@ import              Diagrams.Backend.SVG
 import              Diagrams.Backend.CmdLine
 --import              Diagrams.Backend.Cairo.CmdLine -- for gifs only
 
-data BLaw = Fixed | Relative | Specular
+data BLaw = Fixed | Relative | Specular | FixedSpe
     deriving (Read, Show)
 
 data Simulation = Simulation
@@ -117,6 +117,7 @@ generate (Svg) fname width map angs blaw s num = let
                             Fixed -> doFixedBounce
                             Relative -> doRelativeBounce
                             Specular -> doSpecBounce
+                            FixedSpe -> doFixedSpeBounce
         (plot_dat, sim) = plotBounce map bounce_law angs s num
     in renderSVG fname pxsize $ (sim # centerXY # pad 1.2)
 
