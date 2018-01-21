@@ -25,6 +25,10 @@ hex_correct = 500.0*hex_c/(1+hex_c)
 
 loc1 = Location 1 "interior" "-500.0 &lt;= x &amp;&amp; x &lt;= 0.0 &amp;&amp; 0 &lt;= y &amp;&amp; y &lt;= 500" "x'==vx &amp; y'==vy"
 
+-- rounding for floating point checks
+rc :: Double -> Double
+rc f = (fromIntegral $ round (10^5 * f))/(10^5)
+
 square_ha :: HA
 square_ha = HA   { name = "test"
                , params = mkParams $ mkPoly sq
@@ -62,13 +66,13 @@ main = hspec $ do
             rad),(380.7886552931954,0.8097835725701668 @@
             rad),(380.7886552931954,3.902605407814523 @@ rad)]
         it "fp odd sides" $
-            (xfp (mkPoly hep) (1.2 @@ rad))
+            rc (xfp (mkPoly hep) (1.2 @@ rad))
             `shouldBe`
-            xfp_correct
+            rc xfp_correct
         it "fp even sides" $
-            (xfp (mkPoly hex) (1.2 @@ rad))
+            rc (xfp (mkPoly hex) (1.2 @@ rad))
             `shouldBe`
-            hex_correct
+            rc hex_correct
         it "HA gen" $
             (form_HA square_ha)
 	        `shouldBe`
