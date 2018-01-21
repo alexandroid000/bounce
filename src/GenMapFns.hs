@@ -43,16 +43,20 @@ polyLenAngs p = let
 coeff :: Angle Double -> Angle Double -> Double
 coeff theta phi = (cosA theta)/(cosA (theta ^-^ phi))
 
+-- default behavior for empty list is 0, not 1
+-- currently all tests pass either way
 coeff_prod :: Angle Double -> [(Double, Angle Double)] -> Double
+coeff_prod _ [] = 0.0
 coeff_prod theta lenangs = let
     coeffs = map (\(l,p) -> coeff theta p) lenangs
     in foldr (*) 1.0 coeffs
 
-xfpNumerator :: Int -> Int -> Angle Double -> [(Double, Angle Double)] -> Double
-xfpNumerator (-1) _ _ _ = 0.0
-xfpNumerator i n theta la@((li, phi):lenangs) = let
-    sign_l = li*(-1)^(n-1-i)
-    in sign_l*(coeff_prod theta la) + (xfpNumerator (i-1) n theta lenangs)
+xfpNumerator :: Int -> Angle Double -> [(Double, Angle Double)] -> Double
+xfpNumerator _ _ [] = 0.0
+xfpNumerator n theta la@((li, phi):lenangs) = let
+    i = (length lenangs) `mod` 2
+    sign_l = li*(-1)^i
+    in sign_l*(coeff_prod theta la) + (xfpNumerator n theta lenangs)
 
 xfpDenom n theta lenangs = let
     in 1 - (coeff_prod theta lenangs)*(-1)^n
@@ -61,7 +65,7 @@ xfp :: Poly V2 Double -> Angle Double -> Double
 xfp poly theta = let
     lenangs = polyLenAngs poly
     n = length lenangs
-    in (xfpNumerator (n-1) n theta lenangs)/(xfpDenom n theta lenangs)
+    in (xfpNumerator n theta lenangs)/(xfpDenom n theta lenangs)
 
 closestSegment :: [FixedSegment V2 Double] -> P2 Double -> (Int, FixedSegment V2 Double)
 closestSegment segs' pt =
