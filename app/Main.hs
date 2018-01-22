@@ -3,7 +3,7 @@
 module Main where
         
 import              System.Random
-import              Diagrams.Prelude                (Diagram, V2)
+import              Diagrams.Prelude                (Diagram, V2, rad, (@@))
 import              Diagrams.TwoD.Size              (mkSizeSpec2D)
 import              Diagrams.TwoD.Align             (centerXY)
 import              Diagrams.Combinators            (pad)
@@ -127,7 +127,7 @@ runSim (Simulation fname env num ang blaw s rand gif) = do
         let mkAngs ang
                 | (-pi/2) < ang && ang < (pi/2) = repeat $ ang
                 | otherwise = error "angle not between -pi/2 and pi/2"
-        let angs = zipWith (+) rangs (mkAngs ang)
+        let angs = Prelude.map (@@ rad) $ zipWith (+) rangs (mkAngs ang)
         let map = mkPoly $ maps ! env
         case gif of
             True ->     generate Cairo fname 400 map angs blaw s num
