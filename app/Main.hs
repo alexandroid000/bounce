@@ -3,7 +3,7 @@
 module Main where
         
 import              System.Random
-import              Diagrams.Prelude                (Diagram, V2, rad, (@@))
+import              Diagrams.Prelude                (Diagram, V2, rad, (@@), Angle)
 import              Diagrams.TwoD.Size              (mkSizeSpec2D)
 import              Diagrams.TwoD.Align             (centerXY)
 import              Diagrams.Combinators            (pad)
@@ -12,7 +12,7 @@ import              Diagrams.Util
 -- local libraries
 import              BounceSim
 import              GenDiagrams
---import              Animate
+import              Animate                          (animate)
 import              Maps                             (maps)
 
 -- CLI
@@ -21,9 +21,12 @@ import              Data.HashMap
 import              Data.Monoid
 import              Diagrams.Backend.SVG
 import              Diagrams.Backend.CmdLine
---import              Diagrams.Backend.Cairo.CmdLine -- for gifs only
+import              Diagrams.Backend.Cairo.CmdLine  (GifOpts(..), gifRender)
 
-data BLaw = Fixed | Relative | Specular | FixedSpe
+data BLaw = Fixed
+          | Relative
+          | Specular
+          | FixedSpe
     deriving (Read, Show)
 
 data Simulation = Simulation
@@ -36,6 +39,12 @@ data Simulation = Simulation
     , rand  :: Double   -- magnitude of random angle (default 0)
     , gif   :: Bool     -- produce gif output
     }
+
+gOpts = GifOpts
+      { _dither = False
+      , _noLooping = False
+      , _loopRepeat = Nothing
+      }
 
 sim :: Options.Applicative.Parser Simulation
 sim = Simulation
@@ -101,24 +110,17 @@ clamped_r ang rand
         | (abs rand) < (pi/2-(abs ang)) = abs rand
         | otherwise = (pi/2) - (abs ang)
 
--- backend choice, svg or gifs
-data BE = Svg | Cairo
+generate :: BE -> String -> Double -> SimState -> IO ()
+generate (Cair) fname width plotOpts = let
+        w_int   = round width
+        opts    = (DiagramOpts (Just w_int) Nothing fname, gOpts)
+        sim     = animate plotOpts
+    in  gifRender opts sim
+--generate (Cairo) _ _ _ _ _ _ _ = error "sorry, gif functionality borked"
 
---generate :: BE -> String -> Int -> Poly V2 Double -> [Double] -> Double -> Int -> IO ()
---generate (Cairo) fname width map angs s num = let
---        opts    = (DiagramOpts (Just width) Nothing fname, gOpts)
---        sim     = animate map angs s num
---    in  gifRender opts sim
-generate (Cairo) _ _ _ _ _ _ _ = error "sorry, gif functionality borked"
-
-generate (Svg) fname width map angs blaw s num = let
+generate (Svg) fname width plotOpts = let
         pxsize          = (mkSizeSpec2D (Just width) Nothing)
-        bounce_law      = case blaw of
-                            Fixed -> doFixedBounce
-                            Relative -> doRelativeBounce
-                            Specular -> doSpecBounce
-                            FixedSpe -> doFixedSpeBounce
-        (plot_dat, sim) = plotBounce map bounce_law angs s num
+        (plot_dat, sim) = plotBounce plotOpts
     in renderSVG fname pxsize $ (sim # centerXY # pad 1.2)
 
 runSim :: Simulation -> IO ()
@@ -127,11 +129,23 @@ runSim (Simulation fname env num ang blaw s rand gif) = do
         let mkAngs ang
                 | (-pi/2) < ang && ang < (pi/2) = repeat $ ang
                 | otherwise = error "angle not between -pi/2 and pi/2"
-        let angs = Prelude.map (@@ rad) $ zipWith (+) rangs (mkAngs ang)
+        let ans = Prelude.map (@@ rad) $ zipWith (+) rangs (mkAngs ang)
         let map = mkPoly $ maps ! env
+        let bfunct = case blaw of
+                          Fixed -> doFixedBounce
+                          Relative -> doRelativeBounce
+                          Specular -> doSpecBounce
+                          FixedSpe -> doFixedSpeBounce
+        let plotOpts = SimState
+                     { poly = map
+                     , bounce = bfunct
+                     , ss = s
+                     , angs = ans
+                     , n = num
+                     }
         case gif of
-            True ->     generate Cairo fname 400 map angs blaw s num
-            False ->    generate Svg fname 400 map angs blaw s num
+            True ->     generate Cair fname 400.0 plotOpts
+            False ->    generate Svg fname 400.0 plotOpts
 
 -- feeds everything to runSim
 main :: IO ()

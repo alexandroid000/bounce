@@ -18,13 +18,13 @@ library
                      , app
   exposed-modules:     BounceSim
                      , Maps
-                     --, AnalyzeMap
-                     --, MonadBounce
-                     --, Animate
+                     , Animate
                      , GenDiagrams
                      , GenMapFns
                      , HA
                      , GenHA
+                     --, AnalyzeMap
+                     --, MonadBounce
   build-depends:       base >= 4.7
                      , diagrams-core >= 1.1
                      , diagrams-lib >= 1.3

@@ -6,8 +6,8 @@ module BounceSim
       Poly
     , RoboLoc
     , Robot
+    , BounceFunct
     , MapSpec
---    , plotBounce
     , pts2poly
     , mkPoly
     , mkBounce
@@ -16,15 +16,10 @@ module BounceSim
     , doRelativeBounce
     , doSpecBounce
     , doBounces
---    , mkBounceArrows
     , lineSeg
     , linePoly
     , shootRay
---    , plotGenFP
---    , fpPoints
     , randAngs
---    , plotMulti
---    , plotMultiS
     ) where
 
 import              Diagrams.Prelude
@@ -47,6 +42,8 @@ type RoboLoc = Double
 -- (location (param on dS polygon boundary), heading vector, environment)
 type Robot = (RoboLoc, V2 Double, Poly V2 Double)
 
+-- takes angle param, state of world, returns new state
+type BounceFunct = Angle Double -> Robot -> Robot
 
 -- Helper Functions
 -- ----------------
@@ -115,7 +112,7 @@ shootRay poly bounce =
     in  s_poly
 
 -- bounce at a fixed angle, relative to wall normal, regardless of incoming traj
-doFixedBounce :: Angle Double -> Robot -> Robot
+doFixedBounce :: BounceFunct
 doFixedBounce theta (s,b,p) =
     let pt = p `atParam` s
         tangentV = tangentAtParam p s
@@ -126,7 +123,7 @@ doFixedBounce theta (s,b,p) =
                 (\s -> (s, new_bounce, p)) new_s
 
 -- bounce at a fixed angle, relative to wall normal, in the direction of increasing x
-doFixedSpeBounce :: Angle Double -> Robot -> Robot
+doFixedSpeBounce :: BounceFunct
 doFixedSpeBounce theta (s,b,p) =
     let pt = p `atParam` s
         tangentV = tangentAtParam p s
@@ -140,7 +137,7 @@ doFixedSpeBounce theta (s,b,p) =
 -- rotate through a fixed angle, relative to incoming traj, when collide with
 -- wall
 -- possible to escape polygon!! No safety checks yet TODO
-doRelativeBounce :: Angle Double -> Robot -> Robot
+doRelativeBounce :: BounceFunct
 doRelativeBounce theta (s,b,p) =
     let pt = p `atParam` s
         new_bounce = mkBounce pt theta b
@@ -151,7 +148,7 @@ doRelativeBounce theta (s,b,p) =
     in correct_b
 
 -- bounce like a pool ball or laser beam
-doSpecBounce :: Angle Double -> Robot -> Robot
+doSpecBounce :: BounceFunct
 doSpecBounce _ (s,b,p) =
     let pt = p `atParam` s
         tangentV = tangentAtParam p s
@@ -161,38 +158,10 @@ doSpecBounce _ (s,b,p) =
     in  maybe   (error "no intersections? try lower eps")
                 (\s -> (s, new_bounce, p)) new_s
 
-
 -- need to refactor bounce law
 -- chain together many bounces, given list of angles to bounce at
-doBounces ::    Poly V2 Double -> (Angle Double -> Robot -> Robot) ->
-                RoboLoc -> [Angle Double] -> [RoboLoc]
+doBounces ::    Poly V2 Double -> BounceFunct -> RoboLoc -> [Angle Double] -> [RoboLoc]
 doBounces poly bounceLaw s1 angs =
     let start = (s1, rotate (45 @@ deg) (unitY :: V2 Double), poly) -- I don't like this unitX placeholder
         nextBounce robo a = bounceLaw a robo
     in  map (\(s,_,_) -> s) $ scanl nextBounce start angs
-
-
---plotMulti :: Poly V2 Double -> ([Double], [Double]) -> Double -> Int -> ([RoboLoc], Diagram B)
---plotMulti p (angs1, angs2) s num =
---    let bounces angs = doBounces p s $ map (@@ rad) angs :: [RoboLoc]
---        --start_pt = circle 15 # fc yellow # lc blue # moveTo (p `atParam` s) :: Diagram B
---        arrows1 = mkBounceArrows p (bounces angs1) num blue
---        arrows2 = mkBounceArrows p (bounces angs2) num red
---        plot =  (mconcat (map (lc red) arrows1) # lwL 5) <>
---                (mconcat arrows2 # lwL 5) <>
---                (strokeLocTrail p # lwL 11) -- <> start_pt
---    in  ([], plot)
-
---plotMultiS :: Poly V2 Double -> [Double] -> (Double, Double) -> Int -> ([RoboLoc], Diagram B)
---plotMultiS p angs (s1, s3) num =
---    let bounces s = doBounces p s $ map (@@ rad) angs :: [RoboLoc]
---        start_pt s col = circle 15 # fc col # moveTo (p `atParam` s)
---        arrows1 = mkBounceArrows p (bounces s1) num red
---        arrows3 = mkBounceArrows p (bounces s3) num blue
---        plot =  (start_pt s1 red) <>
---                (start_pt s3 blue) <>
---                (mconcat arrows1 # lwL 5) <>
---                (mconcat arrows3 # lwL 5) <>
---                (strokeLocTrail p # lwL 11) -- <> start_pt
---    in  ([], plot)
-
