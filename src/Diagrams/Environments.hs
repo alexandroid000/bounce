@@ -31,11 +31,9 @@ maps = fromList [   ("triang", triang),
                     ("tworooms", tworooms),
                     ("tworooms2", tworooms2),
                     ("bigpoly", bigpoly), 
-
                     ("plane", plane),
                     ("plane2", plane2),
                     ("bigpoly", bigpoly),
-
                     ("tworect", tworect),
                     ("irpent", irpent),
                     ("tri1", tri1),
