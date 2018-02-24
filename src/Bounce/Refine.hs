@@ -1,7 +1,7 @@
 {-# LANGUAGE NoMonomorphismRestriction  #-}
 {-# LANGUAGE FlexibleContexts           #-}
 
-module Refine
+module Bounce.Refine
     ( refine
     ) where
 
@@ -9,7 +9,7 @@ import              Diagrams.Prelude
 import              Diagrams.TwoD.Path              (isInsideWinding)
 import              Diagrams.Trail                  (trailPoints)
 import              Data.List                       (sort)
-import              BounceSim
+import              Bounce.Simulate
 
 -- take abs to find closest point of intersection in either direction from vertex
 closest_s :: [(Double, Double)] -> Double

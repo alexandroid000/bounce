@@ -1,10 +1,12 @@
-module GenHA where
+module Bounce.GenSpaceEx where
 
-import HA
 import Diagrams.Prelude
-import BounceSim
-import Maps
+import Diagrams.Environments
+
 import Numeric           (showFFloat)
+
+import Bounce.SpaceEx
+import Bounce.Simulate
 
 type Seg = (P2 Double, P2 Double)
 

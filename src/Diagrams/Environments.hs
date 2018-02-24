@@ -1,4 +1,4 @@
-module Maps where
+module Diagrams.Environments where
 
 import Data.HashMap
 import Diagrams.Prelude

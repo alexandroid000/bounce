@@ -5,13 +5,15 @@
 -- upside: makes specular bouncing a lot easier, and could implement contracting
 -- billiards very easily as well
 
-module MonadBounce where
+module Bounce.MonadBounce where
 
 import              Diagrams.Prelude
+
 import              Control.Monad.State
-import              BounceSim
-import              Maps
 import              Data.HashMap
+
+import              Bounce.Simulate
+import              Diagrams.Environments
 
 test = (0.2, unitY, mkPoly $ maps ! "triang")
 

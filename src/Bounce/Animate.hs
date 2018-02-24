@@ -3,14 +3,14 @@
 {-# LANGUAGE TypeFamilies #-}
 
 
-module Animate
+module Bounce.Animate
     ( animate
     ) where
 
 import Diagrams.Prelude
-import BounceSim
-import GenDiagrams
-import Maps
+import Bounce.Simulate
+import Bounce.Diagrams
+import Diagrams.Environments
 import Diagrams.Backend.CmdLine
 import Diagrams.Backend.Cairo.CmdLine
 

@@ -1,7 +1,7 @@
 {-# LANGUAGE NoMonomorphismRestriction  #-}
 {-# LANGUAGE FlexibleContexts           #-}
 
-module BounceSim
+module Bounce.Simulate
     (
       Poly
     , RoboLoc
@@ -25,9 +25,11 @@ module BounceSim
 import              Diagrams.Prelude
 import              Diagrams.TwoD.Segment           (lineSegment)
 import qualified    Diagrams.Trail                  (trailPoints)
+
+import              Diagrams.Environments
+
 import              Data.List                       (minimumBy)
 import              System.Random
-import              Maps
 
 -- Trails are a fundamental data type in Diagrams. They're collections of
 -- segments, stored in finger trees

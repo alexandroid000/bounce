@@ -1,6 +1,6 @@
 {-# LANGUAGE NoMonomorphismRestriction  #-}
 
-module HA
+module Bounce.SpaceEx
     (
       Location (..)
     , Transition (..)

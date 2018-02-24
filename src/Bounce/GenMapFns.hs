@@ -1,13 +1,15 @@
 {-# LANGUAGE NoMonomorphismRestriction  #-}
 
-module GenMapFns where
+module Bounce.GenMapFns where
 
 import Diagrams.Prelude
 import Diagrams.TwoD.Segment
-import BounceSim
+
 import Data.Ord
 import Data.List
-import Maps
+
+import Bounce.Simulate
+import Diagrams.Environments
 
 cyclicPairs :: [a] -> [(a,a)]
 cyclicPairs l = (zip l $ tail l) ++ [(last l, head l)]

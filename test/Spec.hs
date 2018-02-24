@@ -8,11 +8,11 @@ import Test.QuickCheck
 import Text.RawString.QQ
 
 import Diagrams.Prelude
-import BounceSim
-import Maps
-import GenMapFns
-import HA
-import GenHA
+import Bounce.Simulate
+import Diagrams.Environments
+import Bounce.GenMapFns
+import Bounce.SpaceEx
+import Bounce.GenSpaceEx
 
 phi = 5*pi/7 @@ rad
 th = 1.2 @@ rad

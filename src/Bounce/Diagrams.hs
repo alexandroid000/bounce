@@ -1,17 +1,17 @@
 {-# LANGUAGE NoMonomorphismRestriction  #-}
 {-# LANGUAGE FlexibleContexts  #-}
 
-module GenDiagrams where
+module Bounce.Diagrams where
 
 import Diagrams.Prelude
-import BounceSim
-import GenMapFns
-import Maps
-import Data.HashMap hiding (map)
---import Animate
+import Diagrams.Environments
 import Diagrams.Backend.CmdLine
---import Diagrams.Backend.Cairo
 import Diagrams.Backend.SVG
+
+import Data.HashMap hiding (map)
+
+import Bounce.Simulate
+import Bounce.GenMapFns
 
 data BE = Svg | Cair
 

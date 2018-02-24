@@ -2,7 +2,7 @@
 
 -- utils for analyzing maps of form x_{n+1} = f(x_n)
 
-module AnalyzeMap
+module Bounce.Chart
     (
       mkChart
     , mkStar
@@ -12,9 +12,10 @@ import Graphics.Rendering.Chart.Easy
 import Graphics.Rendering.Chart.Backend.Diagrams
 import Diagrams.Prelude
 import Control.Monad
-import BounceSim                                    (Poly, mkPoly, doFixedBounce)
 import Data.HashMap                                 ((!))
-import Maps
+
+import Bounce.Simulate                              (Poly, mkPoly, doFixedBounce)
+import Diagrams.Environments
 
 log_map :: Double -> Double -> Double
 log_map r xn = r*xn*(1-xn)
