@@ -1,7 +1,11 @@
-module Main where
+{-# LANGUAGE QuasiQuotes #-}
 
+module Main where
+        
 import Test.Hspec
 import Test.QuickCheck
+
+import Text.RawString.QQ
 
 import Diagrams.Prelude
 import BounceSim
@@ -20,6 +24,10 @@ hex_c = coeff th hex_phi
 hex_correct = 500.0*hex_c/(1+hex_c)
 
 loc1 = Location 1 "interior" "-500.0 &lt;= x &amp;&amp; x &lt;= 0.0 &amp;&amp; 0 &lt;= y &amp;&amp; y &lt;= 500" "x'==vx &amp; y'==vy"
+
+-- rounding for floating point checks
+rc :: Double -> Double
+rc f = (fromIntegral $ round (10^5 * f))/(10^5)
 
 square_ha :: HA
 square_ha = HA   { name = "test"
@@ -58,17 +66,50 @@ main = hspec $ do
             rad),(380.7886552931954,0.8097835725701668 @@
             rad),(380.7886552931954,3.902605407814523 @@ rad)]
         it "fp odd sides" $
-            (xfp (mkPoly hep) (1.2 @@ rad))
+            rc (xfp (mkPoly hep) (1.2 @@ rad))
             `shouldBe`
-            xfp_correct
+            rc xfp_correct
         it "fp even sides" $
-            (xfp (mkPoly hex) (1.2 @@ rad))
+            rc (xfp (mkPoly hex) (1.2 @@ rad))
             `shouldBe`
-            hex_correct
+            rc hex_correct
         it "HA gen" $
             (form_HA square_ha)
 	        `shouldBe`
-	        "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>\n<sspaceex xmlns=\"http://www-verimag.imag.fr/xml-namespaces/sspaceex\"version=\"0.2\" math=\"SpaceEx\">\n\t<component id=\"test\">\n\t<param name=\"p1\" type=\"real\" local=\"true\" d1=\"1\" d2=\"1\" dynamics=\"any\" />\n\t<param name=\"p2\" type=\"real\" local=\"true\" d1=\"1\" d2=\"1\" dynamics=\"any\" />\n\t<location id=\"1\" name=\"loc1\">\n \t\t<invariant>inv</invariant>\n\t\t<flow>flow</flow>\n\t</location>\n\t<location id=\"2\" name=\"loc2\">\n \t\t<invariant>inv</invariant>\n\t\t<flow>flow</flow>\n\t</location>\n\t<transition source=\"1\" target=\"2\">\n\t\t<label>t1</label>\n\t\t<guard>guard</guard>\n\t\t<assignment>assignment</assignment>\n\t</transition>\n</component>\n</sspaceex>"
---
---
---
+	        [r|<?xml version="1.0" encoding="iso-8859-1"?>
+<sspaceex xmlns="http://www-verimag.imag.fr/xml-namespaces/sspaceex"version="0.2" math="SpaceEx">
+	<component id="test">
+	<param name="x" type="real" local="true" d1="1" d2="1" dynamics="any" />
+	<param name="y" type="real" local="true" d1="1" d2="1" dynamics="any" />
+	<param name="vx" type="real" local="true" d1="1" d2="1" dynamics="const" />
+	<param name="vy" type="real" local="true" d1="1" d2="1" dynamics="const" />
+	<param name="e1" type="label" local="false" />
+	<param name="e2" type="label" local="false" />
+	<param name="e3" type="label" local="false" />
+	<param name="e4" type="label" local="false" />
+	<location id="1" name="interior">
+ 		<invariant>-500.0 &lt;= x &amp;&amp; x &lt;= 0.0 &amp;&amp; 0 &lt;= y &amp;&amp; y &lt;= 500</invariant>
+		<flow>x'==vx &amp; y'==vy</flow>
+	</location>
+	<transition source="1" target="1" asap="true" >
+		<label>e1</label>
+		<guard>x - (0.0) &lt; (0.001) &amp;&amp; x - (0.0) &gt; -(0.001) &amp;&amp; (0.0) &lt;= y &amp;&amp; y &lt; (500.0)</guard>
+		<assignment>vx := (-0.049979169270678483) &amp; vy := (0.9987502603949663)</assignment>
+	</transition>
+	<transition source="1" target="1" asap="true" >
+		<label>e2</label>
+		<guard>y - (500.0) &lt; (0.001) &amp;&amp; y - (500.0) &gt; -(0.001) &amp;&amp; (-500.00000000000006) &lt; x &amp;&amp; x &lt;= (-0.00000000000005551115123125783)</guard>
+		<assignment>vx := (-0.9987502603949663) &amp; vy := (-0.04997916927067837)</assignment>
+	</transition>
+	<transition source="1" target="1" asap="true" >
+		<label>e3</label>
+		<guard>x - (-500.00000000000006) &lt; (0.001) &amp;&amp; x - (-500.00000000000006) &gt; -(0.001) &amp;&amp; (0.0) &lt; y &amp;&amp; y &lt;= (500.0)</guard>
+		<assignment>vx := (0.04997916927067826) &amp; vy := (-0.9987502603949663)</assignment>
+	</transition>
+	<transition source="1" target="1" asap="true" >
+		<label>e4</label>
+		<guard>y - (0.0) &lt; (0.001) &amp;&amp; y - (0.0) &gt; -(0.001) &amp;&amp; (-500.0000000000001) &lt;= x &amp;&amp; x &lt; (0.0)</guard>
+		<assignment>vx := (0.9987502603949663) &amp; vy := (0.04997916927067837)</assignment>
+	</transition>
+</component>
+</sspaceex>|]

@@ -5,6 +5,7 @@ module GenDiagrams where
 
 import Diagrams.Prelude
 import BounceSim
+import GenMapFns
 import Maps
 import Data.HashMap hiding (map)
 --import Animate
@@ -24,31 +25,21 @@ dOpts = DiagramOpts
 -- Diagram Generators
 -- ------------------
 
---visPoints :: [P2 Double] -> QDiagram b V2 Double Any
---visPoints pts = atPoints pts (repeat ((circle 15) # fc yellow # lc blue))
+visPoints :: [P2 Double] -> Diagram B
+visPoints pts = atPoints pts (repeat ((circle 15) # fc yellow # lc blue))
 
-getPoints :: Poly V2 Double -> [Double] -> [P2 Double]
-getPoints p ss = map (atParam p) ss
+fpPoints :: Poly V2 Double -> Angle Double -> Diagram B
+fpPoints poly theta = let
+    s1 = fstPoint poly theta
+    pts = bounceFromPt poly theta s1
+    in visPoints pts
 
-
--- [(Int, Double)] is the edge index and local edge parameter of collision point
---putPoints :: Poly V2 Double -> [(Int, Double)] -> Int -> QDiagram b V2 Double Any
-putPoints poly collisions offset = let
-    segs = trailLocSegments poly
-    vecs = trailOffsets $ unLoc poly
-    lens = map (\x -> x `dot` x) vecs :: [Double]
-    normed_colls = zipWith (\(i,s) y -> (i,s/y)) collisions lens
-    indexed_segs = fromList $ zip [0..] segs :: Map Int (Located (Segment Closed V2 Double))
-    in indexed_segs
-
-
---plotGenFP :: Double -> Int -> Int -> Double -> Diagram B
-plotGenFP theta n' m' l =
-    let env = regPoly n' l :: Trail V2 Double
-        n = fromIntegral n'
-        sim = snd $ plotBounce (mkPoly $ Trl env) doFixedBounce (repeat theta) (0.5) 100
-        --fps = fpPoints theta n' m' l
-    in sim -- <> fps
+-- only works for convex polygons
+--plotGenFP :: Poly V2 Double -> Angle Double -> Diagram B
+plotGenFP poly theta =
+    let sim = snd $ plotBounce poly doFixedBounce (repeat theta) (0.5) 100
+        fps = fpPoints poly theta
+    in fps <> sim
 
 
 mkBounceArrows :: Poly V2 Double ->
@@ -65,7 +56,7 @@ mkBounceArrows p bounces num col =
 -- Pair with list of impact points
 --plotBounce :: Poly V2 Double -> [Double] -> Double -> Int -> ([RoboLoc], Diagram B)
 plotBounce p bounceLaw angs s num =
-    let bounces = doBounces p bounceLaw s $ map (@@ rad) angs :: [RoboLoc]
+    let bounces = doBounces p bounceLaw s angs :: [RoboLoc]
         --start_pt = circle 15 # fc green # lc blue # moveTo (p `atParam` s)
         arrows = mkBounceArrows p bounces num blue
         plot =  (mconcat arrows # lwL 5) <>
