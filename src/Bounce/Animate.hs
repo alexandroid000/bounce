@@ -31,23 +31,31 @@ mkGifArrows plotOpts bounces col =
 -- GIFS?!?!?!
 mkFrames :: Poly V2 Double -> [Diagram B] -> [(Diagram B, GifDelay)]
 mkFrames _ [] = []
-mkFrames p arrows =
-    let --transparentList = 1 : (map (*1.0) transparentList)
-        --getMask n = reverse $ take n transparentList
-        --mkOpaque ar = zipWith opacity (getMask (length arrows)) ar
-        --shaded_ars = mkOpaque arrows
-        awtime = map (\a -> (a, 1)) arrows
-    in  scanl (\(a,_) (b,_) -> (mconcat [b, a], 25))
-        (strokeLocTrail p # lc black # bgFrame 2 white, 25) awtime
+mkFrames p traj = scanl
+                  (\(a,_) b -> (mconcat [b, a], 25))
+                  (strokeLocTrail p # lc black # bgFrame 2 white, 25)
+                  traj
 
-animate :: SimState -> [(QDiagram Cairo V2 Double Any, GifDelay)]
-animate plotOpts =
+mkGif :: [Diagram B] -> [(Diagram B, GifDelay)]
+mkGif frames = map (\f -> (f, 25)) frames
+
+animate = animateTraj
+
+
+mkTraj :: SimState -> [RoboLoc]
+mkTraj plotOpts =
     let p = poly plotOpts
         blaw = bounce plotOpts
         s = ss plotOpts
         ans = angs plotOpts
         num = n plotOpts
-        bounces = doBounces p blaw s ans
+    in  doBounces p blaw s ans
+
+
+animateTraj :: SimState -> [(QDiagram Cairo V2 Double Any, GifDelay)]
+animateTraj plotOpts =
+    let p = poly plotOpts
+        bounces = mkTraj plotOpts
         arrows = mkGifArrows plotOpts bounces blue
     in  mkFrames p arrows
 
