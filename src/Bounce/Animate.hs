@@ -39,25 +39,39 @@ mkFrames p traj = scanl
 mkGif :: [Diagram B] -> [(Diagram B, GifDelay)]
 mkGif frames = map (\f -> (f, 25)) frames
 
-animate = animateTraj
+--animate = animateTraj
 
+animate =
+    let ts = map shearingX [0.0, 0.05 .. 1.5]
+    in animateEnvs ts
 
-mkTraj :: SimState -> [RoboLoc]
+mkTraj :: SimState -> [Diagram B]
 mkTraj plotOpts =
     let p = poly plotOpts
         blaw = bounce plotOpts
         s = ss plotOpts
         ans = angs plotOpts
         num = n plotOpts
-    in  doBounces p blaw s ans
+        bounces = doBounces p blaw s ans
+    in  mkGifArrows plotOpts bounces blue
 
 
 animateTraj :: SimState -> [(QDiagram Cairo V2 Double Any, GifDelay)]
 animateTraj plotOpts =
     let p = poly plotOpts
         bounces = mkTraj plotOpts
-        arrows = mkGifArrows plotOpts bounces blue
-    in  mkFrames p arrows
+    in  mkFrames p bounces
+
+animateEnvs :: [Transformation V2 Double] -> SimState -> [(QDiagram Cairo V2 Double Any, GifDelay)]
+animateEnvs trans plotOpts =
+    let p_orig = poly plotOpts
+        drawP p = strokeLocTrail p # lc black # bgFrame 2 white
+        p_seq = map (\t -> transform t p_orig) trans
+        opts_seq = map (\p -> plotOpts { poly = p }) p_seq
+        p_plots = map drawP p_seq
+        bounces = map (\opts -> mconcat $ mkTraj opts) opts_seq
+        plots = zipWith (<>) bounces p_plots
+    in  mkGif plots
 
 
 --main =  do
