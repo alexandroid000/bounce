@@ -72,10 +72,3 @@ animateEnvs trans plotOpts =
         bounces = map (\opts -> mconcat $ mkTraj opts) opts_seq
         plots = zipWith (<>) bounces p_plots
     in  mkGif plots
-
-
---main =  do
---    let angs = repeat $ 0.6
----- choose map from Maps.hs
---    let map = oct_shear
---    gifMain $ animate (mkPoly map) doFixedBounce angs 0.4 200
