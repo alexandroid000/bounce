@@ -68,7 +68,10 @@ mkBounceArrows plotOpts bounces col =
         transparentList = 1 : (map (*0.99) transparentList)
         getMask len = reverse $ take len transparentList
         mkOpaque arrows = zipWith opacity (getMask (length arrows)) arrows
-        mkArrows (s1, s2) = arrowBetween' (with & headLength .~ large)
+        arrowhead = (with & headLength .~ large)
+        -- use the following if you want more options for arrowheads
+        arrowhead2 = (with & headStyle %~ fc blue . lc black . lwL 0.8)
+        mkArrows (s1, s2) = arrowBetween' arrowhead
                                 (p `atParam` s1) (p `atParam` s2) # lc col
         arrows = mkOpaque $ take num $ map mkArrows $ zip bounces (tail bounces)
      in arrows
