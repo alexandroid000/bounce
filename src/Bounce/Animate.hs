@@ -39,9 +39,10 @@ mkFrames p traj = scanl
 mkGif :: [Diagram B] -> [(Diagram B, GifDelay)]
 mkGif frames = map (\f -> (f, 25)) frames
 
---animate = animateTraj
+animate = animateTraj
+--animate = animateShear
 
-animate =
+animateShear =
     let ts = map shearingX [0.0, 0.05 .. 1.5]
     in animateEnvs ts
 
