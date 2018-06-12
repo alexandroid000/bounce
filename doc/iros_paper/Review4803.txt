@@ -1,0 +1,36 @@
+Reviewer 1 of IROS 2017 submission 1336
+
+Comments to the author
+======================
+
+(1) This is an interesting paper, at least from a
+mathematical point of view, which discusses existence and
+analysis of periodic (i.e., closed) orbits inside a
+polygon. 
+While the reviewer considers it interesting to discuss such
+a mathematical problem, however, it is questionable that
+this problem setting makes sense in real robotic
+engineering. For example, it is not natural that a mobile
+robot must obey the fixed, optics-like bounce rule. If this
+paper suggests that the proposed method is useful for
+patrolling task, more serious discussion from an
+engineering viewpoint would be necessary. 
+
+(2) The following paper dealt with a patrolling task of a
+closed region by mobile robot. Nakamura et. al. suggested
+to utilize chaotic orbits to (practically) cover the
+two-dimensional region by one-dimensional orbit. Their
+purpose is a bit different from that of the current paper,
+it would be worthwhile to compare them as a survey of
+patrolling tasks. 
+
+Y. Nakamura and A. Sekiguchi, The Chaotic Mobile Robot,
+IEEE Trans. on Robotics and Automation, 17(6), pp.898-904,
+2001.
+
+(3) Section IV 
+\theta and \theta^{+} seem to be  used confusingly...
+should all of
+them be replaced by  \theta^{+}? For example, in eq. (1),
+the left-hand side includes \theta^{+} while the right-hand
+side includes \theta. Why?

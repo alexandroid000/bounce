@@ -1,0 +1,12 @@
+The paper was reviewed by two expert researchers. They
+agreed that the paper presents an interesting and
+theoretically correct thing. On the other hand, they also
+had the same impression that it is questionable how it
+works in practice. The associate editor thinks that it is
+not mandatory to show it, but it will definitely improve
+the relevance of the paper if the authors suggest some real
+applications.
+
+----------------------------------------
+Comments on Video Attachment:
+
