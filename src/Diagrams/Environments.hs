@@ -70,7 +70,8 @@ maps = fromList [   ("triang", triang),
                     ("hat", hat),
                     ("tri112", tri112), 
                     ("quad_gear", quad_gear),
-                    ("sn", simple_nonconv)
+                    ("sn", simple_nonconv),
+                    ("dsn", deep_simple_nonconv)
                 ]
 
 --  can either specify concrete points, or use diagrams shape primitives
@@ -87,7 +88,8 @@ irpent = Pts [(0, 300), (200, 0), (400, 100), (500, 300), (300, 400)]
 tworect = Pts [(0, 0), (300, 0), (350, 100), (500, 200), (500, 400), (0, 400)]
 tworef = Pts [(800, 0), (700, 400), (700, 600), (800, 800), (0, 400)]
 tworefsym = Pts [(800, -1), (600, 300), (600, 500), (800, 800), (0, 400)]
-simple_nonconv = Pts [(250,250),(0,100),(-250,250),(-250,-250),(250,-250)]
+simple_nonconv = Pts [(250,250),(0,50),(-250,250),(-250,-250),(250,-250)]
+deep_simple_nonconv = Pts [(250,250),(0,-100),(-250,250),(-250,-250),(250,-250)]
 
 --
 tworefsym_0 = Pts [(800, 0), (600, 300), (600, 500), (800, 800), (0, 400)]
