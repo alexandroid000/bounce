@@ -10,10 +10,10 @@ import              Diagrams.Combinators            (pad)
 import              Diagrams.Util
 
 -- local libraries
-import              Bounce.Simulate
-import              Bounce.Diagrams
-import              Bounce.Animate                   (animate)
-import              Diagrams.Environments            (maps)
+import              BounceSim
+import              GenDiagrams
+import              Animate                          (animate)
+import              Maps                             (maps)
 
 -- CLI
 import              Options.Applicative
