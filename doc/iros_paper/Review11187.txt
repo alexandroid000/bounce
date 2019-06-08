@@ -1,0 +1,42 @@
+Reviewer 2 of IROS 2017 submission 1336
+
+Comments to the author
+======================
+
+This paper deals with periodic navigation of mobile robots
+in polygonal environment. The authors analyse the behavior
+of a point robot moving inside regular polygonal
+environments. The robot moves in straight line. Each time
+the robot runs into a wall, it bounces on the wall with a
+constant given angle (theta).
+
+The authors establish some properties on the formerly
+defined bouncing angle, such that trajectories of the robot
+converge to orbit trajectories. Two main cases are
+considered. First the robot bounces from one edge to an
+adjacent edge. Second, the robot bounces skipping $m-1$
+edges. In both cases, the authors provide some conditions
+on theta so that the robot converges to orbit trajectories.
+
+The paper is well written, the reasoning, based on
+trigonometrics, is elegant. In Section V.A, the authors
+discuss the results in terms of robustness. The
+developments leading to the main results of the paper
+provide some bounds on the acceptable error of the bouncing
+angle. Apart from this Section however, the paper is rather
+theoretical and far from any application. Let us remark
+that without operational constraint that forces the robot
+to move "inside" the polygon, taking theta = pi/2 yields
+the most robust behavior since the robot simply endlessly
+follows the walls.
+
+As a conclusion, the paper is interesting and well written,
+but rather far from any reasonable application.
+
+Following are some minor comments.
+page 3, top of the page: "the period of this orbit is k+1".
+I would write "k" instead.
+Lemma 1: $\phi$ is used just before being defined.
+Lemma 2: a closing parenthesis is missing.
+Proof of Lemma 3: $\c(\theta)$ is implicitly redefined with
+another expression.
