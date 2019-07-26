@@ -47,16 +47,11 @@ fpPoints poly theta = let
     in visPoints pts
 
 -- only works for convex polygons
---plotGenFP :: Poly V2 Double -> Angle Double -> Diagram B
-plotGenFP p theta =
-    let pconfig = SimState
-                { poly = p
-                , bounce = doFixedBounce
-                , ss = 0.5
-                , angs = repeat theta
-                , n = 100
-                }
-        sim = snd $ plotBounce pconfig
+--plotGenFP :: SimState -> Diagram B
+plotGenFP plotOpts =
+    let p = poly plotOpts
+        theta = head (angs plotOpts)
+        sim = snd $ plotBounce plotOpts
         fps = fpPoints p theta
     in fps <> sim
 
@@ -70,8 +65,20 @@ mkBounceArrows plotOpts bounces col =
         mkOpaque arrows = zipWith opacity (getMask (length arrows)) arrows
         mkArrows (s1, s2) = arrowBetween' (with & headLength .~ normal)
                                 (p `atParam` s1) (p `atParam` s2) # lc col
-        arrows = mkOpaque $ take num $ map mkArrows $ zip bounces (tail bounces)
+--        arrows = mkOpaque $ take num $ map mkArrows $ zip bounces (tail bounces)
+        arrows = take num $ map mkArrows $ zip bounces (tail bounces)
      in arrows
+
+angs1 :: [Angle Double]
+angs1 = map ((@@ rad) . ((-) 1.57)) [0.05, 0.09, 0.07, 0.15]
+angs2 :: [Angle Double]
+angs2 = map ((@@ rad) . ((-) 1.57)) [0.17, 0.04, 0.1, 0.11]
+angs3 :: [Angle Double]
+angs3 = map ((@@ rad) . ((-) 1.57))  [0.1, 0.045, 0.09, 0.03]
+
+angs4 = map ((@@ rad) . ((-) 1.57))  [0.33, 2.5, 1.2]
+angs5 = map ((@@ rad) . ((-) 1.57))  [0.335, 2.65, 1.1]
+angs6 = map ((@@ rad) . ((-) 1.57))  [0.34, 2.57, 1.35]
 
 -- make static diagram of all bounces
 -- Pair with list of impact points
@@ -79,8 +86,15 @@ mkBounceArrows plotOpts bounces col =
 plotBounce :: SimState -> ([RoboLoc], Diagram B)
 plotBounce plotOpts =
     let p = poly plotOpts
-        bounces = doBounces p (bounce plotOpts) (ss plotOpts) (angs plotOpts)
+        bounces = doBounces p (bounce plotOpts) (ss plotOpts) angs4
+        bounces2 = doBounces p (bounce plotOpts) (ss plotOpts + 0.01) angs5
+        bounces3 = doBounces p (bounce plotOpts) (ss plotOpts + 0.02) angs5
         arrows = mkBounceArrows plotOpts bounces blue
-        plot = (mconcat arrows # lwL 5.0) <> (strokeLocTrail p # lwL 10.0)
+        arrows2 = mkBounceArrows plotOpts bounces2 purple
+        arrows3 = mkBounceArrows plotOpts bounces3 green
+        plot = (mconcat arrows # lwL 5.0)
+            <> (mconcat arrows2 # lwL 5.0)
+            <> (mconcat arrows3 # lwL 5.0)
+            <> (strokeLocTrail p # lwL 10.0)
     in  (bounces, plot)
 

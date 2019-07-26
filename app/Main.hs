@@ -121,6 +121,7 @@ generate (Cair) fname width plotOpts = let
 generate (Svg) fname width plotOpts = let
         pxsize          = (mkSizeSpec2D (Just width) Nothing)
         (plot_dat, sim) = plotBounce plotOpts
+        --sim = plotGenFP plotOpts
     in renderSVG fname pxsize $ (sim # centerXY # pad 1.2)
 
 runSim :: Simulation -> IO ()
@@ -144,8 +145,8 @@ runSim (Simulation fname env num ang blaw s rand gif) = do
                      , n = num
                      }
         case gif of
-            True ->     generate Cair fname 400.0 plotOpts
-            False ->    generate Svg fname 400.0 plotOpts
+            True ->     generate Cair fname 800.0 plotOpts
+            False ->    generate Svg fname 800.0 plotOpts
 
 -- feeds everything to runSim
 main :: IO ()
